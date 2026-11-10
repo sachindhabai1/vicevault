@@ -600,11 +600,11 @@
   </footer>
 
   <!-- CART DRAWER & CHECKOUT MODAL -->
-  <div id="cartDrawer" class="fixed inset-0 z-50 overflow-hidden pointer-events-none transition-opacity duration-300 opacity-0">
+  <div id="cartDrawer" class="fixed inset-0 z-50 overflow-hidden pointer-events-none transition-all duration-300 opacity-0 invisible">
     <div id="cartBackdrop" class="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity duration-300"></div>
 
-    <div class="fixed inset-y-0 right-0 max-w-full flex pl-10 pointer-events-auto">
-      <div id="cartPanel" class="w-screen max-w-md apple-glass-panel backdrop-blur-2xl border-l border-white/[0.1] shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300 ease-out">
+    <div class="fixed inset-y-0 right-0 max-w-full flex pl-10 pointer-events-none">
+      <div id="cartPanel" class="w-screen max-w-md apple-glass-panel backdrop-blur-2xl border-l border-white/[0.1] shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300 ease-out pointer-events-auto">
         <div class="p-5 border-b border-white/[0.08] flex items-center justify-between bg-black/40">
           <div class="flex items-center gap-2.5">
             <i data-lucide="shopping-bag" class="w-5 h-5 text-[#F0D9B5]"></i>
@@ -646,7 +646,7 @@
   </div>
 
   <!-- CHECKOUT MODAL -->
-  <div id="checkoutModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl opacity-0 pointer-events-none transition-opacity duration-300">
+  <div id="checkoutModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
     <div class="relative w-full max-w-lg apple-glass-panel rounded-3xl p-6 sm:p-8 shadow-2xl overflow-y-auto max-h-[90vh] space-y-5">
       <div class="flex items-center justify-between pb-3 border-b border-white/[0.08]">
         <div>
@@ -1017,8 +1017,8 @@
   <canvas id="fireworksCanvas" class="fixed inset-0 z-50 pointer-events-none w-full h-full opacity-0 transition-opacity duration-300"></canvas>
 
   <!-- ORDER CONGRATULATIONS & SUCCESS MODAL -->
-  <div id="successModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl opacity-0 pointer-events-none transition-opacity duration-300">
-    <div class="relative w-full max-w-md apple-glass-panel rounded-3xl p-6 sm:p-8 shadow-2xl text-center space-y-5 border border-[#F0D9B5]/35 overflow-hidden group">
+  <div id="successModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
+    <div class="relative w-full max-w-md apple-glass-panel rounded-3xl p-6 sm:p-8 shadow-2xl text-center space-y-5 border border-[#F0D9B5]/35 overflow-y-auto max-h-[92vh] my-auto group">
       
       <!-- Top Ambient Celebration Glow -->
       <div class="absolute -top-20 left-1/2 -translate-x-1/2 w-56 h-56 rounded-full bg-[#F0D9B5]/25 blur-3xl pointer-events-none"></div>
@@ -1096,8 +1096,8 @@
   </div>
 
   <!-- TRACK ORDER MODAL (Apple Dark Glass) -->
-  <div id="trackOrderModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl opacity-0 pointer-events-none transition-opacity duration-300">
-    <div class="relative w-full max-w-xl max-h-[90vh] flex flex-col apple-glass-panel rounded-3xl shadow-2xl overflow-hidden">
+  <div id="trackOrderModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
+    <div class="relative w-full max-w-xl max-h-[92vh] my-auto flex flex-col apple-glass-panel rounded-3xl shadow-2xl overflow-y-auto">
       
       <!-- Modal Header -->
       <div class="p-5 sm:p-6 border-b border-white/[0.08] flex items-center justify-between">
@@ -1383,11 +1383,11 @@
     
   
   <!-- COD TO UPI CONVERSION MODAL (GLASSMORPHISM LUXURY) -->
-  <div id="codToUpiModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-2xl opacity-0 pointer-events-none transition-all duration-300">
+  <div id="codToUpiModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-2xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
     <!-- Glowing Ambient Halo -->
     <div class="absolute w-[500px] h-[500px] rounded-full bg-[#F0D9B5]/15 blur-[120px] pointer-events-none"></div>
 
-    <div class="relative w-full max-w-md apple-glass-panel rounded-3xl p-5 sm:p-6 shadow-2xl border border-[#F0D9B5]/35 overflow-hidden flex flex-col max-h-[90vh] text-xs space-y-4">
+    <div class="relative w-full max-w-md apple-glass-panel rounded-3xl p-5 sm:p-6 shadow-2xl border border-[#F0D9B5]/35 overflow-y-auto flex flex-col max-h-[92vh] my-auto text-xs space-y-4">
       
       <!-- Modal Header -->
       <div class="flex items-center justify-between pb-3 border-b border-white/[0.08]">
@@ -1516,11 +1516,11 @@
   </div>
 
   <!-- USER PROFILE & ORDER HISTORY MODAL (AUTHENTIC LUXURY GLASSMORPHISM) -->
-  <div id="profileModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-2xl opacity-0 pointer-events-none transition-all duration-300">
+  <div id="profileModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-2xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
     <!-- Glowing Ambient Halo -->
     <div class="absolute w-[600px] h-[600px] rounded-full bg-[#F0D9B5]/12 blur-[140px] pointer-events-none"></div>
 
-    <div class="relative w-full max-w-2xl apple-glass-panel rounded-3xl p-5 sm:p-7 shadow-2xl border border-[#F0D9B5]/35 overflow-hidden flex flex-col max-h-[90vh]">
+    <div class="relative w-full max-w-2xl apple-glass-panel rounded-3xl p-5 sm:p-7 shadow-2xl border border-[#F0D9B5]/35 overflow-y-auto flex flex-col max-h-[92vh] my-auto">
       
       <!-- Modal Top Bar -->
       <div class="flex items-center justify-between pb-3.5 border-b border-white/[0.08] shrink-0">
@@ -1701,22 +1701,27 @@
     </div>
   </div>
 
-    <!-- MANDATORY FIRST-TIME USER ACCOUNT CREATION & LOGIN MODAL -->
-  <div id="authModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-2xl opacity-0 pointer-events-none transition-all duration-300">
+    <!-- FIRST-TIME USER ACCOUNT CREATION & LOGIN MODAL -->
+  <div id="authModal" class="fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-4 bg-black/85 backdrop-blur-2xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300" onclick="if (event.target === this) closeAuthModal();">
     <!-- Glowing Ambient Halo -->
     <div class="absolute w-[500px] h-[500px] rounded-full bg-[#F0D9B5]/15 blur-[120px] pointer-events-none"></div>
 
-    <div class="relative w-full max-w-md apple-glass-panel rounded-3xl p-6 sm:p-8 shadow-2xl border border-[#F0D9B5]/35 overflow-hidden text-center space-y-5">
+    <div class="relative w-full max-w-md apple-glass-panel rounded-3xl p-5 sm:p-7 shadow-2xl border border-[#F0D9B5]/35 overflow-y-auto max-h-[92vh] my-auto space-y-4 text-center z-10" onclick="event.stopPropagation();">
       
+      <!-- Close Button 'X' -->
+      <button type="button" onclick="closeAuthModal()" class="absolute top-3.5 right-3.5 p-2 rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-[#86868b] hover:text-white transition-all cursor-pointer z-20" title="Close / Browse Store">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+
       <!-- Top Brand Logo & VIP Emblem -->
-      <div class="space-y-2">
-        <div class="mx-auto w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#F0D9B5]/25 via-[#D8BE96]/15 to-transparent border border-[#F0D9B5]/50 flex items-center justify-center text-[#F0D9B5] shadow-lg shadow-[#F0D9B5]/20">
-          <i data-lucide="shield-check" class="w-7 h-7"></i>
+      <div class="space-y-1.5 pt-1">
+        <div class="mx-auto w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#F0D9B5]/25 via-[#D8BE96]/15 to-transparent border border-[#F0D9B5]/50 flex items-center justify-center text-[#F0D9B5] shadow-lg shadow-[#F0D9B5]/20">
+          <i data-lucide="shield-check" class="w-6 h-6"></i>
         </div>
         <div>
           <span class="text-[10px] uppercase font-bold tracking-widest text-[#F0D9B5] bg-[#F0D9B5]/10 px-2.5 py-0.5 rounded-full border border-[#F0D9B5]/30">VIP Store Access</span>
-          <h2 class="text-xl sm:text-2xl font-bold text-white tracking-tight mt-1.5" id="authModalTitle">Create Your Account</h2>
-          <p class="text-xs text-[#86868b] max-w-xs mx-auto mt-1" id="authModalSubtitle">
+          <h2 class="text-xl sm:text-2xl font-bold text-white tracking-tight mt-1" id="authModalTitle">Create Your Account</h2>
+          <p class="text-xs text-[#86868b] max-w-xs mx-auto mt-0.5" id="authModalSubtitle">
             Store me entry lene aur exclusive gaming merchandise order karne ke liye apna VIP account banayein.
           </p>
         </div>
@@ -1806,16 +1811,25 @@
           </div>
         </div>
 
-        <div class="p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-[11px] text-[#86868b] flex items-center justify-between">
+        <div class="p-2 rounded-xl bg-white/[0.03] border border-white/[0.06] text-[11px] text-[#86868b] flex items-center justify-between">
           <span>Pehle account nahi banaya?</span>
-          <button type="button" onclick="switchAuthMode('register')" class="text-[#F0D9B5] font-semibold hover:underline">Naya Account Banayein</button>
+          <button type="button" onclick="switchAuthMode('register')" class="text-[#F0D9B5] font-semibold hover:underline cursor-pointer">Naya Account Banayein</button>
         </div>
 
-        <button type="submit" class="w-full py-3 rounded-full apple-glass-btn-primary text-white text-xs font-bold transition-all shadow-lg shadow-[#F0D9B5]/25 flex items-center justify-center gap-2">
+        <button type="submit" class="w-full py-3 rounded-full apple-glass-btn-primary text-white text-xs font-bold transition-all shadow-lg shadow-[#F0D9B5]/25 flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98]">
           <span>Sign In & Continue</span>
           <i data-lucide="log-in" class="w-4 h-4"></i>
         </button>
       </form>
+
+      <!-- SKIP & EXPLORE AS GUEST BUTTON -->
+      <div class="pt-2 border-t border-white/[0.08]">
+        <button type="button" onclick="closeAuthModal(); showToast('Welcome to VICEVAULT Store!');" class="w-full py-2.5 rounded-full text-xs font-medium text-[#86868b] hover:text-white bg-white/[0.03] hover:bg-white/[0.08] transition-all flex items-center justify-center gap-1.5 cursor-pointer border border-white/[0.06]">
+          <span>Bina Login Store Explore Karein (Skip)</span>
+          <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-[#F0D9B5]"></i>
+        </button>
+      </div>
+
     </div>
   </div>
 
@@ -2187,9 +2201,8 @@
 
       if (!getCurrentUser()) {
         window.pendingCheckoutAfterAuth = true;
-        loadSavedCart();
-    initLocationSelectors();
-    checkUserAuth();
+        initLocationSelectors();
+        openAuthModal('register');
         showToast('Pehle apna VIP Account banayein ya login karein');
         return;
       }
@@ -2213,12 +2226,12 @@
 
     function toggleCart(open) {
       if (open) {
-        cartDrawer.classList.remove('pointer-events-none', 'opacity-0');
-        cartDrawer.classList.add('pointer-events-auto', 'opacity-100');
+        cartDrawer.classList.remove('pointer-events-none', 'opacity-0', 'invisible');
+        cartDrawer.classList.add('pointer-events-auto', 'opacity-100', 'visible');
         cartPanel.classList.remove('translate-x-full');
       } else {
-        cartDrawer.classList.remove('pointer-events-auto', 'opacity-100');
-        cartDrawer.classList.add('pointer-events-none', 'opacity-0');
+        cartDrawer.classList.remove('pointer-events-auto', 'opacity-100', 'visible');
+        cartDrawer.classList.add('pointer-events-none', 'opacity-0', 'invisible');
         cartPanel.classList.add('translate-x-full');
       }
     }
@@ -2645,15 +2658,15 @@
       if (upiRadio) upiRadio.checked = true;
       togglePaymentMethod('UPI / Online');
 
-      checkoutModal.classList.remove('opacity-0', 'pointer-events-none');
-      checkoutModal.classList.add('opacity-100', 'pointer-events-auto');
+      checkoutModal.classList.remove('opacity-0', 'pointer-events-none', 'invisible');
+      checkoutModal.classList.add('opacity-100', 'pointer-events-auto', 'visible');
       lucide.createIcons();
     }
 
     function closeCheckoutModal() {
       if (collectCountdownInterval) clearInterval(collectCountdownInterval);
-      checkoutModal.classList.remove('opacity-100', 'pointer-events-auto');
-      checkoutModal.classList.add('opacity-0', 'pointer-events-none');
+      checkoutModal.classList.remove('opacity-100', 'pointer-events-auto', 'visible');
+      checkoutModal.classList.add('opacity-0', 'pointer-events-none', 'invisible');
     }
 
     function submitCustomerOrder(e) {
@@ -2789,8 +2802,8 @@
       }
 
       const successModal = document.getElementById('successModal');
-      successModal.classList.remove('opacity-0', 'pointer-events-none');
-      successModal.classList.add('opacity-100', 'pointer-events-auto');
+      successModal.classList.remove('opacity-0', 'pointer-events-none', 'invisible');
+      successModal.classList.add('opacity-100', 'pointer-events-auto', 'visible');
       triggerFireworksCelebration();
       lucide.createIcons();
     }
@@ -2904,11 +2917,18 @@
       openTrackOrderModal(orderId, itemIndex);
     }
 
+    function closeTrackOrderModal() {
+      const modal = document.getElementById('trackOrderModal');
+      if (!modal) return;
+      modal.classList.remove('opacity-100', 'pointer-events-auto', 'visible');
+      modal.classList.add('opacity-0', 'pointer-events-none', 'invisible');
+    }
+
     function openTrackOrderModal(orderIdToTrack, initialItemIndex = 0) {
       const modal = document.getElementById('trackOrderModal');
       if (!modal) return;
-      modal.classList.remove('opacity-0', 'pointer-events-none');
-      modal.classList.add('opacity-100', 'pointer-events-auto');
+      modal.classList.remove('opacity-0', 'pointer-events-none', 'invisible');
+      modal.classList.add('opacity-100', 'pointer-events-auto', 'visible');
 
       const allOrders = initDefaultDemoOrders();
       const curUser = getCurrentUser();
@@ -3580,8 +3600,8 @@
 
     function closeSuccessModal() {
       const successModal = document.getElementById('successModal');
-      successModal.classList.remove('opacity-100', 'pointer-events-auto');
-      successModal.classList.add('opacity-0', 'pointer-events-none');
+      successModal.classList.remove('opacity-100', 'pointer-events-auto', 'visible');
+      successModal.classList.add('opacity-0', 'pointer-events-none', 'invisible');
       stopFireworksCelebration();
     }
 
@@ -3842,21 +3862,30 @@
       }
     }
 
+    function openAuthModal(mode = 'register') {
+      const authModal = document.getElementById('authModal');
+      if (!authModal) return;
+      switchAuthMode(mode);
+      authModal.classList.remove('opacity-0', 'pointer-events-none', 'invisible');
+      authModal.classList.add('opacity-100', 'pointer-events-auto', 'visible');
+      lucide.createIcons();
+    }
+
+    function closeAuthModal() {
+      const authModal = document.getElementById('authModal');
+      if (!authModal) return;
+      authModal.classList.remove('opacity-100', 'pointer-events-auto', 'visible');
+      authModal.classList.add('opacity-0', 'pointer-events-none', 'invisible');
+    }
+
     function checkUserAuth() {
       const user = getCurrentUser();
-      const authModal = document.getElementById('authModal');
       if (!user) {
-        // First-time visitor or logged out: Open Auth Modal (Mandatory)
-        if (authModal) {
-          authModal.classList.remove('opacity-0', 'pointer-events-none');
-          authModal.classList.add('opacity-100', 'pointer-events-auto');
-        }
+        // Visitor not logged in: Give them the VIP Login/Registration option
+        openAuthModal('register');
       } else {
         // Already logged in: Keep modal closed and update navbar & checkout
-        if (authModal) {
-          authModal.classList.remove('opacity-100', 'pointer-events-auto');
-          authModal.classList.add('opacity-0', 'pointer-events-none');
-        }
+        closeAuthModal();
         updateNavUserProfile(user);
         prefillCheckoutUserDetails(user);
       }
@@ -3971,15 +4000,16 @@
         console.error('Storage error:', err);
       }
 
-      const authModal = document.getElementById('authModal');
-      if (authModal) {
-        authModal.classList.remove('opacity-100', 'pointer-events-auto');
-        authModal.classList.add('opacity-0', 'pointer-events-none');
-      }
+      closeAuthModal();
 
       updateNavUserProfile(newUser);
       prefillCheckoutUserDetails(newUser);
       showToast(`Welcome to ViceVault, ${name}! Aapka account ban gaya hai 🎉`);
+
+      if (window.pendingCheckoutAfterAuth) {
+        window.pendingCheckoutAfterAuth = false;
+        openCheckoutModal();
+      }
 
       if (typeof triggerFireworksCelebration === 'function') {
         triggerFireworksCelebration();
@@ -4009,14 +4039,14 @@
 
       if (found) {
         localStorage.setItem(AUTH_USER_KEY, JSON.stringify(found));
-        const authModal = document.getElementById('authModal');
-        if (authModal) {
-          authModal.classList.remove('opacity-100', 'pointer-events-auto');
-          authModal.classList.add('opacity-0', 'pointer-events-none');
-        }
+        closeAuthModal();
         updateNavUserProfile(found);
         prefillCheckoutUserDetails(found);
         showToast(`Welcome back, ${found.name}! Login successful.`);
+        if (window.pendingCheckoutAfterAuth) {
+          window.pendingCheckoutAfterAuth = false;
+          openCheckoutModal();
+        }
       } else {
         if (identifier.length === 10 && !isNaN(identifier)) {
           const autoUser = {
@@ -4031,14 +4061,14 @@
           localStorage.setItem(ALL_USERS_KEY, JSON.stringify(users));
           localStorage.setItem(AUTH_USER_KEY, JSON.stringify(autoUser));
 
-          const authModal = document.getElementById('authModal');
-          if (authModal) {
-            authModal.classList.remove('opacity-100', 'pointer-events-auto');
-            authModal.classList.add('opacity-0', 'pointer-events-none');
-          }
+          closeAuthModal();
           updateNavUserProfile(autoUser);
           prefillCheckoutUserDetails(autoUser);
           showToast(`Welcome, ${autoUser.name}! Login successful.`);
+          if (window.pendingCheckoutAfterAuth) {
+            window.pendingCheckoutAfterAuth = false;
+            openCheckoutModal();
+          }
         } else {
           showToast('Account nahi mila! Kripya "Naya Account" tab par jakar register karein.');
         }
@@ -4152,8 +4182,8 @@
 
       const modal = document.getElementById('codToUpiModal');
       if (modal) {
-        modal.classList.remove('opacity-0', 'pointer-events-none');
-        modal.classList.add('opacity-100', 'pointer-events-auto');
+        modal.classList.remove('opacity-0', 'pointer-events-none', 'invisible');
+        modal.classList.add('opacity-100', 'pointer-events-auto', 'visible');
       }
       lucide.createIcons();
     }
@@ -4161,8 +4191,8 @@
     function closeCodToUpiModal() {
       const modal = document.getElementById('codToUpiModal');
       if (!modal) return;
-      modal.classList.remove('opacity-100', 'pointer-events-auto');
-      modal.classList.add('opacity-0', 'pointer-events-none');
+      modal.classList.remove('opacity-100', 'pointer-events-auto', 'visible');
+      modal.classList.add('opacity-0', 'pointer-events-none', 'invisible');
       if (codCollectCountdownInterval) {
         clearInterval(codCollectCountdownInterval);
         codCollectCountdownInterval = null;
@@ -4312,16 +4342,16 @@
 
       switchProfileModalTab(tab);
 
-      modal.classList.remove('opacity-0', 'pointer-events-none');
-      modal.classList.add('opacity-100', 'pointer-events-auto');
+      modal.classList.remove('opacity-0', 'pointer-events-none', 'invisible');
+      modal.classList.add('opacity-100', 'pointer-events-auto', 'visible');
       lucide.createIcons();
     }
 
     function closeProfileModal() {
       const modal = document.getElementById('profileModal');
       if (!modal) return;
-      modal.classList.remove('opacity-100', 'pointer-events-auto');
-      modal.classList.add('opacity-0', 'pointer-events-none');
+      modal.classList.remove('opacity-100', 'pointer-events-auto', 'visible');
+      modal.classList.add('opacity-0', 'pointer-events-none', 'invisible');
     }
 
     function switchProfileModalTab(tab) {

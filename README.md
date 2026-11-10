@@ -38,3 +38,4 @@ Visit: `http://localhost:3000`
 - `product.html` - Dynamic product showcase & 1-click checkout
 - `admin.html` - Admin order management console
 - `images/` - High-resolution product images & assets
+
