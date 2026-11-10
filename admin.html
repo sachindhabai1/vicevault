@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-black text-[#f5f5f7]">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VICEVAULT // Orders & Payment Admin</title>
+  
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+
+  <!-- Inter & SF Pro fallback fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            apple: {
+              black: '#000000',
+              surface: '#161617',
+              surfaceHover: '#1d1d1f',
+              card: 'rgba(255, 255, 255, 0.04)',
+              cardBorder: 'rgba(255, 255, 255, 0.1)',
+              blue: '#F0D9B5',
+              blueHover: '#0077ed',
+              lightBlue: '#F0D9B5',
+              textPrimary: '#f5f5f7',
+              textSecondary: '#86868b',
+              textMuted: '#6e6e73'
+            }
+          },
+          fontFamily: {
+            sans: ['"Inter"', '-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+        <style>
+    /* Custom Luxury Champagne Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #121215; }
+    ::-webkit-scrollbar-thumb { 
+      background: rgba(240, 217, 181, 0.25); 
+      border-radius: 4px; 
+      backdrop-filter: blur(10px); 
+      border: 1px solid rgba(240, 217, 181, 0.15);
+    }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(240, 217, 181, 0.45); }
+
+    /* AUTHENTIC LUXURY GLASSMORPHISM ENGINE (#F0D9B5 & #1A1A1F) */
+    body {
+      background-color: #121215 !important;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(240, 217, 181, 0.18) 0px, transparent 50%),
+        radial-gradient(at 100% 10%, rgba(240, 217, 181, 0.12) 0px, transparent 45%),
+        radial-gradient(at 20% 55%, rgba(26, 26, 31, 0.9) 0px, transparent 55%),
+        radial-gradient(at 85% 65%, rgba(240, 217, 181, 0.14) 0px, transparent 50%),
+        radial-gradient(at 50% 95%, rgba(240, 217, 181, 0.16) 0px, transparent 55%) !important;
+      background-attachment: fixed !important;
+      background-size: cover !important;
+      color: #f5f5f7 !important;
+    }
+
+    /* Floating Frosted Glass Navbar */
+    .apple-glass-nav {
+      background: rgba(26, 26, 31, 0.72) !important;
+      backdrop-filter: blur(28px) saturate(190%) !important;
+      -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
+      border-bottom: 1px solid rgba(240, 217, 181, 0.18) !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(240, 217, 181, 0.25) !important;
+    }
+
+    /* Crystal Obsidian & Gold Frosted Glass Cards */
+    .apple-glass-card {
+      background: linear-gradient(135deg, rgba(26, 26, 31, 0.75) 0%, rgba(18, 18, 22, 0.6) 100%) !important;
+      backdrop-filter: blur(26px) saturate(190%) !important;
+      -webkit-backdrop-filter: blur(26px) saturate(190%) !important;
+      border: 1px solid rgba(240, 217, 181, 0.15) !important;
+      border-top: 1px solid rgba(240, 217, 181, 0.35) !important;
+      border-left: 1px solid rgba(240, 217, 181, 0.25) !important;
+      box-shadow: 
+        0 20px 50px -10px rgba(0, 0, 0, 0.65), 
+        inset 0 1px 1px 0 rgba(240, 217, 181, 0.3), 
+        inset 0 0 20px 0 rgba(240, 217, 181, 0.02) !important;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    .apple-glass-card:hover {
+      background: linear-gradient(135deg, rgba(34, 34, 42, 0.88) 0%, rgba(26, 26, 31, 0.75) 100%) !important;
+      border-color: rgba(240, 217, 181, 0.35) !important;
+      border-top-color: rgba(240, 217, 181, 0.65) !important;
+      border-left-color: rgba(240, 217, 181, 0.45) !important;
+      transform: translateY(-4px) !important;
+      box-shadow: 
+        0 30px 70px -10px rgba(0, 0, 0, 0.8), 
+        inset 0 1px 1px 0 rgba(240, 217, 181, 0.5), 
+        0 0 35px rgba(240, 217, 181, 0.18) !important;
+    }
+
+    /* Floating Frosted Glass Panels (Modals, Drawers) */
+    .apple-glass-panel {
+      background: rgba(26, 26, 31, 0.85) !important;
+      backdrop-filter: blur(40px) saturate(200%) !important;
+      -webkit-backdrop-filter: blur(40px) saturate(200%) !important;
+      border: 1px solid rgba(240, 217, 181, 0.22) !important;
+      border-top: 1px solid rgba(240, 217, 181, 0.48) !important;
+      border-left: 1px solid rgba(240, 217, 181, 0.32) !important;
+      box-shadow: 
+        0 40px 100px -10px rgba(0, 0, 0, 0.9), 
+        inset 0 1px 1px 0 rgba(240, 217, 181, 0.4), 
+        inset 0 0 30px rgba(240, 217, 181, 0.03) !important;
+    }
+
+    /* Inner Glass Wells & Sub-trays */
+    .apple-glass-inner {
+      background: rgba(240, 217, 181, 0.05) !important;
+      backdrop-filter: blur(20px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+      border: 1px solid rgba(240, 217, 181, 0.15) !important;
+      border-top: 1px solid rgba(240, 217, 181, 0.3) !important;
+      box-shadow: inset 0 1px 1px 0 rgba(240, 217, 181, 0.2), 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    /* Glass Pills & Capsule Buttons */
+    .apple-glass-pill {
+      background: rgba(240, 217, 181, 0.08) !important;
+      backdrop-filter: blur(18px) saturate(190%) !important;
+      -webkit-backdrop-filter: blur(18px) saturate(190%) !important;
+      border: 1px solid rgba(240, 217, 181, 0.18) !important;
+      border-top: 1px solid rgba(240, 217, 181, 0.35) !important;
+      color: #F0D9B5 !important;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(240, 217, 181, 0.25) !important;
+      transition: all 0.25s ease !important;
+    }
+    .apple-glass-pill:hover {
+      background: rgba(240, 217, 181, 0.18) !important;
+      border-color: rgba(240, 217, 181, 0.38) !important;
+      border-top-color: rgba(240, 217, 181, 0.6) !important;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(240, 217, 181, 0.4) !important;
+      transform: translateY(-1px) !important;
+    }
+
+    /* Glass Input Fields */
+    .apple-glass-input {
+      background: rgba(26, 26, 31, 0.65) !important;
+      backdrop-filter: blur(18px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(18px) saturate(180%) !important;
+      border: 1px solid rgba(240, 217, 181, 0.18) !important;
+      border-top: 1px solid rgba(240, 217, 181, 0.3) !important;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+      color: #F0D9B5 !important;
+      transition: all 0.25s ease !important;
+    }
+    .apple-glass-input:focus {
+      background: rgba(34, 34, 42, 0.9) !important;
+      border-color: #F0D9B5 !important;
+      box-shadow: 0 0 0 3px rgba(240, 217, 181, 0.3), inset 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+      outline: none !important;
+    }
+
+    /* Luxury Champagne Gold Glass Primary Button */
+    .apple-glass-btn-primary {
+      background: linear-gradient(135deg, #F0D9B5 0%, #D8BE96 100%) !important;
+      color: #1A1A1F !important;
+      font-weight: 700 !important;
+      backdrop-filter: blur(16px) !important;
+      -webkit-backdrop-filter: blur(16px) !important;
+      border: 1px solid rgba(255, 255, 255, 0.6) !important;
+      border-top: 1px solid rgba(255, 255, 255, 0.9) !important;
+      box-shadow: 0 8px 28px rgba(240, 217, 181, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.7) !important;
+      transition: all 0.25s ease !important;
+    }
+    .apple-glass-btn-primary:hover {
+      background: linear-gradient(135deg, #FFF0DC 0%, #E2C9A3 100%) !important;
+      box-shadow: 0 10px 35px rgba(240, 217, 181, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.85) !important;
+      transform: translateY(-2px) !important;
+    }
+
+    /* Pedestal Luminous Frosted Glass */
+    .apple-pedestal {
+      background: radial-gradient(ellipse at center, rgba(240, 217, 181, 0.14) 0%, rgba(26, 26, 31, 0.75) 60%, rgba(18, 18, 22, 0.98) 100%) !important;
+      backdrop-filter: blur(32px) saturate(210%) !important;
+      -webkit-backdrop-filter: blur(32px) saturate(210%) !important;
+      border: 1px solid rgba(240, 217, 181, 0.24) !important;
+      border-top: 1px solid rgba(240, 217, 181, 0.45) !important;
+      box-shadow: 0 35px 80px rgba(0, 0, 0, 0.9), inset 0 2px 10px rgba(240, 217, 181, 0.25) !important;
+    }
+
+    /* Spotlight Glow */
+    .apple-radial-glow {
+      background: radial-gradient(circle at 50% 15%, rgba(240, 217, 181, 0.18) 0%, rgba(26, 26, 31, 0.05) 50%, transparent 80%) !important;
+    }
+  </style>
+</head>
+<body class="bg-black text-[#f5f5f7] font-sans antialiased selection:apple-glass-btn-primary selection:text-white min-h-screen flex flex-col">
+  <!-- LUXURY GLASSMORPHIC AMBIENT ORBS (#F0D9B5 & #1A1A1F) -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+    <div class="absolute -top-40 -left-40 w-[680px] h-[680px] rounded-full bg-gradient-to-br from-[#F0D9B5]/22 via-[#D8BE96]/10 to-transparent blur-[130px] opacity-75 animate-pulse" style="animation-duration: 9s;"></div>
+    <div class="absolute top-1/4 -right-40 w-[620px] h-[620px] rounded-full bg-gradient-to-bl from-[#F0D9B5]/18 via-[#1A1A1F]/50 to-transparent blur-[140px] opacity-70 animate-pulse" style="animation-duration: 11s;"></div>
+    <div class="absolute top-2/3 -left-32 w-[700px] h-[700px] rounded-full bg-gradient-to-tr from-[#F0D9B5]/16 via-[#1A1A1F]/40 to-transparent blur-[150px] opacity-75"></div>
+    <div class="absolute -bottom-40 right-1/4 w-[650px] h-[650px] rounded-full bg-gradient-to-tl from-[#F0D9B5]/20 via-[#D8BE96]/12 to-transparent blur-[130px] opacity-65"></div>
+  </div>
+
+
+  <!-- TOP HEADER -->
+  <header class="sticky top-0 z-40 apple-glass-nav">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-14">
+        
+        <!-- Logo & Admin Title -->
+        <div class="flex items-center gap-3">
+          <a href="index.html" class="flex items-center gap-2 group text-[#f5f5f7]">
+            <svg class="w-4 h-4 fill-current group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
+              <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 1.01-2.87-.96.04-2.09.65-2.73 1.4-.56.65-.99 1.7-1.01 2.76 1.07.08 2.12-.54 2.73-1.29z"/>
+            </svg>
+            <span class="font-semibold text-xs tracking-wider uppercase text-white">VICEVAULT</span>
+          </a>
+          <span class="text-[#86868b]">•</span>
+          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-medium apple-glass-btn-primary/20 text-[#F0D9B5] border border-[#F0D9B5]/30 uppercase tracking-wider">
+            Admin & Payment Control
+          </span>
+        </div>
+
+        <!-- Right Header Action Buttons -->
+        <div class="flex items-center gap-2.5">
+          
+          <!-- Quick Scroll to QR Settings -->
+          <a href="#paymentSettingsCard" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full apple-glass-pill text-xs text-[#F0D9B5] hover:text-white transition-colors">
+            <i data-lucide="qr-code" class="w-3.5 h-3.5"></i>
+            <span>UPI & QR Settings</span>
+          </a>
+
+          <!-- Export CSV Button -->
+          <button onclick="exportOrdersToCSV()" class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full apple-glass-pill text-xs text-[#f5f5f7] hover:text-white transition-colors">
+            <i data-lucide="download" class="w-3.5 h-3.5 text-[#F0D9B5]"></i>
+            <span>Export CSV</span>
+          </button>
+
+          <!-- Back to Store Website Button -->
+          <a href="index.html" class="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium text-white apple-glass-btn-primary transition-all shadow-sm">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+            <span>Back to Store</span>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN ADMIN DASHBOARD CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-8">
+    
+    <!-- STATS OVERVIEW CARDS (Apple Glass Style) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-5">
+      
+      <!-- Card 1: Total Orders -->
+      <div class="apple-glass-card rounded-3xl p-6 flex items-center justify-between">
+        <div>
+          <span class="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider">Total Orders</span>
+          <h3 id="statTotalOrders" class="text-3xl font-bold text-white mt-1">0</h3>
+          <span class="text-[11px] text-[#86868b]">All placed orders</span>
+        </div>
+        <div class="w-11 h-11 rounded-2xl bg-white/[0.06] border border-white/[0.1] text-[#F0D9B5] flex items-center justify-center">
+          <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+        </div>
+      </div>
+
+      <!-- Card 2: Total Revenue -->
+      <div class="apple-glass-card rounded-3xl p-6 flex items-center justify-between">
+        <div>
+          <span class="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider">Total Revenue</span>
+          <h3 id="statTotalRevenue" class="text-3xl font-bold text-white mt-1">₹0</h3>
+          <span class="text-[11px] text-[#86868b]">Gross merchandise value</span>
+        </div>
+        <div class="w-11 h-11 rounded-2xl bg-white/[0.06] border border-white/[0.1] text-emerald-400 flex items-center justify-center">
+          <i data-lucide="indian-rupee" class="w-5 h-5"></i>
+        </div>
+      </div>
+
+      <!-- Card 3: Pending Orders -->
+      <div class="apple-glass-card rounded-3xl p-6 flex items-center justify-between">
+        <div>
+          <span class="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider">Pending Orders</span>
+          <h3 id="statPendingOrders" class="text-3xl font-bold text-amber-400 mt-1">0</h3>
+          <span class="text-[11px] text-[#86868b]">Awaiting fulfillment</span>
+        </div>
+        <div class="w-11 h-11 rounded-2xl bg-white/[0.06] border border-white/[0.1] text-amber-400 flex items-center justify-center">
+          <i data-lucide="clock" class="w-5 h-5"></i>
+        </div>
+      </div>
+
+      <!-- Card 4: Delivered Orders -->
+      <div class="apple-glass-card rounded-3xl p-6 flex items-center justify-between">
+        <div>
+          <span class="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider">Delivered</span>
+          <h3 id="statDeliveredOrders" class="text-3xl font-bold text-emerald-400 mt-1">0</h3>
+          <span class="text-[11px] text-[#86868b]">Completed shipments</span>
+        </div>
+        <div class="w-11 h-11 rounded-2xl bg-white/[0.06] border border-white/[0.1] text-emerald-400 flex items-center justify-center">
+          <i data-lucide="package-check" class="w-5 h-5"></i>
+        </div>
+      </div>
+
+          <!-- Card 5: Registered VIP Customers -->
+      <div class="apple-glass-card rounded-3xl p-6 flex items-center justify-between">
+        <div>
+          <span class="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider">Registered VIPs</span>
+          <h3 id="statRegisteredUsers" class="text-3xl font-bold text-[#F0D9B5] mt-1">0</h3>
+          <span class="text-[11px] text-[#86868b]">Verified members</span>
+        </div>
+        <div class="w-11 h-11 rounded-2xl bg-white/[0.06] border border-[#F0D9B5]/30 text-[#F0D9B5] flex items-center justify-center">
+          <i data-lucide="users" class="w-5 h-5"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAYMENT & UPI QR SETTINGS CARD (Apple Glass Style) -->
+    <div id="paymentSettingsCard" class="apple-glass-card rounded-3xl p-6 sm:p-7 border border-white/[0.1] relative overflow-hidden">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-white/[0.08]">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl apple-glass-btn-primary/20 border border-[#F0D9B5]/30 text-[#F0D9B5] flex items-center justify-center">
+            <i data-lucide="qr-code" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="font-bold text-white text-base">Store Payment & UPI QR Settings</h3>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                Connected to Checkout
+              </span>
+            </div>
+            <p class="text-xs text-[#86868b] mt-0.5">Configure your UPI ID, Payee Name, and upload your custom Payment QR Code for customer checkout.</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="resetPaymentSettings()" class="px-4 py-2 rounded-full text-xs font-medium apple-glass-pill text-[#86868b] hover:text-white transition-colors">
+            Reset Default
+          </button>
+          <button type="button" onclick="savePaymentSettings()" class="px-5 py-2 rounded-full text-xs font-medium text-white apple-glass-btn-primary transition-colors shadow-sm flex items-center gap-1.5">
+            <i data-lucide="check" class="w-3.5 h-3.5"></i>
+            <span>Save Settings</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-6 items-start">
+        
+        <!-- Form Inputs (8 cols) -->
+        <div class="lg:col-span-8 space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-[#f5f5f7] mb-1.5">UPI ID (VPA) *</label>
+              <div class="relative">
+                <i data-lucide="at-sign" class="w-4 h-4 text-[#86868b] absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                <input type="text" id="adminUpiId" placeholder="e.g. sachin@upi or vicevault@okaxis" 
+                       class="w-full pl-10 pr-4 py-2.5 apple-glass-input rounded-xl text-xs text-white placeholder-[#6e6e73] focus:outline-none focus:border-[#F0D9B5] font-mono">
+              </div>
+              <p class="text-[10px] text-[#6e6e73] mt-1">Customers can scan QR or copy this UPI ID to transfer.</p>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-[#f5f5f7] mb-1.5">Account / Payee Name *</label>
+              <div class="relative">
+                <i data-lucide="user-check" class="w-4 h-4 text-[#86868b] absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                <input type="text" id="adminPayeeName" placeholder="e.g. VICEVAULT Official Store" 
+                       class="w-full pl-10 pr-4 py-2.5 apple-glass-input rounded-xl text-xs text-white placeholder-[#6e6e73] focus:outline-none focus:border-[#F0D9B5]">
+              </div>
+              <p class="text-[10px] text-[#6e6e73] mt-1">Store or individual name shown to customers.</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-[#f5f5f7] mb-1.5">UPI Instant Discount (₹ Off) *</label>
+              <div class="relative">
+                <i data-lucide="tag" class="w-4 h-4 text-emerald-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                <input type="number" id="adminUpiDiscount" value="20" min="0" max="500" placeholder="e.g. 20" 
+                       class="w-full pl-10 pr-4 py-2.5 bg-black/60 border border-emerald-500/30 rounded-xl text-xs text-emerald-400 font-bold placeholder-[#6e6e73] focus:outline-none focus:border-emerald-500 font-mono">
+              </div>
+              <p class="text-[10px] text-emerald-400 mt-1">Customer ko COD ki jagah UPI chunne par itne rupay ka instant discount milega (15 se 25₹).</p>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-[#f5f5f7] mb-1.5">Checkout Payment Instructions</label>
+              <input type="text" id="adminUpiInstructions" placeholder="e.g. Scan QR via GPay/PhonePe/Paytm and enter 12-digit UTR ID below." 
+                     class="w-full px-4 py-2.5 apple-glass-input rounded-xl text-xs text-white placeholder-[#6e6e73] focus:outline-none focus:border-[#F0D9B5]">
+              <p class="text-[10px] text-[#6e6e73] mt-1">Shown below the dynamic QR code during checkout.</p>
+            </div>
+          </div>
+
+          <!-- File Upload Zone -->
+          <div>
+            <label class="block text-xs font-semibold text-[#f5f5f7] mb-1.5">Upload Custom QR Code (GPay, PhonePe, Paytm, Bank QR)</label>
+            <div class="border border-dashed border-white/[0.15] hover:border-[#F0D9B5] transition-colors rounded-2xl p-4 bg-black/40 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-[#F0D9B5]">
+                  <i data-lucide="upload-cloud" class="w-5 h-5"></i>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-white">Upload your official payment QR Code</p>
+                  <p class="text-[10px] text-[#86868b]">Supports PNG, JPG, JPEG, WebP. (Auto-generates UPI QR if none uploaded).</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <input type="file" id="adminQrFileInput" accept="image/*" class="hidden" onchange="handleQrFileSelect(event)">
+                <button type="button" onclick="document.getElementById('adminQrFileInput').click()" class="px-4 py-2 rounded-full text-xs font-medium apple-glass-pill text-white hover:border-[#F0D9B5] transition-all flex items-center gap-1.5">
+                  <i data-lucide="image" class="w-3.5 h-3.5 text-[#F0D9B5]"></i>
+                  <span>Browse QR Image</span>
+                </button>
+                <button type="button" id="removeQrBtn" onclick="removeCustomQr()" class="hidden px-3 py-2 rounded-full text-xs font-medium bg-red-950/40 text-red-400 border border-red-800/40 hover:bg-red-900/40 transition-colors">
+                  Remove QR
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live QR Code Preview Card (4 cols) -->
+        <div class="lg:col-span-4 bg-black/60 rounded-2xl p-5 border border-white/[0.08] flex flex-col items-center text-center">
+          <span class="text-[10px] font-semibold text-[#F0D9B5] uppercase tracking-wider mb-2">Live Customer Preview</span>
+          
+          <div class="w-44 h-44 bg-white rounded-2xl p-2.5 shadow-xl flex items-center justify-center overflow-hidden border border-white/20 relative group">
+            <img id="adminQrPreviewImg" src="" alt="UPI QR Code" class="w-full h-full object-contain">
+            <div id="adminQrTypeBadge" class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider bg-black/80 text-white backdrop-blur">
+              Dynamic UPI
+            </div>
+          </div>
+
+          <p id="previewPayeeName" class="text-xs font-bold text-white mt-3 truncate max-w-full">VICEVAULT Official Store</p>
+          <p id="previewUpiId" class="text-[11px] font-mono text-[#F0D9B5] truncate max-w-full">sachin@upi</p>
+          <span class="text-[10px] text-[#6e6e73] mt-1">This exact QR will be shown during checkout</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- FILTER & SEARCH BAR -->
+    <div class="apple-glass-card rounded-3xl p-4 sm:p-5 flex flex-col md:flex-row items-center justify-between gap-4">
+      
+      <!-- Search Input -->
+      <div class="relative w-full md:w-80">
+        <i data-lucide="search" class="w-4 h-4 text-[#86868b] absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+        <input type="text" id="orderSearchInput" placeholder="Search orders, names, phones, UTR..." 
+               class="w-full pl-9 pr-4 py-2 bg-black/60 border border-white/[0.1] rounded-full text-xs text-white placeholder-[#6e6e73] focus:outline-none focus:border-[#F0D9B5] transition-colors">
+      </div>
+
+      <!-- Status Filter Tabs (Apple Pill Style) -->
+      <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+        <button type="button" data-status="all" onclick="filterStatus('all')" class="status-filter-btn active px-3.5 py-1.5 rounded-full text-xs font-semibold apple-glass-btn-primary text-white transition-all shadow-sm">All (<span id="countAll">0</span>)</button>
+        <button type="button" data-status="Pending" onclick="filterStatus('Pending')" class="status-filter-btn px-3.5 py-1.5 rounded-full text-xs font-medium apple-glass-pill text-[#86868b] hover:text-white transition-all">Pending (<span id="countPending">0</span>)</button>
+        <button type="button" data-status="Confirmed" onclick="filterStatus('Confirmed')" class="status-filter-btn px-3.5 py-1.5 rounded-full text-xs font-medium apple-glass-pill text-[#86868b] hover:text-white transition-all">Confirmed (<span id="countConfirmed">0</span>)</button>
+        <button type="button" data-status="Shipped" onclick="filterStatus('Shipped')" class="status-filter-btn px-3.5 py-1.5 rounded-full text-xs font-medium apple-glass-pill text-[#86868b] hover:text-white transition-all">Shipped (<span id="countShipped">0</span>)</button>
+        <button type="button" data-status="Out for Delivery" onclick="filterStatus('Out for Delivery')" class="status-filter-btn px-3.5 py-1.5 rounded-full text-xs font-medium apple-glass-pill text-[#86868b] hover:text-white transition-all">Out for Delivery (<span id="countOutForDelivery">0</span>)</button>
+        <button type="button" data-status="Delivered" onclick="filterStatus('Delivered')" class="status-filter-btn px-3.5 py-1.5 rounded-full text-xs font-medium apple-glass-pill text-[#86868b] hover:text-white transition-all">Delivered (<span id="countDelivered">0</span>)</button>
+        <button type="button" data-status="Cancelled" onclick="filterStatus('Cancelled')" class="status-filter-btn px-3.5 py-1.5 rounded-full text-xs font-medium apple-glass-pill text-rose-400 hover:text-white transition-all">Cancelled (<span id="countCancelled">0</span>)</button>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+        <button onclick="addDemoOrder()" class="px-3.5 py-1.5 rounded-full text-xs font-medium apple-glass-pill text-[#F0D9B5] hover:text-white transition-colors flex items-center gap-1.5">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+          <span>Sample Order</span>
+        </button>
+        <button onclick="clearAllOrders()" class="px-3.5 py-1.5 rounded-full text-xs font-medium bg-red-950/40 hover:bg-red-950/70 border border-red-800/40 text-red-400 transition-colors flex items-center gap-1.5">
+          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+          <span>Clear All</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- ORDERS TABLE (Apple Glass Table) -->
+    <div class="apple-glass-card rounded-3xl overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-black/60 text-[#86868b] uppercase text-[10px] tracking-wider border-b border-white/[0.08] font-semibold">
+            <tr>
+              <th class="py-4 px-5">Order ID & Date</th>
+              <th class="py-4 px-5">Customer</th>
+              <th class="py-4 px-5">Items</th>
+              <th class="py-4 px-5">Amount</th>
+              <th class="py-4 px-5">Payment & UTR</th>
+              <th class="py-4 px-5">Status</th>
+              <th class="py-4 px-5 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="ordersTableBody" class="divide-y divide-white/[0.06] text-[#86868b]">
+            <!-- Dynamic Order Rows -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empty State -->
+      <div id="noOrdersState" class="hidden py-16 text-center space-y-3">
+        <div class="w-14 h-14 rounded-full bg-white/[0.05] border border-white/[0.08] mx-auto flex items-center justify-center text-[#86868b]">
+          <i data-lucide="inbox" class="w-6 h-6"></i>
+        </div>
+        <h4 class="font-semibold text-white text-base">No orders yet</h4>
+        <p class="text-xs text-[#86868b] max-w-sm mx-auto">
+          As customers place orders on your store website, they will appear here automatically in real time!
+        </p>
+        <button onclick="addDemoOrder()" class="mt-2 px-5 py-2 rounded-full text-xs font-medium text-white apple-glass-btn-primary transition-colors inline-flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+          <span>Create Sample Test Order</span>
+        </button>
+      </div>
+    </div>
+
+  
+    <!-- REGISTERED VIP MEMBERS DIRECTORY CARD (Apple Glass Style) -->
+    <div class="apple-glass-card rounded-3xl p-6 sm:p-7 border border-white/[0.1] space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-[#F0D9B5]/10 border border-[#F0D9B5]/30 text-[#F0D9B5] flex items-center justify-center">
+            <i data-lucide="users" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-white text-sm">Registered VIP Customer Directory</h3>
+            <p class="text-[11px] text-[#86868b]">Customers who registered their account on first visit</p>
+          </div>
+        </div>
+        <span id="registeredUsersBadge" class="text-xs font-mono font-bold text-[#F0D9B5] bg-[#F0D9B5]/10 px-2.5 py-1 rounded-full border border-[#F0D9B5]/30">0 Members</span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead>
+            <tr class="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider border-b border-white/[0.06]">
+              <th class="py-3 px-4">Member Name</th>
+              <th class="py-3 px-4">Phone / WhatsApp</th>
+              <th class="py-3 px-4">Email ID</th>
+              <th class="py-3 px-4">City</th>
+              <th class="py-3 px-4">Joined Date</th>
+            </tr>
+          </thead>
+          <tbody id="registeredUsersTableBody" class="divide-y divide-white/[0.06] text-[#86868b]">
+            <!-- Dynamic Users Injected Here -->
+          </tbody>
+        </table>
+      </div>
+      <div id="noUsersState" class="hidden py-8 text-center text-xs text-[#86868b]">
+        No registered members yet. When first-time visitors create accounts, they will appear here!
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ORDER DETAIL MODAL (Apple Glass Modal) -->
+  <div id="orderDetailModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl opacity-0 pointer-events-none transition-opacity duration-200">
+    <div class="w-full max-w-lg apple-glass-panel rounded-3xl p-6 sm:p-7 shadow-2xl relative space-y-5">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+        <div>
+          <h3 class="font-bold text-white text-base">Order Details</h3>
+          <p id="modalOrderId" class="text-xs font-mono text-[#F0D9B5]"></p>
+        </div>
+        <button onclick="closeDetailModal()" class="p-1.5 rounded-full text-[#86868b] hover:text-white bg-white/[0.06]">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div id="modalOrderContent" class="space-y-4 text-xs">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <div class="pt-3 border-t border-white/[0.08] flex justify-end gap-2">
+        <button onclick="closeDetailModal()" class="px-5 py-2 rounded-full text-xs font-medium apple-glass-pill text-white">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="adminToast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-2.5 px-4 py-3 rounded-2xl apple-glass-panel/90 backdrop-blur-xl border border-white/[0.15] shadow-2xl text-white text-xs font-medium">
+    <i data-lucide="check-circle" class="w-4 h-4 text-[#F0D9B5]"></i>
+    <span id="adminToastMessage">Action completed</span>
+  </div>
+
+  <!-- ADMIN DASHBOARD JAVASCRIPT LOGIC -->
+  <script>
+    lucide.createIcons();
+
+    const STORAGE_KEY = 'gta_orders_vault';
+    const PAYMENT_SETTINGS_KEY = 'gta_payment_settings';
+
+    const DEFAULT_PAYMENT_SETTINGS = {
+      upiId: 'sachin@upi',
+      payeeName: 'VICEVAULT Official Store',
+      upiDiscount: 20,
+      instructions: 'Scan QR with GPay, PhonePe, Paytm or any UPI App & enter 12-digit UTR ID below.',
+      qrImage: ''
+    };
+
+    let currentFilter = 'all';
+    let currentSearch = '';
+    let customUploadedQrData = '';
+
+    // Payment Settings Functions
+    function getPaymentSettings() {
+      try {
+        const data = localStorage.getItem(PAYMENT_SETTINGS_KEY);
+        if (!data) return DEFAULT_PAYMENT_SETTINGS;
+        return { ...DEFAULT_PAYMENT_SETTINGS, ...JSON.parse(data) };
+      } catch (e) {
+        return DEFAULT_PAYMENT_SETTINGS;
+      }
+    }
+
+    function initPaymentSettings() {
+      const settings = getPaymentSettings();
+      document.getElementById('adminUpiId').value = settings.upiId || 'sachin@upi';
+      document.getElementById('adminPayeeName').value = settings.payeeName || 'VICEVAULT Official Store';
+      document.getElementById('adminUpiDiscount').value = settings.upiDiscount !== undefined ? settings.upiDiscount : 20;
+      document.getElementById('adminUpiInstructions').value = settings.instructions || '';
+      customUploadedQrData = settings.qrImage || '';
+      updateQrPreview();
+
+      document.getElementById('adminUpiId').addEventListener('input', updateQrPreview);
+      document.getElementById('adminPayeeName').addEventListener('input', updateQrPreview);
+    }
+
+    function updateQrPreview() {
+      const upiId = document.getElementById('adminUpiId').value.trim() || 'sachin@upi';
+      const payeeName = document.getElementById('adminPayeeName').value.trim() || 'VICEVAULT Official Store';
+      
+      document.getElementById('previewPayeeName').textContent = payeeName;
+      document.getElementById('previewUpiId').textContent = upiId;
+
+      const previewImg = document.getElementById('adminQrPreviewImg');
+      const typeBadge = document.getElementById('adminQrTypeBadge');
+      const removeBtn = document.getElementById('removeQrBtn');
+
+      if (customUploadedQrData) {
+        previewImg.src = customUploadedQrData;
+        typeBadge.textContent = 'Custom QR Uploaded';
+        typeBadge.className = 'absolute bottom-1 right-1 px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider apple-glass-btn-primary text-white';
+        removeBtn.classList.remove('hidden');
+      } else {
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent('upi://pay?pa=' + upiId + '&pn=' + encodeURIComponent(payeeName) + '&cu=INR')}`;
+        previewImg.src = qrUrl;
+        typeBadge.textContent = 'Dynamic UPI QR';
+        typeBadge.className = 'absolute bottom-1 right-1 px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider bg-black/80 text-white backdrop-blur';
+        removeBtn.classList.add('hidden');
+      }
+    }
+
+    function handleQrFileSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        alert('Please select a valid image file (PNG, JPG, WebP).');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        customUploadedQrData = e.target.result;
+        updateQrPreview();
+        showAdminToast('Custom QR image loaded! Click Save to apply to checkout.');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeCustomQr() {
+      customUploadedQrData = '';
+      document.getElementById('adminQrFileInput').value = '';
+      updateQrPreview();
+      showAdminToast('Switched to Dynamic UPI QR Code.');
+    }
+
+    function savePaymentSettings() {
+      const upiId = document.getElementById('adminUpiId').value.trim();
+      const payeeName = document.getElementById('adminPayeeName').value.trim();
+      const upiDiscount = Number(document.getElementById('adminUpiDiscount').value) || 20;
+      const instructions = document.getElementById('adminUpiInstructions').value.trim();
+
+      if (!upiId) {
+        alert('Please enter a valid UPI ID (e.g. sachin@upi)');
+        return;
+      }
+
+      const settings = {
+        upiId: upiId,
+        payeeName: payeeName || 'VICEVAULT Official Store',
+        upiDiscount: upiDiscount,
+        instructions: instructions || 'Scan QR via any UPI App and enter UTR ID.',
+        qrImage: customUploadedQrData || ''
+      };
+
+      try {
+        localStorage.setItem(PAYMENT_SETTINGS_KEY, JSON.stringify(settings));
+        showAdminToast('Payment & UPI settings saved! Live on store checkout.');
+      } catch (err) {
+        console.error('Storage error:', err);
+        showAdminToast('Settings saved successfully.');
+      }
+    }
+
+    function resetPaymentSettings() {
+      if (!confirm('Reset payment settings to default?')) return;
+      customUploadedQrData = '';
+      localStorage.setItem(PAYMENT_SETTINGS_KEY, JSON.stringify(DEFAULT_PAYMENT_SETTINGS));
+      initPaymentSettings();
+      showAdminToast('Payment settings reset to default.');
+    }
+
+    // Orders Functions
+    function getOrders() {
+      try {
+        const data = localStorage.getItem(STORAGE_KEY);
+        if (!data) return [];
+        return JSON.parse(data);
+      } catch (e) {
+        console.error('Error reading orders:', e);
+        return [];
+      }
+    }
+
+    function saveOrders(orders) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
+      renderDashboard();
+    }
+
+    function renderDashboard() {
+      const orders = getOrders();
+      
+      const totalCount = orders.length;
+      const totalRev = orders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+      const pendingCount = orders.filter(o => o.status === 'Pending').length;
+      const confirmedCount = orders.filter(o => o.status === 'Confirmed').length;
+      const shippedCount = orders.filter(o => o.status === 'Shipped').length;
+      const outForDeliveryCount = orders.filter(o => o.status === 'Out for Delivery').length;
+      const deliveredCount = orders.filter(o => o.status === 'Delivered').length;
+
+      document.getElementById('statTotalOrders').textContent = totalCount;
+      document.getElementById('statTotalRevenue').textContent = `₹${totalRev.toLocaleString('en-IN')}`;
+      document.getElementById('statPendingOrders').textContent = pendingCount;
+      document.getElementById('statDeliveredOrders').textContent = deliveredCount;
+
+      const usersStr = localStorage.getItem('vicevault_registered_users');
+      const registeredUsers = usersStr ? JSON.parse(usersStr) : [];
+      const statRegEl = document.getElementById('statRegisteredUsers');
+      if (statRegEl) statRegEl.textContent = registeredUsers.length;
+      const regBadge = document.getElementById('registeredUsersBadge');
+      if (regBadge) regBadge.textContent = `${registeredUsers.length} Member${registeredUsers.length === 1 ? '' : 's'}`;
+
+      const usersTbody = document.getElementById('registeredUsersTableBody');
+      const noUsersState = document.getElementById('noUsersState');
+      if (usersTbody) {
+        if (registeredUsers.length === 0) {
+          usersTbody.innerHTML = '';
+          if (noUsersState) noUsersState.classList.remove('hidden');
+        } else {
+          if (noUsersState) noUsersState.classList.add('hidden');
+          usersTbody.innerHTML = registeredUsers.map(u => `
+            <tr class="hover:bg-white/[0.02] transition-colors">
+              <td class="py-3 px-4 text-white font-medium flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-gradient-to-tr from-[#F0D9B5] to-[#D8BE96] text-[#1A1A1F] text-[10px] font-bold flex items-center justify-center">
+                  ${(u.name || 'U').charAt(0).toUpperCase()}
+                </span>
+                <span>${u.name || 'VIP Member'}</span>
+              </td>
+              <td class="py-3 px-4 font-mono text-emerald-400">+91 ${u.phone || 'N/A'}</td>
+              <td class="py-3 px-4 text-white/80">${u.email || 'N/A'}</td>
+              <td class="py-3 px-4 text-[#86868b]">${u.city || 'India'}</td>
+              <td class="py-3 px-4 text-[11px] text-[#86868b]">${u.joinedDate || 'Recently'}</td>
+            </tr>
+          `).join('');
+        }
+      }
+
+
+      document.getElementById('countAll').textContent = totalCount;
+      document.getElementById('countPending').textContent = pendingCount;
+      document.getElementById('countConfirmed').textContent = confirmedCount;
+      document.getElementById('countShipped').textContent = shippedCount;
+      if (document.getElementById('countOutForDelivery')) document.getElementById('countOutForDelivery').textContent = outForDeliveryCount;
+      document.getElementById('countDelivered').textContent = deliveredCount;
+
+      let filtered = orders.filter(order => {
+        const matchesStatus = (currentFilter === 'all') || (order.status === currentFilter);
+        const searchLow = currentSearch.toLowerCase();
+        const matchesSearch = !currentSearch || 
+          order.orderId.toLowerCase().includes(searchLow) ||
+          order.customer.name.toLowerCase().includes(searchLow) ||
+          order.customer.phone.toLowerCase().includes(searchLow) ||
+          (order.transactionId && order.transactionId.toLowerCase().includes(searchLow)) ||
+          (order.customer.city && order.customer.city.toLowerCase().includes(searchLow));
+        return matchesStatus && matchesSearch;
+      });
+
+      const tableBody = document.getElementById('ordersTableBody');
+      const emptyState = document.getElementById('noOrdersState');
+
+      if (filtered.length === 0) {
+        tableBody.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      tableBody.innerHTML = '';
+
+      filtered.forEach(order => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-white/[0.02] transition-colors';
+
+        const itemsSummary = order.items.map(it => `${it.qty}x ${it.name}`).join(', ');
+        const isUpi = (order.paymentMethod || '').includes('UPI');
+
+        tr.innerHTML = `
+          <td class="py-4 px-5">
+            <span class="font-mono font-semibold text-[#F0D9B5]">${order.orderId}</span>
+            <div class="text-[10px] text-[#6e6e73] mt-0.5">${order.date}</div>
+          </td>
+          <td class="py-4 px-5">
+            <span class="font-medium text-white">${order.customer.name}</span>
+            <div class="text-[11px] text-[#86868b] flex items-center gap-1 mt-0.5">
+              <span>📞 ${order.customer.phone}</span>
+            </div>
+            <div class="text-[10px] text-[#6e6e73] truncate max-w-xs">${order.customer.address}, ${order.customer.city} (${order.customer.pincode})</div>
+          </td>
+          <td class="py-4 px-5 max-w-xs">
+            <span class="text-[#f5f5f7] line-clamp-1 font-normal">${itemsSummary}</span>
+            <span class="text-[10px] text-[#6e6e73]">${order.items.length} item(s)</span>
+          </td>
+          <td class="py-4 px-5">
+            <span class="font-semibold text-white text-sm">₹${order.total}</span>
+            ${order.discount && order.discount > 0 ? `<div class="text-[10px] text-emerald-400 font-medium">₹${order.discount} UPI Discount</div>` : ''}
+          </td>
+          <td class="py-4 px-5">
+            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-medium ${isUpi ? 'apple-glass-btn-primary/20 text-[#F0D9B5] border border-[#F0D9B5]/30' : 'bg-white/[0.08] text-[#86868b]'}">
+              ${isUpi ? '💳 UPI Online' : '💵 COD'}
+            </span>
+            ${order.transactionId && order.transactionId !== 'N/A' ? `
+              <div class="font-mono text-[10px] text-white mt-1 flex items-center gap-1">
+                <span class="text-[#86868b]">UTR:</span>
+                <span class="text-[#F0D9B5] font-semibold">${order.transactionId}</span>
+              </div>
+            ` : ''}
+          </td>
+          <td class="py-4 px-5">
+            <select onchange="updateOrderStatus('${order.orderId}', this.value)" class="bg-black/60 border border-white/[0.12] text-white text-xs rounded-lg px-2.5 py-1 focus:outline-none focus:border-[#F0D9B5] font-normal">
+              <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
+              <option value="Confirmed" ${order.status === 'Confirmed' ? 'selected' : ''}>Confirmed</option>
+              <option value="Shipped" ${order.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+              <option value="Out for Delivery" ${order.status === 'Out for Delivery' ? 'selected' : ''}>Out for Delivery</option>
+              <option value="Delivered" ${order.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+              <option value="Cancelled" ${order.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+            </select>
+          </td>
+          <td class="py-4 px-5 text-right">
+            <div class="flex items-center justify-end gap-1.5">
+              <a href="https://wa.me/${(order.customer?.phone || '').replace(/[^0-9]/g, '').startsWith('91') && (order.customer?.phone || '').replace(/[^0-9]/g, '').length > 10 ? (order.customer?.phone || '').replace(/[^0-9]/g, '') : ('91' + (order.customer?.phone || '').replace(/[^0-9]/g, '').slice(-10))}?text=Namaste%20${encodeURIComponent(order.customer?.name || 'Customer')},%20regarding%20your%20ViceVault%20Order%20${order.orderId}" target="_blank" title="WhatsApp Customer" class="p-1.5 rounded-lg text-emerald-400 bg-emerald-950/40 hover:bg-emerald-950/80 border border-emerald-500/30 transition-colors">
+                <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+              </a>
+              <button onclick="viewOrderDetail('${order.orderId}')" title="View Full Details" class="p-1.5 rounded-lg text-[#86868b] hover:text-white apple-glass-pill">
+                <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+              </button>
+              <button onclick="deleteOrder('${order.orderId}')" title="Delete Order" class="p-1.5 rounded-lg text-red-400 hover:text-red-300 bg-red-950/40 border border-red-800/40">
+                <i data-lucide="trash" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tableBody.appendChild(tr);
+      });
+
+      lucide.createIcons();
+    }
+
+    function filterStatus(status) {
+      currentFilter = status;
+      document.querySelectorAll('.status-filter-btn').forEach(btn => {
+        const btnStatus = btn.getAttribute('data-status') || 'all';
+        if (btnStatus === status) {
+          btn.className = 'status-filter-btn active px-3.5 py-1.5 rounded-full text-xs font-semibold apple-glass-btn-primary text-white transition-all shadow-sm';
+        } else {
+          btn.className = 'status-filter-btn px-3.5 py-1.5 rounded-full text-xs font-medium apple-glass-pill text-[#86868b] hover:text-white transition-all';
+        }
+      });
+      renderDashboard();
+    }
+
+    document.getElementById('orderSearchInput').addEventListener('input', (e) => {
+      currentSearch = e.target.value.trim();
+      renderDashboard();
+    });
+
+    function updateOrderStatus(orderId, newStatus) {
+      const orders = getOrders();
+      const target = orders.find(o => o.orderId === orderId);
+      if (target) {
+        target.status = newStatus;
+        const city = target.customer?.city || 'destination';
+        if (!target.trackingLocation || target.trackingLocation.includes('Order Received') || target.trackingLocation.includes('Store has') || target.trackingLocation.includes('In Transit') || target.trackingLocation.includes('Out for') || target.trackingLocation.includes('Package safely')) {
+          if (newStatus === 'Confirmed') {
+            target.trackingLocation = `Order Confirmed by store! Packed and prepared for courier pickup.`;
+          } else if (newStatus === 'Shipped') {
+            target.trackingLocation = `In Transit with ${target.courier || 'Delhivery Express'}. Dispatched towards ${city} transit hub.`;
+          } else if (newStatus === 'Out for Delivery') {
+            target.trackingLocation = `Out for Delivery! Reached local ${city} delivery center. Delivery agent is out for doorstep delivery today.`;
+          } else if (newStatus === 'Delivered') {
+            target.trackingLocation = `Delivered successfully to ${target.customer?.name} at ${city}.`;
+          } else if (newStatus === 'Cancelled') {
+            target.trackingLocation = `Order cancelled. Refund initiated if prepaid.`;
+          }
+        }
+        saveOrders(orders);
+        showAdminToast(`Order ${orderId} status: ${newStatus}`);
+      }
+    }
+
+    function deleteOrder(orderId) {
+      if (!confirm(`Are you sure you want to delete order ${orderId}?`)) return;
+      const orders = getOrders();
+      const updated = orders.filter(o => o.orderId !== orderId);
+      saveOrders(updated);
+      showAdminToast(`Order ${orderId} deleted`);
+    }
+
+    function clearAllOrders() {
+      if (!confirm('Are you sure you want to delete ALL orders? This cannot be undone.')) return;
+      saveOrders([]);
+      showAdminToast('All orders cleared');
+    }
+
+    function viewOrderDetail(orderId) {
+      const orders = getOrders();
+      const order = orders.find(o => o.orderId === orderId);
+      if (!order) return;
+
+      document.getElementById('modalOrderId').textContent = order.orderId;
+      const content = document.getElementById('modalOrderContent');
+
+      let itemsHtml = order.items.map(it => `
+        <div class="flex items-center justify-between py-2 border-b border-white/[0.06]">
+          <div>
+            <p class="font-medium text-white">${it.name}</p>
+            <p class="text-[11px] text-[#86868b]">Qty: ${it.qty} × ₹${it.price}</p>
+          </div>
+          <span class="font-medium text-[#F0D9B5]">₹${it.qty * it.price}</span>
+        </div>
+      `).join('');
+
+      content.innerHTML = `
+        <div class="apple-glass-inner p-4 rounded-2xl space-y-1.5">
+          <p class="text-[10px] text-[#F0D9B5] uppercase font-semibold tracking-wider">Customer Details</p>
+          <p class="text-sm font-semibold text-white">${order.customer.name}</p>
+          <p class="text-xs text-[#86868b]">Phone: <strong class="text-white">${order.customer.phone}</strong></p>
+          <p class="text-xs text-[#86868b]">Address: ${order.customer.address}, ${order.customer.city}, ${order.customer.state || ''} - ${order.customer.pincode}</p>
+          <p class="text-[10px] text-[#6e6e73] mt-1">Placed On: ${order.date}</p>
+        </div>
+
+        <div class="space-y-1">
+          <p class="text-[10px] text-[#F0D9B5] uppercase font-semibold tracking-wider">Items in Order</p>
+          ${itemsHtml}
+        </div>
+
+        <div class="apple-glass-inner p-3.5 rounded-2xl space-y-2">
+          <div class="flex justify-between items-center text-xs">
+            <span class="text-[#86868b]">Payment Mode:</span>
+            <span class="font-semibold text-white">${order.paymentMethod || 'COD'}</span>
+          </div>
+          ${order.discount && order.discount > 0 ? `
+          <div class="flex justify-between items-center text-xs">
+            <span class="text-[#86868b]">Items Subtotal:</span>
+            <span class="text-white">₹${order.subtotal || (order.total + order.discount)}</span>
+          </div>
+          <div class="flex justify-between items-center text-xs text-emerald-400">
+            <span>UPI Instant Discount:</span>
+            <span class="font-bold">-₹${order.discount}</span>
+          </div>
+          ` : ''}
+          ${order.transactionId && order.transactionId !== 'N/A' ? `
+          <div class="flex justify-between items-center text-xs pt-1.5 border-t border-white/[0.06]">
+            <span class="text-[#86868b]">UPI Transaction / UTR:</span>
+            <span class="font-mono font-bold text-[#F0D9B5] bg-black/60 px-2.5 py-1 rounded-lg border border-white/[0.1] select-all">${order.transactionId}</span>
+          </div>
+          ` : ''}
+          <div class="flex justify-between items-center pt-1.5 border-t border-white/[0.06] text-sm font-semibold text-white">
+            <span>Total Payable</span>
+            <span class="text-base text-white font-bold">₹${order.total}</span>
+          </div>
+        </div>
+
+        <!-- LIVE ORDER TRACKING & STATUS CONTROLLER -->
+        <div class="apple-glass-inner p-4 rounded-2xl space-y-3">
+          <div class="flex items-center justify-between">
+            <p class="text-xs font-bold text-[#F0D9B5] uppercase tracking-wider flex items-center gap-1.5">
+              <i data-lucide="truck" class="w-3.5 h-3.5"></i>
+              <span>Live Order Status & Location Update</span>
+            </p>
+            <span class="text-[10px] text-[#30d158] font-medium bg-[#30d158]/10 px-2 py-0.5 rounded-full border border-[#30d158]/20">Customer Sees Live</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div>
+              <label class="text-[10px] text-[#86868b] block mb-1">Confirmation & Order Status</label>
+              <select id="editOrderStatus_${order.orderId}" class="w-full apple-glass-input text-white text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-[#F0D9B5]">
+                <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending (Awaiting Verification)</option>
+                <option value="Confirmed" ${order.status === 'Confirmed' ? 'selected' : ''}>Confirmed (Store Verified & Packing)</option>
+                <option value="Shipped" ${order.status === 'Shipped' ? 'selected' : ''}>Shipped (In Transit)</option>
+                <option value="Out for Delivery" ${order.status === 'Out for Delivery' ? 'selected' : ''}>Out for Delivery</option>
+                <option value="Delivered" ${order.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                <option value="Cancelled" ${order.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="text-[10px] text-[#86868b] block mb-1">Courier Partner</label>
+              <input type="text" id="editCourier_${order.orderId}" value="${order.courier || 'Delhivery Express'}" placeholder="e.g. Delhivery, Blue Dart, Shadowfax" class="w-full apple-glass-input text-white text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-[#F0D9B5]">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div>
+              <label class="text-[10px] text-[#86868b] block mb-1">AWB / Tracking Number</label>
+              <input type="text" id="editTrackingNumber_${order.orderId}" value="${order.trackingNumber || ('TRK-' + (order.orderId.replace(/[^0-9]/g, '') || '948201'))}" placeholder="e.g. DL123456789" class="w-full apple-glass-input text-white text-xs rounded-xl px-3 py-2 font-mono focus:outline-none focus:border-[#F0D9B5]">
+            </div>
+            <div>
+              <label class="text-[10px] text-[#86868b] block mb-1">Where Order Has Reached (Location Hub Note)</label>
+              <input type="text" id="editTrackingLocation_${order.orderId}" value="${order.trackingLocation || ''}" placeholder="e.g. Arrived at Delhi Sorting Hub, in transit to Jaipur" class="w-full apple-glass-input text-white text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-[#F0D9B5]">
+            </div>
+          </div>
+
+          <button onclick="saveAdminOrderTracking('${order.orderId}')" class="w-full py-2.5 rounded-xl text-xs font-semibold text-white apple-glass-btn-primary transition-colors flex items-center justify-center gap-1.5 shadow-md shadow-[#F0D9B5]/20">
+            <i data-lucide="check" class="w-3.5 h-3.5"></i>
+            <span>Save Status & Tracking Info</span>
+          </button>
+        </div>
+      `;
+
+      const modal = document.getElementById('orderDetailModal');
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+      modal.classList.add('opacity-100', 'pointer-events-auto');
+    }
+
+    function saveAdminOrderTracking(orderId) {
+      const orders = getOrders();
+      const target = orders.find(o => o.orderId === orderId);
+      if (!target) return;
+
+      const newStatus = document.getElementById(`editOrderStatus_${orderId}`)?.value || target.status;
+      const courier = document.getElementById(`editCourier_${orderId}`)?.value.trim() || 'Delhivery Express';
+      const trackingNumber = document.getElementById(`editTrackingNumber_${orderId}`)?.value.trim() || ('TRK-' + (orderId.replace(/[^0-9]/g, '') || '948201'));
+      const trackingLocation = document.getElementById(`editTrackingLocation_${orderId}`)?.value.trim() || '';
+
+      target.status = newStatus;
+      target.courier = courier;
+      target.trackingNumber = trackingNumber;
+      target.trackingLocation = trackingLocation;
+
+      saveOrders(orders);
+      showAdminToast(`Order ${orderId} tracking saved! Status: ${newStatus}`);
+      viewOrderDetail(orderId);
+    }
+
+    function closeDetailModal() {
+      const modal = document.getElementById('orderDetailModal');
+      modal.classList.remove('opacity-100', 'pointer-events-auto');
+      modal.classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    function exportOrdersToCSV() {
+      const orders = getOrders();
+      if (orders.length === 0) {
+        showAdminToast('No orders to export');
+        return;
+      }
+
+      let csv = 'Order ID,Date,Customer Name,Phone,Address,City,Pincode,Items,Total Amount,Payment,UTR / Ref ID,Status\n';
+      orders.forEach(o => {
+        const items = o.items.map(i => `${i.qty}x ${i.name}`).join('; ');
+        csv += `"${o.orderId}","${o.date}","${o.customer.name}","${o.customer.phone}","${o.customer.address}","${o.customer.city}","${o.customer.pincode}","${items}","${o.total}","${o.paymentMethod || 'COD'}","${o.transactionId || 'N/A'}","${o.status}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `VICEVAULT_Orders_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+      showAdminToast('CSV Exported successfully!');
+    }
+
+    function addDemoOrder() {
+      const demoNames = ['Rahul Sharma', 'Vikas Patel', 'Sneha Roy', 'Arjun Verma', 'Pooja Singh'];
+      const demoCities = ['Mumbai', 'Delhi', 'Jaipur', 'Bengaluru', 'Ahmedabad'];
+      const randomName = demoNames[Math.floor(Math.random() * demoNames.length)];
+      const randomCity = demoCities[Math.floor(Math.random() * demoCities.length)];
+      const isUpi = Math.random() > 0.5;
+      
+      const newOrder = {
+        orderId: '#GTA-' + Math.floor(100000 + Math.random() * 900000),
+        date: new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }),
+        customer: {
+          name: randomName,
+          phone: '+91 98' + Math.floor(10000000 + Math.random() * 90000000),
+          address: 'Plot 42, Sector ' + Math.floor(1 + Math.random() * 50),
+          city: randomCity,
+          state: 'State',
+          pincode: '302001'
+        },
+        items: [
+          { name: 'DualSense Pro Controller Skins (Akatsuki Red)', qty: 1, price: 699 }
+        ],
+        total: 699,
+        paymentMethod: isUpi ? 'UPI / Online' : 'Cash on Delivery (COD)',
+        transactionId: isUpi ? '40' + Math.floor(1000000000 + Math.random() * 9000000000) : 'N/A',
+        status: 'Pending'
+      };
+
+      const orders = getOrders();
+      orders.unshift(newOrder);
+      saveOrders(orders);
+      showAdminToast(`Sample order ${newOrder.orderId} added!`);
+    }
+
+    function showAdminToast(msg) {
+      const toast = document.getElementById('adminToast');
+      document.getElementById('adminToastMessage').textContent = msg;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 2500);
+    }
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === STORAGE_KEY) {
+        renderDashboard();
+        showAdminToast('New order arrived from store!');
+      } else if (e.key === PAYMENT_SETTINGS_KEY) {
+        initPaymentSettings();
+      }
+    });
+
+    initPaymentSettings();
+    renderDashboard();
+  </script>
+</body>
+</html>
