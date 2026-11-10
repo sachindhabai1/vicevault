@@ -46,6 +46,14 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 
         <style>
+    /* Mobile Touch & Tap Latency Optimization */
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+    button, a, input, select, textarea, [onclick] {
+      touch-action: manipulation;
+    }
+
     /* Custom Luxury Champagne Scrollbar */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: #121215; }
@@ -554,8 +562,8 @@
   </main>
 
   <!-- ORDER DETAIL MODAL (Apple Glass Modal) -->
-  <div id="orderDetailModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl opacity-0 pointer-events-none transition-opacity duration-200">
-    <div class="w-full max-w-lg apple-glass-panel rounded-3xl p-6 sm:p-7 shadow-2xl relative space-y-5">
+  <div id="orderDetailModal" class="fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-4 bg-black/85 backdrop-blur-xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-200" onclick="if (event.target === this) closeDetailModal();">
+    <div class="w-full max-w-lg apple-glass-panel rounded-3xl p-5 sm:p-7 shadow-2xl relative space-y-5 overflow-y-auto max-h-[92vh] my-auto">
       
       <div class="flex items-center justify-between pb-3 border-b border-white/[0.08]">
         <div>
@@ -1042,8 +1050,8 @@
       `;
 
       const modal = document.getElementById('orderDetailModal');
-      modal.classList.remove('opacity-0', 'pointer-events-none');
-      modal.classList.add('opacity-100', 'pointer-events-auto');
+      modal.classList.remove('opacity-0', 'pointer-events-none', 'invisible');
+      modal.classList.add('opacity-100', 'pointer-events-auto', 'visible');
     }
 
     function saveAdminOrderTracking(orderId) {
@@ -1068,8 +1076,8 @@
 
     function closeDetailModal() {
       const modal = document.getElementById('orderDetailModal');
-      modal.classList.remove('opacity-100', 'pointer-events-auto');
-      modal.classList.add('opacity-0', 'pointer-events-none');
+      modal.classList.remove('opacity-100', 'pointer-events-auto', 'visible');
+      modal.classList.add('opacity-0', 'pointer-events-none', 'invisible');
     }
 
     function exportOrdersToCSV() {

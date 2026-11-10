@@ -46,6 +46,14 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 
         <style>
+    /* Mobile Touch & Tap Latency Optimization */
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+    button, a, input, select, textarea, [onclick] {
+      touch-action: manipulation;
+    }
+
     /* Custom Luxury Champagne Scrollbar */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: #121215; }
@@ -2199,14 +2207,6 @@
       saveCart();
       renderCart();
 
-      if (!getCurrentUser()) {
-        window.pendingCheckoutAfterAuth = true;
-        initLocationSelectors();
-        openAuthModal('register');
-        showToast('Pehle apna VIP Account banayein ya login karein');
-        return;
-      }
-
       openCheckoutModal();
       showToast(`⚡ 1-Click Checkout: ${fullName}`);
     }
@@ -2723,13 +2723,27 @@
       
       // Save address & pincode into user profile for 1-click future orders
       try {
-        const curUser = getCurrentUser();
+        let curUser = getCurrentUser();
         if (curUser) {
           curUser.address = document.getElementById('custAddress').value.trim();
           curUser.pincode = document.getElementById('custPincode').value.trim();
           curUser.city = document.getElementById('custCity').value.trim();
           curUser.state = document.getElementById('custState').value.trim();
           localStorage.setItem(AUTH_USER_KEY, JSON.stringify(curUser));
+        } else {
+          curUser = {
+            id: 'USR-' + Math.floor(100000 + Math.random() * 900000),
+            name: document.getElementById('custName').value.trim(),
+            phone: document.getElementById('custPhone').value.trim(),
+            email: document.getElementById('custPhone').value.trim() + '@vicevault.store',
+            address: document.getElementById('custAddress').value.trim(),
+            pincode: document.getElementById('custPincode').value.trim(),
+            city: document.getElementById('custCity').value.trim(),
+            state: document.getElementById('custState').value.trim(),
+            joinedDate: new Date().toLocaleDateString('en-IN', { dateStyle: 'medium' })
+          };
+          localStorage.setItem(AUTH_USER_KEY, JSON.stringify(curUser));
+          updateNavUserProfile(curUser);
         }
       } catch (e) {}
 
@@ -3876,18 +3890,24 @@
       if (!authModal) return;
       authModal.classList.remove('opacity-100', 'pointer-events-auto', 'visible');
       authModal.classList.add('opacity-0', 'pointer-events-none', 'invisible');
+      try { sessionStorage.setItem('vicevault_auth_dismissed', 'true'); } catch (e) {}
     }
 
     function checkUserAuth() {
       const user = getCurrentUser();
-      if (!user) {
-        // Visitor not logged in: Give them the VIP Login/Registration option
-        openAuthModal('register');
-      } else {
-        // Already logged in: Keep modal closed and update navbar & checkout
+      let dismissed = false;
+      try { dismissed = sessionStorage.getItem('vicevault_auth_dismissed') === 'true'; } catch (e) {}
+
+      if (user) {
         closeAuthModal();
         updateNavUserProfile(user);
         prefillCheckoutUserDetails(user);
+      } else {
+        if (!dismissed) {
+          openAuthModal('register');
+        } else {
+          closeAuthModal();
+        }
       }
       lucide.createIcons();
     }
