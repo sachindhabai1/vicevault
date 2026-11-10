@@ -54,6 +54,20 @@
       touch-action: manipulation;
     }
 
+    @media (max-width: 768px) {
+      .apple-glass-card,
+      .apple-glass-panel,
+      .apple-glass-inner,
+      .apple-glass-pill,
+      .apple-glass-input {
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
+      }
+      .apple-glass-card:hover {
+        transform: none !important;
+      }
+    }
+
     /* Custom Luxury Champagne Scrollbar */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: #121215; }
@@ -216,8 +230,8 @@
   </style>
 </head>
 <body class="bg-black text-[#f5f5f7] font-sans antialiased selection:apple-glass-btn-primary selection:text-white min-h-screen flex flex-col">
-  <!-- LUXURY GLASSMORPHIC AMBIENT ORBS (#F0D9B5 & #1A1A1F) -->
-  <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+  <!-- LUXURY GLASSMORPHIC AMBIENT ORBS (#F0D9B5 & #1A1A1F) (Optimized: hidden on mobile to eliminate GPU lag) -->
+  <div class="hidden sm:block fixed inset-0 pointer-events-none overflow-hidden z-0">
     <div class="absolute -top-40 -left-40 w-[680px] h-[680px] rounded-full bg-gradient-to-br from-[#F0D9B5]/22 via-[#D8BE96]/10 to-transparent blur-[130px] opacity-75 animate-pulse" style="animation-duration: 9s;"></div>
     <div class="absolute top-1/4 -right-40 w-[620px] h-[620px] rounded-full bg-gradient-to-bl from-[#F0D9B5]/18 via-[#1A1A1F]/50 to-transparent blur-[140px] opacity-70 animate-pulse" style="animation-duration: 11s;"></div>
     <div class="absolute top-2/3 -left-32 w-[700px] h-[700px] rounded-full bg-gradient-to-tr from-[#F0D9B5]/16 via-[#1A1A1F]/40 to-transparent blur-[150px] opacity-75"></div>
@@ -608,7 +622,7 @@
   </footer>
 
   <!-- CART DRAWER & CHECKOUT MODAL -->
-  <div id="cartDrawer" class="fixed inset-0 z-50 overflow-hidden pointer-events-none transition-all duration-300 opacity-0 invisible">
+  <div id="cartDrawer" class="hidden fixed inset-0 z-50 overflow-hidden pointer-events-none transition-all duration-300 opacity-0 invisible">
     <div id="cartBackdrop" class="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity duration-300"></div>
 
     <div class="fixed inset-y-0 right-0 max-w-full flex pl-10 pointer-events-none">
@@ -654,7 +668,7 @@
   </div>
 
   <!-- CHECKOUT MODAL -->
-  <div id="checkoutModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
+  <div id="checkoutModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
     <div class="relative w-full max-w-lg apple-glass-panel rounded-3xl p-6 sm:p-8 shadow-2xl overflow-y-auto max-h-[90vh] space-y-5">
       <div class="flex items-center justify-between pb-3 border-b border-white/[0.08]">
         <div>
@@ -1025,7 +1039,7 @@
   <canvas id="fireworksCanvas" class="fixed inset-0 z-50 pointer-events-none w-full h-full opacity-0 transition-opacity duration-300"></canvas>
 
   <!-- ORDER CONGRATULATIONS & SUCCESS MODAL -->
-  <div id="successModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
+  <div id="successModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
     <div class="relative w-full max-w-md apple-glass-panel rounded-3xl p-6 sm:p-8 shadow-2xl text-center space-y-5 border border-[#F0D9B5]/35 overflow-y-auto max-h-[92vh] my-auto group">
       
       <!-- Top Ambient Celebration Glow -->
@@ -1104,7 +1118,7 @@
   </div>
 
   <!-- TRACK ORDER MODAL (Apple Dark Glass) -->
-  <div id="trackOrderModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
+  <div id="trackOrderModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
     <div class="relative w-full max-w-xl max-h-[92vh] my-auto flex flex-col apple-glass-panel rounded-3xl shadow-2xl overflow-y-auto">
       
       <!-- Modal Header -->
@@ -1391,7 +1405,7 @@
     
   
   <!-- COD TO UPI CONVERSION MODAL (GLASSMORPHISM LUXURY) -->
-  <div id="codToUpiModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-2xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
+  <div id="codToUpiModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-2xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
     <!-- Glowing Ambient Halo -->
     <div class="absolute w-[500px] h-[500px] rounded-full bg-[#F0D9B5]/15 blur-[120px] pointer-events-none"></div>
 
@@ -1524,7 +1538,7 @@
   </div>
 
   <!-- USER PROFILE & ORDER HISTORY MODAL (AUTHENTIC LUXURY GLASSMORPHISM) -->
-  <div id="profileModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-2xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
+  <div id="profileModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-2xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
     <!-- Glowing Ambient Halo -->
     <div class="absolute w-[600px] h-[600px] rounded-full bg-[#F0D9B5]/12 blur-[140px] pointer-events-none"></div>
 
@@ -1710,7 +1724,7 @@
   </div>
 
     <!-- FIRST-TIME USER ACCOUNT CREATION & LOGIN MODAL -->
-  <div id="authModal" class="fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-4 bg-black/85 backdrop-blur-2xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300" onclick="if (event.target === this) closeAuthModal();">
+  <div id="authModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-4 bg-black/85 backdrop-blur-2xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300" onclick="if (event.target === this) closeAuthModal();">
     <!-- Glowing Ambient Halo -->
     <div class="absolute w-[500px] h-[500px] rounded-full bg-[#F0D9B5]/15 blur-[120px] pointer-events-none"></div>
 
@@ -2077,15 +2091,6 @@
       saveCart();
       renderCart();
 
-      if (!getCurrentUser()) {
-        window.pendingCheckoutAfterAuth = true;
-        loadSavedCart();
-        initLocationSelectors();
-        checkUserAuth();
-        showToast('Pehle apna VIP Account banayein ya login karein');
-        return;
-      }
-
       openCheckoutModal();
       showToast(`⚡ 1-Click Checkout: ${p.title}`);
     }
@@ -2224,15 +2229,62 @@
     const cartSubtotal = document.getElementById('cartSubtotal');
     const cartTotal = document.getElementById('cartTotal');
 
+    function safeBlurActiveElement() {
+      if (document.activeElement && typeof document.activeElement.blur === 'function') {
+        document.activeElement.blur();
+      }
+    }
+
+    function safeFocus(el) {
+      if (!el) return;
+      // On mobile screens (< 768px), do not auto-focus to avoid unwanted virtual keyboard popups
+      if (window.innerWidth >= 768 && typeof el.focus === 'function') {
+        el.focus();
+      }
+    }
+
+    function openModal(modalEl) {
+      if (!modalEl) return;
+      modalEl.classList.remove('hidden');
+      requestAnimationFrame(() => {
+        modalEl.classList.remove('opacity-0', 'pointer-events-none', 'invisible');
+        modalEl.classList.add('opacity-100', 'pointer-events-auto', 'visible');
+      });
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        lucide.createIcons();
+      }
+    }
+
+    function closeModal(modalEl) {
+      if (!modalEl) return;
+      safeBlurActiveElement();
+      modalEl.classList.remove('opacity-100', 'pointer-events-auto', 'visible');
+      modalEl.classList.add('opacity-0', 'pointer-events-none', 'invisible');
+      setTimeout(() => {
+        if (modalEl.classList.contains('opacity-0')) {
+          modalEl.classList.add('hidden');
+        }
+      }, 250);
+    }
+
     function toggleCart(open) {
       if (open) {
-        cartDrawer.classList.remove('pointer-events-none', 'opacity-0', 'invisible');
-        cartDrawer.classList.add('pointer-events-auto', 'opacity-100', 'visible');
-        cartPanel.classList.remove('translate-x-full');
+        cartDrawer.classList.remove('hidden');
+        requestAnimationFrame(() => {
+          cartDrawer.classList.remove('pointer-events-none', 'opacity-0', 'invisible');
+          cartDrawer.classList.add('pointer-events-auto', 'opacity-100', 'visible');
+          cartPanel.classList.remove('translate-x-full');
+        });
       } else {
+        safeBlurActiveElement();
         cartDrawer.classList.remove('pointer-events-auto', 'opacity-100', 'visible');
         cartDrawer.classList.add('pointer-events-none', 'opacity-0', 'invisible');
         cartPanel.classList.add('translate-x-full');
+        setTimeout(() => {
+          if (cartDrawer.classList.contains('opacity-0')) {
+            cartDrawer.classList.add('hidden');
+          }
+        }, 250);
       }
     }
 
@@ -2390,7 +2442,7 @@
         val = '9876543210';
       }
       input.value = val + suffix;
-      input.focus();
+      safeFocus(input);
     }
 
     function sendUpiCollectRequest() {
@@ -2399,7 +2451,7 @@
 
       if (!upiId || !upiId.includes('@') || upiId.length < 5) {
         showToast('Kripya valid UPI ID dalein (jaise: 9876543210@paytm ya rahul@oksbi)');
-        if (input) input.focus();
+        safeFocus(input);
         return;
       }
 
@@ -2658,15 +2710,12 @@
       if (upiRadio) upiRadio.checked = true;
       togglePaymentMethod('UPI / Online');
 
-      checkoutModal.classList.remove('opacity-0', 'pointer-events-none', 'invisible');
-      checkoutModal.classList.add('opacity-100', 'pointer-events-auto', 'visible');
-      lucide.createIcons();
+      openModal(checkoutModal);
     }
 
     function closeCheckoutModal() {
       if (collectCountdownInterval) clearInterval(collectCountdownInterval);
-      checkoutModal.classList.remove('opacity-100', 'pointer-events-auto', 'visible');
-      checkoutModal.classList.add('opacity-0', 'pointer-events-none', 'invisible');
+      closeModal(checkoutModal);
     }
 
     function submitCustomerOrder(e) {
@@ -2676,18 +2725,18 @@
       const upiDiscount = settings.upiDiscount || 20;
       const subtotalVal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
       const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
-            const selectedStateVal = document.getElementById('custState').value.trim();
+      const selectedStateVal = document.getElementById('custState').value.trim();
       const selectedDistrictVal = document.getElementById('custCity').value.trim();
 
       if (!selectedStateVal || !INDIA_STATES_DISTRICTS[selectedStateVal]) {
         showToast('Kripya dropdown se apna State / राज्य select karein!');
-        document.getElementById('custState').focus();
+        safeFocus(document.getElementById('custState'));
         return;
       }
 
       if (!selectedDistrictVal || !INDIA_STATES_DISTRICTS[selectedStateVal].includes(selectedDistrictVal)) {
         showToast(`Kripya dropdown se ${selectedStateVal} ka valid District / ज़िला select karein!`);
-        document.getElementById('custCity').focus();
+        safeFocus(document.getElementById('custCity'));
         return;
       }
 
@@ -2934,15 +2983,13 @@
     function closeTrackOrderModal() {
       const modal = document.getElementById('trackOrderModal');
       if (!modal) return;
-      modal.classList.remove('opacity-100', 'pointer-events-auto', 'visible');
-      modal.classList.add('opacity-0', 'pointer-events-none', 'invisible');
+      closeModal(modal);
     }
 
     function openTrackOrderModal(orderIdToTrack, initialItemIndex = 0) {
       const modal = document.getElementById('trackOrderModal');
       if (!modal) return;
-      modal.classList.remove('opacity-0', 'pointer-events-none', 'invisible');
-      modal.classList.add('opacity-100', 'pointer-events-auto', 'visible');
+      openModal(modal);
 
       const allOrders = initDefaultDemoOrders();
       const curUser = getCurrentUser();
@@ -3068,7 +3115,7 @@
       const query = (queryOverride || (input ? input.value : '') || '').trim();
       if (!query) {
         showToast('Kripya Order ID ya Mobile Number dalein.');
-        if (input) input.focus();
+        safeFocus(input);
         return;
       }
 
@@ -3614,8 +3661,7 @@
 
     function closeSuccessModal() {
       const successModal = document.getElementById('successModal');
-      successModal.classList.remove('opacity-100', 'pointer-events-auto', 'visible');
-      successModal.classList.add('opacity-0', 'pointer-events-none', 'invisible');
+      closeModal(successModal);
       stopFireworksCelebration();
     }
 
@@ -3685,11 +3731,19 @@
         }
       };
 
+      let lastSecond = -1;
+      let lastDateStr = '';
+
       function updateTimer() {
+        if (document.hidden) return;
+        const now = new Date();
+        const currentSecond = now.getSeconds();
+        if (currentSecond === lastSecond) return;
+        lastSecond = currentSecond;
+
         const prodId = currentProduct ? currentProduct.id : 'controller';
         const schedule = productDispatchSchedules[prodId] || productDispatchSchedules['controller'];
         
-        const now = new Date();
         let target = new Date(now);
         let batchLabel = "";
         let isToday = true;
@@ -3724,23 +3778,26 @@
           if (hElem) hElem.textContent = String(hours).padStart(2, '0');
           if (mElem) mElem.textContent = String(minutes).padStart(2, '0');
           if (sElem) sElem.textContent = String(seconds).padStart(2, '0');
-          if (batchElem) batchElem.textContent = batchLabel;
+          if (batchElem && batchElem.textContent !== batchLabel) batchElem.textContent = batchLabel;
           if (tagElem) {
-            tagElem.textContent = isToday ? schedule.tagLabel : `📦 24h Next Wave (${schedule.tagLabel})`;
+            const expectedTag = isToday ? schedule.tagLabel : `📦 24h Next Wave (${schedule.tagLabel})`;
+            if (tagElem.textContent !== expectedTag) tagElem.textContent = expectedTag;
           }
         }
 
-        // Expected doorstep delivery: 2-3 business days
-        const estDeliveryStart = new Date(now);
-        estDeliveryStart.setDate(estDeliveryStart.getDate() + (isToday ? 2 : 3));
-        const estDeliveryEnd = new Date(estDeliveryStart);
-        estDeliveryEnd.setDate(estDeliveryEnd.getDate() + 2);
+        // Expected doorstep delivery: 2-3 business days (computed once)
+        if (!lastDateStr || (now.getHours() === 0 && now.getMinutes() === 0)) {
+          const estDeliveryStart = new Date(now);
+          estDeliveryStart.setDate(estDeliveryStart.getDate() + (isToday ? 2 : 3));
+          const estDeliveryEnd = new Date(estDeliveryStart);
+          estDeliveryEnd.setDate(estDeliveryEnd.getDate() + 2);
 
-        const options = { weekday: 'short', day: 'numeric', month: 'short' };
-        const dateStr = `${estDeliveryStart.toLocaleDateString('en-IN', options)} - ${estDeliveryEnd.toLocaleDateString('en-IN', options)}`;
-        
-        const estElem = document.getElementById('estimatedDeliveryDate');
-        if (estElem) estElem.textContent = dateStr;
+          const options = { weekday: 'short', day: 'numeric', month: 'short' };
+          lastDateStr = `${estDeliveryStart.toLocaleDateString('en-IN', options)} - ${estDeliveryEnd.toLocaleDateString('en-IN', options)}`;
+          
+          const estElem = document.getElementById('estimatedDeliveryDate');
+          if (estElem) estElem.textContent = lastDateStr;
+        }
       }
 
       updateTimer();
@@ -3880,36 +3937,28 @@
       const authModal = document.getElementById('authModal');
       if (!authModal) return;
       switchAuthMode(mode);
-      authModal.classList.remove('opacity-0', 'pointer-events-none', 'invisible');
-      authModal.classList.add('opacity-100', 'pointer-events-auto', 'visible');
-      lucide.createIcons();
+      openModal(authModal);
     }
 
     function closeAuthModal() {
       const authModal = document.getElementById('authModal');
       if (!authModal) return;
-      authModal.classList.remove('opacity-100', 'pointer-events-auto', 'visible');
-      authModal.classList.add('opacity-0', 'pointer-events-none', 'invisible');
+      closeModal(authModal);
       try { sessionStorage.setItem('vicevault_auth_dismissed', 'true'); } catch (e) {}
     }
 
     function checkUserAuth() {
       const user = getCurrentUser();
-      let dismissed = false;
-      try { dismissed = sessionStorage.getItem('vicevault_auth_dismissed') === 'true'; } catch (e) {}
-
       if (user) {
         closeAuthModal();
         updateNavUserProfile(user);
         prefillCheckoutUserDetails(user);
       } else {
-        if (!dismissed) {
-          openAuthModal('register');
-        } else {
-          closeAuthModal();
-        }
+        closeAuthModal();
       }
-      lucide.createIcons();
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        lucide.createIcons();
+      }
     }
 
     function updateNavUserProfile(user) {
@@ -4202,17 +4251,14 @@
 
       const modal = document.getElementById('codToUpiModal');
       if (modal) {
-        modal.classList.remove('opacity-0', 'pointer-events-none', 'invisible');
-        modal.classList.add('opacity-100', 'pointer-events-auto', 'visible');
+        openModal(modal);
       }
-      lucide.createIcons();
     }
 
     function closeCodToUpiModal() {
       const modal = document.getElementById('codToUpiModal');
       if (!modal) return;
-      modal.classList.remove('opacity-100', 'pointer-events-auto', 'visible');
-      modal.classList.add('opacity-0', 'pointer-events-none', 'invisible');
+      closeModal(modal);
       if (codCollectCountdownInterval) {
         clearInterval(codCollectCountdownInterval);
         codCollectCountdownInterval = null;
@@ -4254,7 +4300,7 @@
 
       if (!upiId || !upiId.includes('@')) {
         showToast('Kripya valid UPI ID enter karein (e.g. mobile@oksbi, user@paytm)');
-        if (input) input.focus();
+        safeFocus(input);
         return;
       }
 
@@ -4348,7 +4394,7 @@
       if (!tab) tab = 'profile';
       const curUser = getCurrentUser();
       if (!curUser) {
-        checkUserAuth();
+        openAuthModal('register');
         return;
       }
 
@@ -4362,16 +4408,13 @@
 
       switchProfileModalTab(tab);
 
-      modal.classList.remove('opacity-0', 'pointer-events-none', 'invisible');
-      modal.classList.add('opacity-100', 'pointer-events-auto', 'visible');
-      lucide.createIcons();
+      openModal(modal);
     }
 
     function closeProfileModal() {
       const modal = document.getElementById('profileModal');
       if (!modal) return;
-      modal.classList.remove('opacity-100', 'pointer-events-auto', 'visible');
-      modal.classList.add('opacity-0', 'pointer-events-none', 'invisible');
+      closeModal(modal);
     }
 
     function switchProfileModalTab(tab) {
@@ -4793,13 +4836,18 @@
       }
     }
 
-    // Auto-check auth on window load
-    window.addEventListener('DOMContentLoaded', () => { loadSavedCart();
-    initLocationSelectors();
-    checkUserAuth(); });
-    loadSavedCart();
-    initLocationSelectors();
-    checkUserAuth();
+    // Single clean initialization on load
+    function initProductPageApp() {
+      loadSavedCart();
+      initLocationSelectors();
+      checkUserAuth();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initProductPageApp);
+    } else {
+      initProductPageApp();
+    }
 
   </script>
 </body>
