@@ -368,7 +368,7 @@
               <label class="block text-xs font-semibold text-[#f5f5f7] mb-1.5">UPI ID (VPA) *</label>
               <div class="relative">
                 <i data-lucide="at-sign" class="w-4 h-4 text-[#86868b] absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-                <input type="text" id="adminUpiId" placeholder="e.g. sachin@upi or vicevault@okaxis" 
+                <input type="text" id="adminUpiId" placeholder="e.g. 7878075218@yapl" 
                        class="w-full pl-10 pr-4 py-2.5 apple-glass-input rounded-xl text-xs text-white placeholder-[#6e6e73] focus:outline-none focus:border-[#F0D9B5] font-mono">
               </div>
               <p class="text-[10px] text-[#6e6e73] mt-1">Customers can scan QR or copy this UPI ID to transfer.</p>
@@ -443,7 +443,7 @@
           </div>
 
           <p id="previewPayeeName" class="text-xs font-bold text-white mt-3 truncate max-w-full">VICEVAULT Official Store</p>
-          <p id="previewUpiId" class="text-[11px] font-mono text-[#F0D9B5] truncate max-w-full">sachin@upi</p>
+          <p id="previewUpiId" class="text-[11px] font-mono text-[#F0D9B5] truncate max-w-full">7878075218@yapl</p>
           <span class="text-[10px] text-[#6e6e73] mt-1">This exact QR will be shown during checkout</span>
         </div>
 
@@ -601,23 +601,31 @@
     const PAYMENT_SETTINGS_KEY = 'gta_payment_settings';
 
     const DEFAULT_PAYMENT_SETTINGS = {
-      upiId: 'sachin@upi',
+      upiId: '7878075218@yapl',
       payeeName: 'VICEVAULT Official Store',
       upiDiscount: 20,
       instructions: 'Scan QR with GPay, PhonePe, Paytm or any UPI App & enter 12-digit UTR ID below.',
-      qrImage: ''
+      qrImage: 'images/upi_qr.jpg'
     };
 
     let currentFilter = 'all';
     let currentSearch = '';
-    let customUploadedQrData = '';
+    let customUploadedQrData = 'images/upi_qr.jpg';
 
     // Payment Settings Functions
     function getPaymentSettings() {
       try {
         const data = localStorage.getItem(PAYMENT_SETTINGS_KEY);
         if (!data) return DEFAULT_PAYMENT_SETTINGS;
-        return { ...DEFAULT_PAYMENT_SETTINGS, ...JSON.parse(data) };
+        const parsed = JSON.parse(data);
+        const settings = { ...DEFAULT_PAYMENT_SETTINGS, ...parsed };
+        if (!settings.upiId || settings.upiId === 'sachin@upi' || settings.upiId === 'vicevault@okaxis') {
+          settings.upiId = '7878075218@yapl';
+        }
+        if (!settings.qrImage) {
+          settings.qrImage = 'images/upi_qr.jpg';
+        }
+        return settings;
       } catch (e) {
         return DEFAULT_PAYMENT_SETTINGS;
       }
@@ -625,11 +633,11 @@
 
     function initPaymentSettings() {
       const settings = getPaymentSettings();
-      document.getElementById('adminUpiId').value = settings.upiId || 'sachin@upi';
+      document.getElementById('adminUpiId').value = settings.upiId || '7878075218@yapl';
       document.getElementById('adminPayeeName').value = settings.payeeName || 'VICEVAULT Official Store';
       document.getElementById('adminUpiDiscount').value = settings.upiDiscount !== undefined ? settings.upiDiscount : 20;
       document.getElementById('adminUpiInstructions').value = settings.instructions || '';
-      customUploadedQrData = settings.qrImage || '';
+      customUploadedQrData = settings.qrImage || 'images/upi_qr.jpg';
       updateQrPreview();
 
       document.getElementById('adminUpiId').addEventListener('input', updateQrPreview);
@@ -637,7 +645,7 @@
     }
 
     function updateQrPreview() {
-      const upiId = document.getElementById('adminUpiId').value.trim() || 'sachin@upi';
+      const upiId = document.getElementById('adminUpiId').value.trim() || '7878075218@yapl';
       const payeeName = document.getElementById('adminPayeeName').value.trim() || 'VICEVAULT Official Store';
       
       document.getElementById('previewPayeeName').textContent = payeeName;
@@ -649,7 +657,7 @@
 
       if (customUploadedQrData) {
         previewImg.src = customUploadedQrData;
-        typeBadge.textContent = 'Custom QR Uploaded';
+        typeBadge.textContent = 'Custom QR Active';
         typeBadge.className = 'absolute bottom-1 right-1 px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider apple-glass-btn-primary text-white';
         removeBtn.classList.remove('hidden');
       } else {
@@ -693,7 +701,7 @@
       const instructions = document.getElementById('adminUpiInstructions').value.trim();
 
       if (!upiId) {
-        alert('Please enter a valid UPI ID (e.g. sachin@upi)');
+        alert('Please enter a valid UPI ID (e.g. 7878075218@yapl)');
         return;
       }
 
@@ -702,7 +710,7 @@
         payeeName: payeeName || 'VICEVAULT Official Store',
         upiDiscount: upiDiscount,
         instructions: instructions || 'Scan QR via any UPI App and enter UTR ID.',
-        qrImage: customUploadedQrData || ''
+        qrImage: customUploadedQrData || 'images/upi_qr.jpg'
       };
 
       try {
@@ -716,7 +724,7 @@
 
     function resetPaymentSettings() {
       if (!confirm('Reset payment settings to default?')) return;
-      customUploadedQrData = '';
+      customUploadedQrData = 'images/upi_qr.jpg';
       localStorage.setItem(PAYMENT_SETTINGS_KEY, JSON.stringify(DEFAULT_PAYMENT_SETTINGS));
       initPaymentSettings();
       showAdminToast('Payment settings reset to default.');

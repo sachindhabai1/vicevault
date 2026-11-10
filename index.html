@@ -1014,7 +1014,7 @@
                 <div>
                   <span class="text-[10px] text-[#86868b] uppercase tracking-wider">UPI ID</span>
                   <div class="flex items-center gap-1.5 mt-0.5">
-                    <span id="checkoutUpiIdText" class="font-mono text-white bg-black/50 px-2.5 py-1.5 rounded-lg border border-white/[0.1] text-xs flex-1 truncate">sachin@upi</span>
+                    <span id="checkoutUpiIdText" class="font-mono text-white bg-black/50 px-2.5 py-1.5 rounded-lg border border-white/[0.1] text-xs flex-1 truncate">7878075218@yapl</span>
                     <button type="button" onclick="copyUpiId()" class="px-3 py-1.5 rounded-lg text-xs font-medium text-white apple-glass-btn-primary transition-colors flex items-center gap-1 flex-shrink-0">
                       <i data-lucide="copy" class="w-3 h-3"></i>
                       <span id="copyUpiBtnText">Copy</span>
@@ -1591,7 +1591,7 @@
           <div class="min-w-0 flex-1 space-y-1">
             <p class="text-[10px] text-[#86868b]">Store Official UPI ID:</p>
             <div class="flex items-center gap-1.5">
-              <span id="codUpiIdDisplay" class="font-mono text-white text-[11px] font-bold truncate">vicevault@okaxis</span>
+              <span id="codUpiIdDisplay" class="font-mono text-white text-[11px] font-bold truncate">7878075218@yapl</span>
               <button type="button" onclick="copyCodUpiId()" class="p-1 rounded-lg bg-white/[0.08] hover:bg-white/[0.15] text-[#F0D9B5] shrink-0" title="Copy UPI ID">
                 <i data-lucide="copy" class="w-3 h-3"></i>
               </button>
@@ -2270,15 +2270,23 @@
 
     function getStorePaymentSettings() {
       let settings = {
-        upiId: 'sachin@upi',
+        upiId: '7878075218@yapl',
         payeeName: 'VICEVAULT Official Store',
         upiDiscount: 20,
         instructions: 'Scan QR with GPay, PhonePe, Paytm or CRED. Exact amount is automatically locked!',
-        qrImage: ''
+        qrImage: 'images/upi_qr.jpg'
       };
       try {
         const stored = localStorage.getItem(PAYMENT_SETTINGS_KEY);
-        if (stored) settings = { ...settings, ...JSON.parse(stored) };
+        if (stored) {
+          settings = { ...settings, ...JSON.parse(stored) };
+          if (!settings.upiId || settings.upiId === 'sachin@upi' || settings.upiId === 'vicevault@okaxis') {
+            settings.upiId = '7878075218@yapl';
+          }
+          if (!settings.qrImage) {
+            settings.qrImage = 'images/upi_qr.jpg';
+          }
+        }
       } catch (e) {}
       if (!settings.upiDiscount || settings.upiDiscount < 0) settings.upiDiscount = 20;
       return settings;
@@ -2546,7 +2554,7 @@
       if (payeeEl) payeeEl.textContent = settings.payeeName || 'VICEVAULT Official Store';
 
       const upiTextEl = document.getElementById('checkoutUpiIdText');
-      if (upiTextEl) upiTextEl.textContent = settings.upiId || 'sachin@upi';
+      if (upiTextEl) upiTextEl.textContent = settings.upiId || '7878075218@yapl';
 
       const upiBadge = document.getElementById('upiAmountBadge');
       if (upiBadge) upiBadge.textContent = `₹${amountToPay}`;
@@ -2557,19 +2565,23 @@
       const qrImg = document.getElementById('checkoutQrImg');
       if (!qrImg) return;
 
-      const primaryUpiId = settings.upiId || 'sachin@upi';
+      const primaryUpiId = settings.upiId || '7878075218@yapl';
       const payeeName = encodeURIComponent(settings.payeeName || 'VICEVAULT');
       const upiUrl = `upi://pay?pa=${primaryUpiId}&pn=${payeeName}&am=${amountToPay}&cu=INR&tn=VICEVAULT%20Order`;
 
-      const primaryQr = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=10&data=${encodeURIComponent(upiUrl)}`;
-      const fallbackQr = `https://quickchart.io/qr?size=300&text=${encodeURIComponent(upiUrl)}`;
+      if (settings.qrImage) {
+        qrImg.src = settings.qrImage;
+      } else {
+        const primaryQr = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=10&data=${encodeURIComponent(upiUrl)}`;
+        const fallbackQr = `https://quickchart.io/qr?size=300&text=${encodeURIComponent(upiUrl)}`;
 
-      qrImg.onerror = function() {
-        if (this.src !== fallbackQr) {
-          this.src = fallbackQr;
-        }
-      };
-      qrImg.src = primaryQr;
+        qrImg.onerror = function() {
+          if (this.src !== fallbackQr) {
+            this.src = fallbackQr;
+          }
+        };
+        qrImg.src = primaryQr;
+      }
 
       // Mobile direct intent link:
       const directBtn = document.getElementById('directUpiAppBtn');
@@ -4066,7 +4078,7 @@
 
       const discountedTotal = Math.max(1, originalTotal - 20);
       const settings = getStorePaymentSettings();
-      const upiId = settings.upiId || 'vicevault@okaxis';
+      const upiId = settings.upiId || '7878075218@yapl';
       const storeName = settings.storeName || 'ViceVault Luxury Gaming';
 
       const orderIdEl = document.getElementById('codModalOrderId');
@@ -4093,7 +4105,11 @@
       if (paytmBtn) paytmBtn.href = upiUrl;
 
       if (qrImg) {
-        qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiUrl)}`;
+        if (settings.qrImage) {
+          qrImg.src = settings.qrImage;
+        } else {
+          qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiUrl)}`;
+        }
       }
 
       const utrInput = document.getElementById('codUpiUtrInput');
@@ -4167,7 +4183,7 @@
 
     function copyCodUpiId() {
       const settings = getStorePaymentSettings();
-      const upiId = settings.upiId || 'vicevault@okaxis';
+      const upiId = settings.upiId || '7878075218@yapl';
       navigator.clipboard.writeText(upiId).then(() => {
         showToast(`✓ UPI ID copy ho gayi: ${upiId}`);
       }).catch(() => {
