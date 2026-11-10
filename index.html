@@ -2093,14 +2093,6 @@
       const p = productsDB[productId] || productsDB['controller'];
       if (!p) return;
 
-      const user = getCurrentUser();
-      if (!user) {
-        window.pendingOrderAction = { type: 'quickBuy', productId: productId };
-        showToast('⚠️ Order place karne ke liye pehle apna VIP Account banayein!');
-        openAuthModal('register');
-        return;
-      }
-
       const existing = cart.find(item => item.name.startsWith(p.title));
       if (existing) {
         existing.qty = Math.max(1, existing.qty);
@@ -2606,16 +2598,12 @@
     }
 
     function openCheckoutModal() {
+      initLocationSelectors();
       const user = getCurrentUser();
-      if (!user) {
-        window.pendingOrderAction = { type: 'checkout' };
-        showToast('⚠️ Order place karne ke liye pehle apna VIP Account banayein!');
-        openAuthModal('register');
-        return;
+      if (user) {
+        prefillCheckoutUserDetails(user);
       }
 
-      initLocationSelectors();
-      prefillCheckoutUserDetails(user);
       if (cart.length === 0) {
         showToast('Your bag is empty! Add products first.');
         return;
@@ -2791,10 +2779,19 @@
       }
 
       const successModal = document.getElementById('successModal');
-      successModal.classList.remove('opacity-0', 'pointer-events-none', 'invisible');
-      successModal.classList.add('opacity-100', 'pointer-events-auto', 'visible');
+      if (successModal) openModal(successModal);
       triggerFireworksCelebration();
       lucide.createIcons();
+    }
+
+    function trackCurrentPlacedOrder() {
+      closeSuccessModal();
+      const orderIdToTrack = lastPlacedOrderId || localStorage.getItem('gta_last_order_id');
+      if (orderIdToTrack) {
+        trackSpecificOrder(orderIdToTrack);
+      } else {
+        openTrackOrderModal();
+      }
     }
 
     // --- ORDER TRACKING SYSTEM ---
