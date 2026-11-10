@@ -68,6 +68,21 @@
       }
     }
 
+    /* Hero Showcase Main Product Image Sizing (Full Stage Coverage) */
+    #mainDisplayImg {
+      width: 100% !important;
+      max-width: 540px !important;
+      height: 480px !important;
+      max-height: 480px !important;
+      object-fit: contain !important;
+    }
+    @media (max-width: 640px) {
+      #mainDisplayImg {
+        height: 350px !important;
+        max-height: 350px !important;
+      }
+    }
+
     /* Custom Luxury Champagne Scrollbar */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: #121215; }
@@ -353,11 +368,11 @@
       <div class="lg:col-span-7 space-y-4">
         
         <!-- Big Hero Visual Stage -->
-        <div class="apple-glass-card rounded-3xl p-8 sm:p-12 flex items-center justify-center relative overflow-hidden group min-h-[480px] sm:min-h-[540px]">
+        <div class="apple-glass-card rounded-3xl p-4 sm:p-8 flex items-center justify-center relative overflow-hidden group min-h-[480px] sm:min-h-[540px]">
           <div class="absolute w-80 h-80 rounded-full bg-[#F0D9B5]/10 blur-3xl pointer-events-none"></div>
           
           <img id="mainDisplayImg" src="" alt="Product Image" 
-               class="max-h-[440px] sm:max-h-[480px] w-auto object-contain z-10 transition-all duration-500 transform group-hover:scale-105 filter drop-shadow-[0_25px_45px_rgba(0,0,0,0.95)]">
+               class="w-full h-[360px] sm:h-[480px] max-w-[540px] object-contain z-10 transition-all duration-500 transform group-hover:scale-105 filter drop-shadow-[0_25px_45px_rgba(0,0,0,0.95)]">
           
           <div class="absolute top-4 left-4 z-20 flex items-center gap-2">
             <span id="productBadge" class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider apple-glass-btn-primary text-white shadow-md">
