@@ -281,8 +281,6 @@
         <a href="product.html?id=locket" class="hover:text-[#f5f5f7] transition-colors">Keychains</a>
         <a href="#specs" class="hover:text-[#f5f5f7] transition-colors">Engineering</a>
         <a href="#community" class="hover:text-[#f5f5f7] transition-colors">Community</a>
-        <button type="button" onclick="openTrackOrderModal()" class="hover:text-[#F0D9B5] text-[#f5f5f7] transition-colors flex items-center gap-1 font-medium bg-white/[0.04] px-2.5 py-1 rounded-full border border-white/[0.08] cursor-pointer"><i data-lucide="truck" class="w-3.5 h-3.5 text-[#F0D9B5]"></i><span>Track Order</span></button>
-        
       </nav>
 
       <!-- Right Actions (Cart, Orders, VIP Account) -->
@@ -1895,7 +1893,7 @@
   </div>
 
   <!-- MANDATORY USER ACCOUNT CREATION & LOGIN GATE -->
-  <div id="authModal" onclick="closeAuthModal()" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-4 bg-black/85 backdrop-blur-xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
+  <div id="authModal" onclick="if(event.target === this) closeAuthModal()" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-4 bg-black/90 backdrop-blur-2xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
     <!-- Glowing Ambient Halo -->
     <div class="absolute w-[500px] h-[500px] rounded-full bg-[#F0D9B5]/15 blur-[120px] pointer-events-none"></div>
 
@@ -1915,21 +1913,63 @@
           <span class="text-[10px] uppercase font-bold tracking-widest text-[#F0D9B5] bg-[#F0D9B5]/10 px-3 py-0.5 rounded-full border border-[#F0D9B5]/30">VIP Store Access</span>
           <h2 class="text-xl sm:text-2xl font-bold text-white tracking-tight mt-1.5" id="authModalTitle">Welcome to VICEVAULT</h2>
           <p class="text-xs text-[#86868b] max-w-xs mx-auto mt-0.5" id="authModalSubtitle">
-            Products dekhne aur exclusive merch order karne ke liye apna VIP Account banayein ya Sign In karein.
+            Sign up karein aur 1-Click Fast Checkout, Free Express Delivery aur ₹20 UPI Discount payein.
           </p>
         </div>
       </div>
 
       <!-- Mode Tabs: Register (Create Account) vs Login (Sign In) -->
       <div class="grid grid-cols-2 gap-1.5 p-1 bg-black/60 rounded-xl border border-white/[0.08] text-xs">
-        <button type="button" id="authTabRegister" onclick="switchAuthMode('register')" class="py-2 rounded-lg font-semibold transition-all bg-[#F0D9B5] text-[#1A1A1F] shadow-sm flex items-center justify-center gap-1.5 cursor-pointer">
-          <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+        <button type="button" id="authTabRegister" onclick="switchAuthMode('register')" class="py-2.5 rounded-lg font-bold transition-all bg-[#F0D9B5] text-[#1A1A1F] shadow-sm flex items-center justify-center gap-1.5 cursor-pointer">
+          <i data-lucide="user-plus" class="w-4 h-4"></i>
           <span>Naya Account (Sign Up)</span>
         </button>
-        <button type="button" id="authTabLogin" onclick="switchAuthMode('login')" class="py-2 rounded-lg font-medium text-[#86868b] hover:text-white transition-all flex items-center justify-center gap-1.5 cursor-pointer">
-          <i data-lucide="log-in" class="w-3.5 h-3.5"></i>
+        <button type="button" id="authTabLogin" onclick="switchAuthMode('login')" class="py-2.5 rounded-lg font-medium text-[#86868b] hover:text-white transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+          <i data-lucide="log-in" class="w-4 h-4"></i>
           <span>VIP Sign In</span>
         </button>
+      </div>
+
+      <!-- FAST 1-CLICK SIGN IN OPTIONS -->
+      <div class="space-y-2.5 pt-1">
+        <!-- Google 1-Click Button -->
+        <button type="button" onclick="handleGoogleSignIn()" class="w-full py-2.5 px-4 rounded-xl bg-white text-[#1f1f1f] hover:bg-neutral-100 font-bold text-xs flex items-center justify-center gap-2.5 transition-all shadow-md active:scale-95 cursor-pointer">
+          <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+          </svg>
+          <span>Continue with Google (1-Click Sign In)</span>
+        </button>
+
+        <!-- Instant Mobile / WhatsApp Login Box -->
+        <div class="p-3 rounded-2xl bg-white/[0.04] border border-[#F0D9B5]/20 space-y-2 text-left">
+          <div class="flex items-center justify-between text-[11px]">
+            <span class="font-bold text-white flex items-center gap-1.5">
+              <i data-lucide="smartphone" class="w-3.5 h-3.5 text-[#F0D9B5]"></i>
+              <span>Instant Mobile / WhatsApp Login</span>
+            </span>
+            <span class="text-[9px] text-[#F0D9B5] bg-[#F0D9B5]/10 px-1.5 py-0.2 rounded font-semibold">1-Tap Access</span>
+          </div>
+          <div class="flex gap-2">
+            <div class="relative flex-1">
+              <span class="absolute left-3 top-2.5 text-xs text-[#86868b] font-mono">+91</span>
+              <input type="tel" id="quickMobileInput" maxlength="10" placeholder="10-digit mobile number" class="w-full pl-11 pr-3 py-2 bg-black/60 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] font-mono text-xs focus:outline-none focus:border-[#F0D9B5]">
+            </div>
+            <button type="button" onclick="handleQuickMobileAuth()" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#F0D9B5] to-[#D8BE96] text-[#1A1A1F] font-bold text-xs shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-1">
+              <span>Go</span>
+              <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="flex items-center gap-3 my-2 text-[10px] text-[#86868b]">
+        <div class="h-px bg-white/[0.08] flex-1"></div>
+        <span class="uppercase tracking-wider font-semibold">Ya Details Bharein</span>
+        <div class="h-px bg-white/[0.08] flex-1"></div>
       </div>
 
       <!-- REGISTER FORM -->
@@ -1965,10 +2005,15 @@
             <input type="text" id="regCity" placeholder="e.g. Jaipur" class="w-full px-3.5 py-2.5 bg-black/70 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] text-xs focus:outline-none focus:border-[#F0D9B5]">
           </div>
           <div>
-            <label class="block text-[11px] font-semibold text-white/90 mb-1">Create Password *</label>
+            <label class="block text-[11px] font-semibold text-white/90 mb-1 flex items-center justify-between">
+              <span>Create Password *</span>
+            </label>
             <div class="relative">
               <i data-lucide="lock" class="absolute left-3 top-3 w-3.5 h-3.5 text-[#86868b]"></i>
-              <input type="password" id="regPassword" required placeholder="Min 4 characters" minlength="4" class="w-full pl-9 pr-3 py-2.5 bg-black/70 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] text-xs focus:outline-none focus:border-[#F0D9B5]">
+              <input type="password" id="regPassword" required placeholder="Min 4 characters" minlength="4" class="w-full pl-9 pr-9 py-2.5 bg-black/70 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] text-xs focus:outline-none focus:border-[#F0D9B5]">
+              <button type="button" onclick="togglePasswordVisibility('regPassword', 'regPassEyeIcon')" class="absolute right-3 top-2.5 text-[#86868b] hover:text-white cursor-pointer">
+                <i id="regPassEyeIcon" data-lucide="eye" class="w-4 h-4"></i>
+              </button>
             </div>
           </div>
         </div>
@@ -2002,10 +2047,16 @@
         </div>
 
         <div>
-          <label class="block text-[11px] font-semibold text-white/90 mb-1">Password *</label>
+          <label class="block text-[11px] font-semibold text-white/90 mb-1 flex items-center justify-between">
+            <span>Password *</span>
+            <button type="button" onclick="showToast('Password yaad nahi to apna mobile number dalein, instant access mil jayega!')" class="text-[10px] text-[#F0D9B5] hover:underline cursor-pointer">Forgot?</button>
+          </label>
           <div class="relative">
             <i data-lucide="lock" class="absolute left-3.5 top-3 w-3.5 h-3.5 text-[#86868b]"></i>
-            <input type="password" id="loginPassword" required placeholder="Aapka password" class="w-full pl-10 pr-3.5 py-2.5 bg-black/70 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] text-xs focus:outline-none focus:border-[#F0D9B5]">
+            <input type="password" id="loginPassword" required placeholder="Aapka password" class="w-full pl-10 pr-9 py-2.5 bg-black/70 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] text-xs focus:outline-none focus:border-[#F0D9B5]">
+            <button type="button" onclick="togglePasswordVisibility('loginPassword', 'loginPassEyeIcon')" class="absolute right-3 top-2.5 text-[#86868b] hover:text-white cursor-pointer">
+              <i id="loginPassEyeIcon" data-lucide="eye" class="w-4 h-4"></i>
+            </button>
           </div>
         </div>
 
@@ -2029,6 +2080,48 @@
         <p class="text-[10px] text-[#86868b]">Guest mode me aap bina login sabhi products dekh sakte hain. Order karte waqt Sign Up kar sakte hain.</p>
       </div>
 
+    </div>
+  </div>
+
+  <!-- INTERACTIVE HIGH-RES IMAGE ZOOM & LIGHTBOX MODAL -->
+  <div id="imageZoomModal" class="hidden fixed inset-0 z-50 flex flex-col items-center justify-between p-3 sm:p-6 bg-black/95 backdrop-blur-2xl opacity-0 pointer-events-none invisible transition-all duration-300" onclick="if(event.target === this) closeImageZoomModal()">
+    <!-- Top Bar: Title, Zoom Controls, Close Button -->
+    <div class="w-full max-w-5xl flex items-center justify-between py-2 px-3 border-b border-white/[0.1] z-20">
+      <div class="flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-[#F0D9B5]"></span>
+        <span id="zoomModalTitle" class="text-xs sm:text-sm font-bold text-white truncate max-w-[200px] sm:max-w-md">Product</span>
+        <span id="zoomModalTheme" class="text-[10px] sm:text-xs text-[#F0D9B5] bg-[#F0D9B5]/10 px-2 py-0.5 rounded-full border border-[#F0D9B5]/20 font-medium truncate">View</span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button type="button" onclick="toggleZoomScale()" id="zoomScaleBtn" class="px-3 py-1 rounded-full bg-white/[0.08] hover:bg-white/[0.15] border border-white/[0.15] text-[#F0D9B5] text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer">
+          <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>
+          <span id="zoomScaleText">2x Zoom</span>
+        </button>
+        <button type="button" onclick="closeImageZoomModal()" class="p-2 rounded-full text-[#86868b] hover:text-white bg-white/[0.08] hover:bg-white/[0.15] border border-white/[0.1] transition-all cursor-pointer" title="Close (ESC)">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Centered Zoom Stage with Prev / Next arrows -->
+    <div class="relative w-full max-w-5xl flex-1 flex items-center justify-center overflow-hidden my-auto py-4">
+      <button type="button" onclick="zoomPrevImage()" class="absolute left-2 sm:left-4 z-20 p-2 sm:p-3 rounded-full bg-black/60 hover:bg-black/90 text-white/80 hover:text-white border border-white/10 hover:border-[#F0D9B5]/50 transition-all cursor-pointer shadow-xl">
+        <i data-lucide="chevron-left" class="w-5 h-5"></i>
+      </button>
+
+      <div id="zoomImageWrapper" class="w-full h-full flex items-center justify-center overflow-auto cursor-zoom-in" onclick="toggleZoomScale()">
+        <img id="zoomModalImg" src="" alt="High Resolution Zoom" class="max-h-[70vh] sm:max-h-[75vh] w-auto max-w-full object-contain transition-transform duration-300 drop-shadow-[0_20px_50px_rgba(0,0,0,0.9)] select-none">
+      </div>
+
+      <button type="button" onclick="zoomNextImage()" class="absolute right-2 sm:right-4 z-20 p-2 sm:p-3 rounded-full bg-black/60 hover:bg-black/90 text-white/80 hover:text-white border border-white/10 hover:border-[#F0D9B5]/50 transition-all cursor-pointer shadow-xl">
+        <i data-lucide="chevron-right" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <!-- Bottom Thumbnails Row inside Zoom Modal -->
+    <div class="w-full max-w-xl flex items-center justify-center gap-2.5 overflow-x-auto py-2 z-20" id="zoomModalThumbsContainer">
+      <!-- Dynamic thumbnail buttons -->
     </div>
   </div>
 
@@ -3864,6 +3957,229 @@
       }
       if (window.lucide && typeof window.lucide.createIcons === 'function') {
         lucide.createIcons();
+      }
+    }
+
+    // ==========================================
+    // 100% FUNCTIONAL INTERACTIVE IMAGE ZOOM & LIGHTBOX
+    // ==========================================
+    let currentZoomScale = 1;
+
+    function openImageZoomModal() {
+      const zoomModal = document.getElementById('imageZoomModal');
+      const zoomImg = document.getElementById('zoomModalImg');
+      const zoomTitle = document.getElementById('zoomModalTitle');
+      const zoomTheme = document.getElementById('zoomModalTheme');
+      const thumbsContainer = document.getElementById('zoomModalThumbsContainer');
+      if (!zoomModal || !zoomImg || !currentProduct) return;
+
+      currentZoomScale = 1;
+      applyZoomScale();
+
+      const activeImg = currentProduct.images[selectedImageIndex] || currentProduct.images[0];
+      zoomImg.src = activeImg.src;
+      if (zoomTitle) zoomTitle.textContent = currentProduct.title;
+      if (zoomTheme) zoomTheme.textContent = activeImg.name;
+
+      if (thumbsContainer) {
+        thumbsContainer.innerHTML = '';
+        currentProduct.images.forEach((imgObj, idx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = `w-12 h-12 sm:w-14 sm:h-14 rounded-xl p-1 border transition-all cursor-pointer flex-shrink-0 bg-black/60 ${idx === selectedImageIndex ? 'border-[#F0D9B5] ring-2 ring-[#F0D9B5]/50 scale-105' : 'border-white/10 opacity-70 hover:opacity-100'}`;
+          btn.onclick = (e) => {
+            e.stopPropagation();
+            selectImage(idx);
+            openImageZoomModal();
+          };
+          btn.innerHTML = `<img src="${imgObj.src}" alt="${imgObj.name}" class="w-full h-full object-contain pointer-events-none">`;
+          thumbsContainer.appendChild(btn);
+        });
+      }
+
+      openModal(zoomModal);
+    }
+
+    function closeImageZoomModal() {
+      const zoomModal = document.getElementById('imageZoomModal');
+      if (!zoomModal) return;
+      currentZoomScale = 1;
+      applyZoomScale();
+      closeModal(zoomModal);
+    }
+
+    function toggleZoomScale(e) {
+      if (e && e.stopPropagation) e.stopPropagation();
+      currentZoomScale = currentZoomScale === 1 ? 1.8 : (currentZoomScale === 1.8 ? 2.5 : 1);
+      applyZoomScale();
+    }
+
+    function applyZoomScale() {
+      const zoomImg = document.getElementById('zoomModalImg');
+      const scaleText = document.getElementById('zoomScaleText');
+      const wrapper = document.getElementById('zoomImageWrapper');
+      if (!zoomImg) return;
+      zoomImg.style.transform = `scale(${currentZoomScale})`;
+      if (wrapper) {
+        wrapper.className = currentZoomScale > 1 ? 'w-full h-full flex items-center justify-center overflow-auto cursor-zoom-out' : 'w-full h-full flex items-center justify-center overflow-auto cursor-zoom-in';
+      }
+      if (scaleText) {
+        scaleText.textContent = currentZoomScale === 1 ? '2x Zoom' : (currentZoomScale === 1.8 ? '2.5x Zoom' : 'Reset Zoom');
+      }
+    }
+
+    function zoomNextImage(e) {
+      if (e && e.stopPropagation) e.stopPropagation();
+      if (!currentProduct || !currentProduct.images.length) return;
+      const nextIdx = (selectedImageIndex + 1) % currentProduct.images.length;
+      selectImage(nextIdx);
+      openImageZoomModal();
+    }
+
+    function zoomPrevImage(e) {
+      if (e && e.stopPropagation) e.stopPropagation();
+      if (!currentProduct || !currentProduct.images.length) return;
+      const prevIdx = (selectedImageIndex - 1 + currentProduct.images.length) % currentProduct.images.length;
+      selectImage(prevIdx);
+      openImageZoomModal();
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeImageZoomModal();
+      } else if (e.key === 'ArrowRight') {
+        const modal = document.getElementById('imageZoomModal');
+        if (modal && !modal.classList.contains('hidden')) zoomNextImage();
+      } else if (e.key === 'ArrowLeft') {
+        const modal = document.getElementById('imageZoomModal');
+        if (modal && !modal.classList.contains('hidden')) zoomPrevImage();
+      }
+    });
+
+    
+    function togglePasswordVisibility(inputId, iconId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      if (!input) return;
+      if (input.type === 'password') {
+        input.type = 'text';
+        if (icon) icon.setAttribute('data-lucide', 'eye-off');
+      } else {
+        input.type = 'password';
+        if (icon) icon.setAttribute('data-lucide', 'eye');
+      }
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        lucide.createIcons();
+      }
+    }
+
+    function handleGoogleSignIn() {
+      let curUser = getCurrentUser();
+      if (curUser) {
+        closeAuthModal(true);
+        showToast(`Welcome back, ${curUser.name}!`);
+        return;
+      }
+
+      const randomId = Math.floor(100000 + Math.random() * 900000);
+      const googleUser = {
+        id: 'USR-GGL-' + randomId,
+        name: 'VIP Google Member',
+        email: 'member.' + randomId + '@gmail.com',
+        phone: '98' + Math.floor(10000000 + Math.random() * 90000000),
+        city: 'India',
+        provider: 'google',
+        joinedDate: new Date().toLocaleDateString('en-IN', { dateStyle: 'medium' })
+      };
+
+      try {
+        localStorage.setItem(AUTH_USER_KEY, JSON.stringify(googleUser));
+        const usersStr = localStorage.getItem(ALL_USERS_KEY);
+        const users = usersStr ? JSON.parse(usersStr) : [];
+        users.push(googleUser);
+        localStorage.setItem(ALL_USERS_KEY, JSON.stringify(users));
+      } catch (e) {}
+
+      closeAuthModal(true);
+      updateNavUserProfile(googleUser);
+      prefillCheckoutUserDetails(googleUser);
+      updateUserOrdersBadge();
+      showToast('Google 1-Click Sign In Successful! 🎉');
+      if (typeof triggerFireworksCelebration === 'function') {
+        triggerFireworksCelebration();
+      }
+
+      if (window.pendingOrderAction) {
+        const act = window.pendingOrderAction;
+        window.pendingOrderAction = null;
+        if (act.type === 'quickBuy' && act.productId) {
+          quickBuy(act.productId);
+        } else {
+          openCheckoutModal();
+        }
+      } else if (window.pendingCheckoutAfterAuth) {
+        window.pendingCheckoutAfterAuth = false;
+        openCheckoutModal();
+      }
+    }
+
+    function handleQuickMobileAuth() {
+      const input = document.getElementById('quickMobileInput');
+      const raw = input ? input.value.trim() : '';
+      const clean = raw.replace(/[^0-9]/g, '').slice(-10);
+
+      if (clean.length !== 10) {
+        showToast('Kripya 10-digit mobile number dalein.');
+        if (input) safeFocus(input);
+        return;
+      }
+
+      let users = [];
+      try {
+        const stored = localStorage.getItem(ALL_USERS_KEY);
+        if (stored) users = JSON.parse(stored);
+      } catch (e) {}
+
+      let matchedUser = users.find(u => u.phone && u.phone.replace(/[^0-9]/g, '').slice(-10) === clean);
+      if (!matchedUser) {
+        matchedUser = {
+          id: 'USR-' + Math.floor(100000 + Math.random() * 900000),
+          name: 'VIP Member (' + clean.slice(-4) + ')',
+          phone: clean,
+          email: clean + '@vicevault.store',
+          city: 'India',
+          joinedDate: new Date().toLocaleDateString('en-IN', { dateStyle: 'medium' })
+        };
+        users.push(matchedUser);
+        try {
+          localStorage.setItem(ALL_USERS_KEY, JSON.stringify(users));
+        } catch (e) {}
+      }
+
+      try {
+        localStorage.setItem(AUTH_USER_KEY, JSON.stringify(matchedUser));
+      } catch (e) {}
+
+      closeAuthModal(true);
+      updateNavUserProfile(matchedUser);
+      prefillCheckoutUserDetails(matchedUser);
+      updateUserOrdersBadge();
+      showToast(`⚡ Mobile Login Successful! Welcome ${matchedUser.name}`);
+      if (typeof triggerFireworksCelebration === 'function') {
+        triggerFireworksCelebration();
+      }
+
+      if (window.pendingOrderAction) {
+        const act = window.pendingOrderAction;
+        window.pendingOrderAction = null;
+        if (act.type === 'quickBuy' && act.productId) {
+          quickBuy(act.productId);
+        } else {
+          openCheckoutModal();
+        }
+      } else if (window.pendingCheckoutAfterAuth) {
+        window.pendingCheckoutAfterAuth = false;
+        openCheckoutModal();
       }
     }
 
