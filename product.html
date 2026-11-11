@@ -273,7 +273,7 @@
     }
   </style>
 </head>
-<body class="bg-black text-[#f5f5f7] font-sans antialiased selection:apple-glass-btn-primary selection:text-white min-h-screen flex flex-col">
+<body class="bg-black text-[#f5f5f7] font-sans antialiased selection:apple-glass-btn-primary selection:text-white min-h-screen flex flex-col pb-24 sm:pb-0">
   <!-- LUXURY GLASSMORPHIC AMBIENT ORBS (#F0D9B5 & #1A1A1F) (Optimized: hidden on mobile to eliminate GPU lag) -->
   <div class="hidden sm:block fixed inset-0 pointer-events-none overflow-hidden z-0">
     <div class="absolute -top-40 -left-40 w-[680px] h-[680px] rounded-full bg-gradient-to-br from-[#F0D9B5]/22 via-[#D8BE96]/10 to-transparent blur-[130px] opacity-75 animate-pulse" style="animation-duration: 9s;"></div>
@@ -416,8 +416,8 @@
       <!-- LEFT COLUMN: MULTI-IMAGE GALLERY (Apple Glass Stage) -->
       <div class="lg:col-span-7 space-y-4">
         
-        <!-- Big Hero Visual Stage -->
-        <div class="apple-glass-card rounded-3xl p-4 sm:p-8 flex items-center justify-center relative overflow-hidden group min-h-[480px] sm:min-h-[540px]">
+        <!-- Big Hero Visual Stage with 100% Interactive High-Res Zoom -->
+        <div onclick="openImageZoomModal()" class="apple-glass-card rounded-3xl p-4 sm:p-8 flex items-center justify-center relative overflow-hidden group min-h-[480px] sm:min-h-[540px] cursor-zoom-in">
           <div class="absolute w-80 h-80 rounded-full bg-[#F0D9B5]/10 blur-3xl pointer-events-none"></div>
           
           <img id="mainDisplayImg" src="" alt="Product Image" 
@@ -432,9 +432,9 @@
             </span>
           </div>
 
-          <div class="absolute bottom-4 right-4 z-20 bg-black/50 backdrop-blur-sm px-2.5 py-1 rounded-full text-[10px] text-[#86868b] flex items-center gap-1.5 border border-white/[0.08]">
-            <i data-lucide="zoom-in" class="w-3.5 h-3.5"></i>
-            <span>Interactive Zoom</span>
+          <div onclick="event.stopPropagation(); openImageZoomModal();" class="absolute bottom-4 right-4 z-20 bg-black/70 hover:bg-black/90 active:scale-95 transition-all backdrop-blur-md px-3 py-1.5 rounded-full text-[11px] text-[#F0D9B5] flex items-center gap-1.5 border border-[#F0D9B5]/30 cursor-pointer shadow-lg hover:border-[#F0D9B5]">
+            <i data-lucide="zoom-in" class="w-3.5 h-3.5 text-[#F0D9B5]"></i>
+            <span class="font-semibold">Interactive Zoom</span>
           </div>
         </div>
 
@@ -732,7 +732,7 @@
   </div>
 
   <!-- CHECKOUT MODAL -->
-  <div id="checkoutModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
+  <div id="checkoutModal" onclick="if(event.target === this) closeCheckoutModal()" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
     <div class="relative w-full max-w-lg apple-glass-panel rounded-3xl p-6 sm:p-8 shadow-2xl overflow-y-auto max-h-[90vh] space-y-5">
       <div class="flex items-center justify-between pb-3 border-b border-white/[0.08]">
         <div>
@@ -1085,7 +1085,7 @@
   </div>
 
     <!-- STICKY BOTTOM BUY BAR (Pinned for Instant Purchase) -->
-  <div id="stickyBottomBuyBar" class="sm:hidden fixed bottom-0 inset-x-0 z-40 p-3 bg-black/90 backdrop-blur-2xl border-t border-[#F0D9B5]/25 flex items-center justify-between gap-3 shadow-2xl">
+  <div id="stickyBottomBuyBar" class="sm:hidden fixed bottom-0 inset-x-0 z-40 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] bg-black/90 backdrop-blur-2xl border-t border-[#F0D9B5]/25 flex items-center justify-between gap-3 shadow-2xl">
     <div class="min-w-0">
       <p class="text-xs font-bold text-white truncate" id="stickyProductTitle">DualSense Pro Skins</p>
       <div class="flex items-center gap-1.5 text-xs">
@@ -1103,7 +1103,7 @@
   <canvas id="fireworksCanvas" class="fixed inset-0 z-50 pointer-events-none w-full h-full opacity-0 transition-opacity duration-300"></canvas>
 
   <!-- ORDER CONGRATULATIONS & SUCCESS MODAL -->
-  <div id="successModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
+  <div id="successModal" onclick="if(event.target === this) closeSuccessModal()" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
     <div class="relative w-full max-w-md apple-glass-panel rounded-3xl p-6 sm:p-8 shadow-2xl text-center space-y-5 border border-[#F0D9B5]/35 overflow-y-auto max-h-[92vh] my-auto group">
       
       <!-- Top Ambient Celebration Glow -->
@@ -1485,7 +1485,7 @@
     
   
   <!-- COD TO UPI CONVERSION MODAL (GLASSMORPHISM LUXURY) -->
-  <div id="codToUpiModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-2xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
+  <div id="codToUpiModal" onclick="if(event.target === this) closeCodToUpiModal()" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-2xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
     <!-- Glowing Ambient Halo -->
     <div class="absolute w-[500px] h-[500px] rounded-full bg-[#F0D9B5]/15 blur-[120px] pointer-events-none"></div>
 
@@ -1618,7 +1618,7 @@
   </div>
 
   <!-- USER PROFILE & ORDER HISTORY MODAL (AUTHENTIC LUXURY GLASSMORPHISM) -->
-  <div id="profileModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-2xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
+  <div id="profileModal" onclick="if(event.target === this) closeProfileModal()" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-2xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
     <!-- Glowing Ambient Halo -->
     <div class="absolute w-[600px] h-[600px] rounded-full bg-[#F0D9B5]/12 blur-[140px] pointer-events-none"></div>
 
@@ -1941,6 +1941,48 @@
     </div>
   </div>
 
+  <!-- INTERACTIVE HIGH-RES IMAGE ZOOM & LIGHTBOX MODAL -->
+  <div id="imageZoomModal" class="hidden fixed inset-0 z-50 flex flex-col items-center justify-between p-3 sm:p-6 bg-black/95 backdrop-blur-2xl opacity-0 pointer-events-none invisible transition-all duration-300" onclick="if(event.target === this) closeImageZoomModal()">
+    <!-- Top Bar: Title, Zoom Controls, Close Button -->
+    <div class="w-full max-w-5xl flex items-center justify-between py-2 px-3 border-b border-white/[0.1] z-20">
+      <div class="flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-[#F0D9B5]"></span>
+        <span id="zoomModalTitle" class="text-xs sm:text-sm font-bold text-white truncate max-w-[200px] sm:max-w-md">Product</span>
+        <span id="zoomModalTheme" class="text-[10px] sm:text-xs text-[#F0D9B5] bg-[#F0D9B5]/10 px-2 py-0.5 rounded-full border border-[#F0D9B5]/20 font-medium truncate">View</span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button type="button" onclick="toggleZoomScale()" id="zoomScaleBtn" class="px-3 py-1 rounded-full bg-white/[0.08] hover:bg-white/[0.15] border border-white/[0.15] text-[#F0D9B5] text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer">
+          <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>
+          <span id="zoomScaleText">2x Zoom</span>
+        </button>
+        <button type="button" onclick="closeImageZoomModal()" class="p-2 rounded-full text-[#86868b] hover:text-white bg-white/[0.08] hover:bg-white/[0.15] border border-white/[0.1] transition-all cursor-pointer" title="Close (ESC)">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Centered Zoom Stage with Prev / Next arrows -->
+    <div class="relative w-full max-w-5xl flex-1 flex items-center justify-center overflow-hidden my-auto py-4">
+      <button type="button" onclick="zoomPrevImage()" class="absolute left-2 sm:left-4 z-20 p-2 sm:p-3 rounded-full bg-black/60 hover:bg-black/90 text-white/80 hover:text-white border border-white/10 hover:border-[#F0D9B5]/50 transition-all cursor-pointer shadow-xl">
+        <i data-lucide="chevron-left" class="w-5 h-5"></i>
+      </button>
+
+      <div id="zoomImageWrapper" class="w-full h-full flex items-center justify-center overflow-auto cursor-zoom-in" onclick="toggleZoomScale()">
+        <img id="zoomModalImg" src="" alt="High Resolution Zoom" class="max-h-[70vh] sm:max-h-[75vh] w-auto max-w-full object-contain transition-transform duration-300 drop-shadow-[0_20px_50px_rgba(0,0,0,0.9)] select-none">
+      </div>
+
+      <button type="button" onclick="zoomNextImage()" class="absolute right-2 sm:right-4 z-20 p-2 sm:p-3 rounded-full bg-black/60 hover:bg-black/90 text-white/80 hover:text-white border border-white/10 hover:border-[#F0D9B5]/50 transition-all cursor-pointer shadow-xl">
+        <i data-lucide="chevron-right" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <!-- Bottom Thumbnails Row inside Zoom Modal -->
+    <div class="w-full max-w-xl flex items-center justify-center gap-2.5 overflow-x-auto py-2 z-20" id="zoomModalThumbsContainer">
+      <!-- Dynamic thumbnail buttons -->
+    </div>
+  </div>
+
   <!-- TOAST -->
   <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-2.5 px-4 py-3 rounded-2xl apple-glass-panel/90 backdrop-blur-xl border border-white/[0.15] shadow-2xl text-white text-xs font-medium">
     <i data-lucide="check-circle" class="w-4 h-4 text-[#F0D9B5]"></i>
@@ -2245,6 +2287,102 @@
 
       lucide.createIcons();
     }
+
+    // ==========================================
+    // 100% FUNCTIONAL INTERACTIVE IMAGE ZOOM & LIGHTBOX
+    // ==========================================
+    let currentZoomScale = 1;
+
+    function openImageZoomModal() {
+      const zoomModal = document.getElementById('imageZoomModal');
+      const zoomImg = document.getElementById('zoomModalImg');
+      const zoomTitle = document.getElementById('zoomModalTitle');
+      const zoomTheme = document.getElementById('zoomModalTheme');
+      const thumbsContainer = document.getElementById('zoomModalThumbsContainer');
+      if (!zoomModal || !zoomImg || !currentProduct) return;
+
+      currentZoomScale = 1;
+      applyZoomScale();
+
+      const activeImg = currentProduct.images[selectedImageIndex] || currentProduct.images[0];
+      zoomImg.src = activeImg.src;
+      if (zoomTitle) zoomTitle.textContent = currentProduct.title;
+      if (zoomTheme) zoomTheme.textContent = activeImg.name;
+
+      if (thumbsContainer) {
+        thumbsContainer.innerHTML = '';
+        currentProduct.images.forEach((imgObj, idx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = `w-12 h-12 sm:w-14 sm:h-14 rounded-xl p-1 border transition-all cursor-pointer flex-shrink-0 bg-black/60 ${idx === selectedImageIndex ? 'border-[#F0D9B5] ring-2 ring-[#F0D9B5]/50 scale-105' : 'border-white/10 opacity-70 hover:opacity-100'}`;
+          btn.onclick = (e) => {
+            e.stopPropagation();
+            selectImage(idx);
+            openImageZoomModal();
+          };
+          btn.innerHTML = `<img src="${imgObj.src}" alt="${imgObj.name}" class="w-full h-full object-contain pointer-events-none">`;
+          thumbsContainer.appendChild(btn);
+        });
+      }
+
+      openModal(zoomModal);
+    }
+
+    function closeImageZoomModal() {
+      const zoomModal = document.getElementById('imageZoomModal');
+      if (!zoomModal) return;
+      currentZoomScale = 1;
+      applyZoomScale();
+      closeModal(zoomModal);
+    }
+
+    function toggleZoomScale(e) {
+      if (e && e.stopPropagation) e.stopPropagation();
+      currentZoomScale = currentZoomScale === 1 ? 1.8 : (currentZoomScale === 1.8 ? 2.5 : 1);
+      applyZoomScale();
+    }
+
+    function applyZoomScale() {
+      const zoomImg = document.getElementById('zoomModalImg');
+      const scaleText = document.getElementById('zoomScaleText');
+      const wrapper = document.getElementById('zoomImageWrapper');
+      if (!zoomImg) return;
+      zoomImg.style.transform = `scale(${currentZoomScale})`;
+      if (wrapper) {
+        wrapper.className = currentZoomScale > 1 ? 'w-full h-full flex items-center justify-center overflow-auto cursor-zoom-out' : 'w-full h-full flex items-center justify-center overflow-auto cursor-zoom-in';
+      }
+      if (scaleText) {
+        scaleText.textContent = currentZoomScale === 1 ? '2x Zoom' : (currentZoomScale === 1.8 ? '2.5x Zoom' : 'Reset Zoom');
+      }
+    }
+
+    function zoomNextImage(e) {
+      if (e && e.stopPropagation) e.stopPropagation();
+      if (!currentProduct || !currentProduct.images.length) return;
+      const nextIdx = (selectedImageIndex + 1) % currentProduct.images.length;
+      selectImage(nextIdx);
+      openImageZoomModal();
+    }
+
+    function zoomPrevImage(e) {
+      if (e && e.stopPropagation) e.stopPropagation();
+      if (!currentProduct || !currentProduct.images.length) return;
+      const prevIdx = (selectedImageIndex - 1 + currentProduct.images.length) % currentProduct.images.length;
+      selectImage(prevIdx);
+      openImageZoomModal();
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeImageZoomModal();
+      } else if (e.key === 'ArrowRight') {
+        const modal = document.getElementById('imageZoomModal');
+        if (modal && !modal.classList.contains('hidden')) zoomNextImage();
+      } else if (e.key === 'ArrowLeft') {
+        const modal = document.getElementById('imageZoomModal');
+        if (modal && !modal.classList.contains('hidden')) zoomPrevImage();
+      }
+    });
 
     function selectImage(idx) {
       selectedImageIndex = idx;

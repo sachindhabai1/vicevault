@@ -838,7 +838,7 @@
   </div>
 
   <!-- CHECKOUT MODAL -->
-  <div id="checkoutModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
+  <div id="checkoutModal" onclick="if(event.target === this) closeCheckoutModal()" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
     <div class="relative w-full max-w-lg apple-glass-panel rounded-3xl p-6 sm:p-8 shadow-2xl overflow-y-auto max-h-[90vh] space-y-5">
       <div class="flex items-center justify-between pb-3 border-b border-white/[0.08]">
         <div>
@@ -851,6 +851,21 @@
       </div>
 
       <form id="orderForm" onsubmit="submitCustomerOrder(event)" class="space-y-4 text-xs">
+        
+        <!-- Order Items & Quantity Adjuster inside Checkout -->
+        <div class="apple-glass-inner p-3.5 rounded-2xl space-y-2">
+          <div class="flex items-center justify-between text-xs font-semibold text-white">
+            <span class="flex items-center gap-1.5">
+              <i data-lucide="package" class="w-3.5 h-3.5 text-[#F0D9B5]"></i>
+              <span>Order Items & Quantity</span>
+            </span>
+            <span id="checkoutItemsCountBadge" class="text-[10px] text-[#F0D9B5] font-medium apple-glass-btn-primary/20 px-2 py-0.5 rounded-full border border-[#F0D9B5]/30">1 item</span>
+          </div>
+          <div id="checkoutModalItemsList" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+            <!-- Dynamic items with +/- quantity buttons rendered here -->
+          </div>
+        </div>
+
         <div>
           <label class="block font-medium text-[#f5f5f7] mb-1">Full Name *</label>
           <input type="text" id="custName" required placeholder="e.g. Sachin Dhabai" 
@@ -860,12 +875,12 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block font-medium text-[#f5f5f7] mb-1">Mobile / WhatsApp *</label>
-            <input type="tel" id="custPhone" required placeholder="10-digit number" pattern="[0-9]{10}"
+            <input type="tel" id="custPhone" required placeholder="e.g. 9876543210" pattern="[0-9]{10}"
                    class="w-full px-3.5 py-2.5 apple-glass-input rounded-xl text-white placeholder-[#6e6e73] focus:outline-none focus:border-[#F0D9B5]">
           </div>
           <div>
             <label class="block font-medium text-[#f5f5f7] mb-1">Pincode *</label>
-            <input type="text" id="custPincode" required placeholder="6-digit pincode" pattern="[0-9]{6}"
+            <input type="text" id="custPincode" required placeholder="e.g. 302001" pattern="[0-9]{6}" maxlength="6" oninput="onPincodeInput(this.value)"
                    class="w-full px-3.5 py-2.5 apple-glass-input rounded-xl text-white placeholder-[#6e6e73] focus:outline-none focus:border-[#F0D9B5]">
           </div>
         </div>
@@ -1179,7 +1194,7 @@
   <canvas id="fireworksCanvas" class="fixed inset-0 z-50 pointer-events-none w-full h-full opacity-0 transition-opacity duration-300"></canvas>
 
   <!-- ORDER CONGRATULATIONS & SUCCESS MODAL -->
-  <div id="successModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
+  <div id="successModal" onclick="if(event.target === this) closeSuccessModal()" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
     <div class="relative w-full max-w-md apple-glass-panel rounded-3xl p-6 sm:p-8 shadow-2xl text-center space-y-5 border border-[#F0D9B5]/35 overflow-y-auto max-h-[92vh] my-auto group">
       
       <!-- Top Ambient Celebration Glow -->
@@ -1561,7 +1576,7 @@
     
   
   <!-- COD TO UPI CONVERSION MODAL (GLASSMORPHISM LUXURY) -->
-  <div id="codToUpiModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-2xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
+  <div id="codToUpiModal" onclick="if(event.target === this) closeCodToUpiModal()" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-2xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
     <!-- Glowing Ambient Halo -->
     <div class="absolute w-[500px] h-[500px] rounded-full bg-[#F0D9B5]/15 blur-[120px] pointer-events-none"></div>
 
@@ -1694,7 +1709,7 @@
   </div>
 
   <!-- USER PROFILE & ORDER HISTORY MODAL (AUTHENTIC LUXURY GLASSMORPHISM) -->
-  <div id="profileModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-2xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
+  <div id="profileModal" onclick="if(event.target === this) closeProfileModal()" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-2xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
     <!-- Glowing Ambient Halo -->
     <div class="absolute w-[600px] h-[600px] rounded-full bg-[#F0D9B5]/12 blur-[140px] pointer-events-none"></div>
 
