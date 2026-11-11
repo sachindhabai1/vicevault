@@ -295,7 +295,7 @@
               </div>
               <div class="min-w-0 flex-1">
                 <p class="font-bold text-white text-xs truncate" id="dropdownUserName">VIP Member</p>
-                <p class="text-[10px] text-[#86868b] truncate font-mono" id="dropdownUserPhone">+91 9876543210</p>
+                <p class="text-[10px] text-[#86868b] truncate font-mono" id="dropdownUserPhone">Verified Member</p>
                 <span class="inline-block mt-0.5 text-[9px] font-bold text-[#F0D9B5] bg-[#F0D9B5]/10 px-1.5 py-0.2 rounded border border-[#F0D9B5]/30">VIP Member</span>
               </div>
             </div>
@@ -1666,7 +1666,7 @@
               <h3 class="text-base sm:text-lg font-bold text-white tracking-tight" id="profileModalName">VIP Member</h3>
               <span class="text-[9px] font-bold text-[#F0D9B5] bg-[#F0D9B5]/15 border border-[#F0D9B5]/40 px-2 py-0.5 rounded-full uppercase tracking-wider">VIP Member</span>
             </div>
-            <p class="text-xs text-[#86868b] font-mono mt-0.5" id="profileModalSubtitle">+91 9876543210 • Member</p>
+            <p class="text-xs text-[#86868b] font-mono mt-0.5" id="profileModalSubtitle">Verified VIP Member</p>
           </div>
         </div>
         <div class="flex items-center gap-2">
@@ -2613,8 +2613,8 @@
       const orderId = '#GTA-' + Math.floor(100000 + Math.random() * 900000);
 
             // Save address & pincode into user profile for 1-click future orders
+      let curUser = getCurrentUser();
       try {
-        let curUser = getCurrentUser();
         if (curUser) {
           curUser.address = document.getElementById('custAddress').value.trim();
           curUser.pincode = document.getElementById('custPincode').value.trim();
@@ -2640,10 +2640,12 @@
 
       const newOrder = {
         orderId: orderId,
+        userId: curUser ? (curUser.id || '') : '',
         date: new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }),
         customer: {
           name: document.getElementById('custName').value.trim(),
           phone: document.getElementById('custPhone').value.trim(),
+          email: curUser ? (curUser.email || '') : '',
           pincode: document.getElementById('custPincode').value.trim(),
           address: document.getElementById('custAddress').value.trim(),
           city: document.getElementById('custCity').value.trim(),
@@ -2662,8 +2664,7 @@
       };
 
       try {
-        const existingData = localStorage.getItem(STORAGE_KEY);
-        const orders = existingData ? JSON.parse(existingData) : [];
+        const orders = sanitizeStoredOrders();
         orders.unshift(newOrder);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
         localStorage.setItem('gta_last_order_id', orderId);
@@ -2734,99 +2735,32 @@
     let currentTrackedOrder = null;
     let currentTrackedProductIndex = 0;
 
-    // Seed realistic demo multi-item orders if storage is fresh
-    function initDefaultDemoOrders() {
+    // Sanitize orders in localStorage: purge any old demo/fake orders
+    function sanitizeStoredOrders() {
       try {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (!stored || stored === '[]') {
-          const demoOrders = [
-            {
-              orderId: '#GTA-849201',
-              date: 'Yesterday, 4:30 PM',
-              customer: {
-                name: 'Sachin Sharma',
-                phone: '9876543210',
-                pincode: '400050',
-                address: 'Flat 402, Royal Palms, Bandra West',
-                city: 'Mumbai',
-                state: 'Maharashtra'
-              },
-              items: [
-                {
-                  id: 'controller',
-                  name: 'DualSense Pro Skin - Cyberpunk Gold',
-                  price: 699,
-                  qty: 1,
-                  image: 'images/controller-cyberpunk-yellow.png'
-                },
-                {
-                  id: 'console',
-                  name: 'PS5 Slim Console Skin - Cyberpunk 2077 Edition',
-                  price: 1299,
-                  qty: 1,
-                  image: 'images/ps5-controller-front.png'
-                },
-                {
-                  id: 'mousepad',
-                  name: 'Speed Pro XXL Desk Mat (900x400mm)',
-                  price: 799,
-                  qty: 1,
-                  image: 'images/mousepad-top.png'
-                }
-              ],
-              subtotal: 2797,
-              discount: 0,
-              total: 2797,
-              paymentMethod: 'COD (Cash on Delivery)',
-              status: 'Shipped',
-              courier: 'Delhivery Express',
-              trackingNumber: 'TRK-849201',
-              trackingLocation: 'In Transit. Dispatched from Mumbai Central Hub towards local delivery center.'
-            },
-            {
-              orderId: '#GTA-392817',
-              date: '05 Nov 2026, 2:15 PM',
-              customer: {
-                name: 'Sachin Sharma',
-                phone: '9876543210',
-                pincode: '400050',
-                address: 'Flat 402, Royal Palms, Bandra West',
-                city: 'Mumbai',
-                state: 'Maharashtra'
-              },
-              items: [
-                {
-                  id: 'controller',
-                  name: 'DualSense Pro Skin - Vice City Neon',
-                  price: 699,
-                  qty: 1,
-                  image: 'images/controller-cyberpunk-yellow.png'
-                },
-                {
-                  id: 'controller',
-                  name: 'DualSense Pro Skin - Matte Obsidian Stealth',
-                  price: 699,
-                  qty: 1,
-                  image: 'images/ps5-controller-front.png'
-                }
-              ],
-              subtotal: 1398,
-              discount: 20,
-              total: 1378,
-              paymentMethod: 'UPI / Online',
-              status: 'Out for Delivery',
-              courier: 'Blue Dart Express',
-              trackingNumber: 'TRK-392817',
-              trackingLocation: 'Out for Delivery! Courier agent is arriving at customer doorstep today.'
-            }
-          ];
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(demoOrders));
-          return demoOrders;
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return [];
+        let orders = JSON.parse(raw);
+        if (Array.isArray(orders)) {
+          const cleaned = orders.filter(o => {
+            if (!o) return false;
+            if (o.orderId === '#GTA-849201' || o.orderId === '#GTA-392817') return false;
+            if (o.trackingNumber === 'TRK-849201' || o.trackingNumber === 'TRK-392817') return false;
+            return true;
+          });
+          if (cleaned.length !== orders.length) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(cleaned));
+          }
+          return cleaned;
         }
-        return JSON.parse(stored);
+        return [];
       } catch (e) {
         return [];
       }
+    }
+
+    function initDefaultDemoOrders() {
+      return sanitizeStoredOrders();
     }
 
     function trackSpecificOrder(orderId, itemIndex = 0) {
@@ -2838,30 +2772,11 @@
       if (!modal) return;
       openModal(modal);
 
-      const allOrders = initDefaultDemoOrders();
-      const curUser = getCurrentUser();
-
       if (orderIdToTrack) {
         document.getElementById('trackSearchInput').value = orderIdToTrack;
         performOrderSearch(orderIdToTrack, initialItemIndex);
       } else {
-        // Find all orders for this customer (via logged in profile or all stored orders)
-        let customerOrders = [];
-        if (curUser) {
-          const uPhone = String(curUser.phone || '').trim().replace(/[^0-9]/g, '');
-          const uEmail = String(curUser.email || '').trim().toLowerCase();
-          customerOrders = allOrders.filter(o => {
-            if (!o || !o.customer) return false;
-            const oPhone = String(o.customer.phone || '').trim().replace(/[^0-9]/g, '');
-            const oEmail = String(o.customer.email || '').trim().toLowerCase();
-            return (uPhone && oPhone.includes(uPhone)) || (uEmail && oEmail === uEmail);
-          });
-        }
-
-        if (customerOrders.length === 0) {
-          customerOrders = allOrders;
-        }
-
+        const customerOrders = getUserOrdersList();
         if (customerOrders.length > 0) {
           const defaultOrder = customerOrders[0];
           document.getElementById('trackSearchInput').value = defaultOrder.orderId;
@@ -2872,6 +2787,7 @@
           renderMultipleOrdersSelector(customerOrders, defaultOrder.orderId);
           renderOrderTrackingDetails(defaultOrder, initialItemIndex);
         } else {
+          document.getElementById('trackSearchInput').value = '';
           document.getElementById('trackEmptyPrompt').classList.remove('hidden');
           document.getElementById('trackNotFoundPrompt').classList.add('hidden');
           document.getElementById('trackResultContainer').classList.add('hidden');
@@ -2879,7 +2795,9 @@
           if (multiBox) multiBox.classList.add('hidden');
         }
       }
-      lucide.createIcons();
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        lucide.createIcons();
+      }
     }
 
     function renderMultipleOrdersSelector(ordersList, selectedOrderId) {
@@ -2966,17 +2884,7 @@
         return;
       }
 
-      let orders = [];
-      try {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) orders = JSON.parse(stored);
-      } catch (e) {
-        orders = [];
-      }
-
-      if (orders.length === 0) {
-        orders = initDefaultDemoOrders();
-      }
+      let orders = sanitizeStoredOrders();
 
       const cleanQuery = query.toLowerCase().replace(/[^a-z0-9]/g, '');
 
@@ -2984,9 +2892,10 @@
       const matchedOrders = orders.filter(o => {
         if (!o) return false;
         const cleanId = (o.orderId || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        const cleanTrack = (o.trackingNumber || '').toLowerCase().replace(/[^a-z0-9]/g, '');
         const cleanPhone = (o.customer?.phone || '').toLowerCase().replace(/[^a-z0-9]/g, '');
         const cleanEmail = (o.customer?.email || '').toLowerCase();
-        return cleanId === cleanQuery || cleanId.includes(cleanQuery) || cleanPhone === cleanQuery || cleanPhone.includes(cleanQuery) || cleanEmail === cleanQuery;
+        return cleanId === cleanQuery || cleanTrack === cleanQuery || (cleanPhone && cleanPhone.includes(cleanQuery)) || (cleanEmail && cleanEmail === cleanQuery);
       });
 
       const emptyPrompt = document.getElementById('trackEmptyPrompt');
@@ -3701,14 +3610,19 @@
     }
 
     function checkUserAuth() {
+      // Purge any old demo orders on startup
+      sanitizeStoredOrders();
+
       const user = getCurrentUser();
       if (user) {
         closeAuthModal(true);
         unlockStoreContent();
         updateNavUserProfile(user);
         prefillCheckoutUserDetails(user);
+        updateUserOrdersBadge();
       } else {
         updateNavGuestProfile();
+        updateUserOrdersBadge();
         lockStoreContent();
         openAuthModal('register');
       }
@@ -3839,6 +3753,16 @@
 
       updateNavUserProfile(newUser);
       prefillCheckoutUserDetails(newUser);
+
+      // Clean fresh store state for new registered user
+      cart = [];
+      saveCart();
+      renderCart();
+      try {
+        localStorage.removeItem('gta_last_order_id');
+      } catch (e) {}
+      updateUserOrdersBadge();
+
       showToast(`Welcome to ViceVault, ${name}! Aapka VIP account ban gaya hai 🎉`);
 
       // Resume pending order if guest clicked buy/checkout
@@ -3886,6 +3810,7 @@
         closeAuthModal(true);
         updateNavUserProfile(found);
         prefillCheckoutUserDetails(found);
+        updateUserOrdersBadge();
         showToast(`Welcome back, ${found.name}! Login successful.`);
 
         // Resume pending order if guest clicked buy/checkout
@@ -3918,6 +3843,7 @@
           closeAuthModal(true);
           updateNavUserProfile(autoUser);
           prefillCheckoutUserDetails(autoUser);
+          updateUserOrdersBadge();
           showToast(`Welcome, ${autoUser.name}! Login successful.`);
 
           // Resume pending order if guest clicked buy/checkout
@@ -3943,9 +3869,16 @@
     function handleUserLogout() {
       localStorage.removeItem(AUTH_USER_KEY);
       sessionStorage.removeItem('vicevault_guest_chosen');
+      try {
+        localStorage.removeItem('gta_last_order_id');
+      } catch (e) {}
+      cart = [];
+      saveCart();
+      renderCart();
       showToast('Aap sign out ho gaye hain.');
       toggleUserProfileDropdown(false);
       updateNavGuestProfile();
+      updateUserOrdersBadge();
       lockStoreContent();
       setTimeout(() => {
         openAuthModal('register');
@@ -4429,31 +4362,26 @@
 
     function getUserOrdersList() {
       const curUser = getCurrentUser();
-      let allOrders = [];
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        allOrders = raw ? JSON.parse(raw) : [];
-      } catch (e) {
-        allOrders = [];
-      }
+      if (!curUser) return [];
 
-      if (!curUser) return allOrders;
-
-      const userPhone = String(curUser.phone || '').trim();
+      let allOrders = sanitizeStoredOrders();
+      const userPhone = String(curUser.phone || '').trim().replace(/[^0-9]/g, '');
       const userEmail = String(curUser.email || '').trim().toLowerCase();
+      const userId = curUser.id || '';
       const lastPlacedId = localStorage.getItem('gta_last_order_id') || '';
 
       const matched = allOrders.filter(o => {
         if (!o || !o.customer) return false;
-        const oPhone = String(o.customer.phone || '').trim();
+        if (userId && o.userId && o.userId === userId) return true;
+        const oPhone = String(o.customer.phone || '').trim().replace(/[^0-9]/g, '');
         const oEmail = String(o.customer.email || '').trim().toLowerCase();
-        if (userPhone && oPhone === userPhone) return true;
-        if (userEmail && oEmail === userEmail) return true;
+        if (userPhone && oPhone && (oPhone === userPhone || oPhone.endsWith(userPhone) || userPhone.endsWith(oPhone))) return true;
+        if (userEmail && oEmail && oEmail === userEmail) return true;
         if (lastPlacedId && o.orderId === lastPlacedId) return true;
         return false;
       });
 
-      return matched.length > 0 ? matched : allOrders;
+      return matched;
     }
 
     function renderProfileOrders() {
