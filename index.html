@@ -267,7 +267,7 @@
         
       </nav>
 
-      <!-- Right Actions (Cart, Wishlist, Admin) -->
+      <!-- Right Actions (Cart, Orders, VIP Account) -->
       <div class="flex items-center space-x-3 sm:space-x-4">
         <button onclick="openTrackOrderModal()" class="flex items-center gap-1.5 text-xs text-[#86868b] hover:text-white transition-colors py-1 px-2.5 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08]" title="Track Your Order"><i data-lucide="truck" class="w-3.5 h-3.5 text-[#F0D9B5]"></i><span class="hidden sm:inline font-medium">Track</span></button>
         <!-- USER VIP ACCOUNT BUTTON & DROPDOWN -->
@@ -712,10 +712,10 @@
         <div>
           <h5 class="text-[#f5f5f7] font-semibold mb-3">Services</h5>
           <ul class="space-y-2 text-[#86868b]">
-            <li><a href="admin.html" class="text-[#F0D9B5] hover:underline flex items-center gap-1"><i data-lucide="shield" class="w-3.5 h-3.5"></i> Admin Dashboard</a></li>
-            <li><a href="#" class="hover:text-[#f5f5f7]">Track Order</a></li>
-            <li><a href="#" class="hover:text-[#f5f5f7]">7-Day Return Policy</a></li>
-            <li><a href="#" class="hover:text-[#f5f5f7]">Free Shipping Pan-India</a></li>
+            <li><a href="javascript:void(0)" onclick="openTrackOrderModal()" class="hover:text-[#f5f5f7] flex items-center gap-1"><i data-lucide="truck" class="w-3.5 h-3.5 text-[#F0D9B5]"></i> Live Order Tracking</a></li>
+            <li><a href="javascript:void(0)" class="hover:text-[#f5f5f7]">24-Hour Express Dispatch</a></li>
+            <li><a href="javascript:void(0)" class="hover:text-[#f5f5f7]">7-Day Return Policy</a></li>
+            <li><a href="javascript:void(0)" class="hover:text-[#f5f5f7]">Free Shipping Pan-India</a></li>
           </ul>
         </div>
 
