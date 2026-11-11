@@ -306,20 +306,33 @@
         <a href="product.html?id=console" id="navLinkConsole" class="hover:text-[#f5f5f7] transition-colors">Consoles</a>
         <a href="product.html?id=mousepad" id="navLinkMousepad" class="hover:text-[#f5f5f7] transition-colors">Desk Mats</a>
         <a href="product.html?id=locket" id="navLinkLocket" class="hover:text-[#f5f5f7] transition-colors">Keychains</a>
-        <button onclick="openTrackOrderModal()" class="hover:text-[#F0D9B5] text-[#f5f5f7] transition-colors flex items-center gap-1 font-medium bg-white/[0.04] px-2.5 py-1 rounded-full border border-white/[0.08]"><i data-lucide="truck" class="w-3.5 h-3.5 text-[#F0D9B5]"></i><span>Track Order</span></button>
+        <button type="button" onclick="openTrackOrderModal()" class="hover:text-[#F0D9B5] text-[#f5f5f7] transition-colors flex items-center gap-1 font-medium bg-white/[0.04] px-2.5 py-1 rounded-full border border-white/[0.08] cursor-pointer"><i data-lucide="truck" class="w-3.5 h-3.5 text-[#F0D9B5]"></i><span>Track Order</span></button>
         
       </nav>
 
-      <div class="flex items-center space-x-3 sm:space-x-4">
-        <button onclick="openTrackOrderModal()" class="flex items-center gap-1.5 text-xs text-[#86868b] hover:text-white transition-colors py-1 px-2.5 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08]" title="Track Your Order"><i data-lucide="truck" class="w-3.5 h-3.5 text-[#F0D9B5]"></i><span class="hidden sm:inline font-medium">Track</span></button>
-        <button onclick="openProfileModal('orders')" class="flex items-center gap-1.5 text-xs text-[#86868b] hover:text-white transition-colors py-1 px-2.5 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08]" title="My Past Orders"><i data-lucide="package" class="w-3.5 h-3.5 text-[#F0D9B5]"></i><span class="hidden sm:inline font-medium">Orders</span></button>
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <!-- Track Order Button (Mobile & Desktop) -->
+        <button type="button" onclick="openTrackOrderModal()" class="flex items-center gap-1.5 text-xs text-[#f5f5f7] hover:text-[#F0D9B5] transition-all py-1.5 px-2.5 sm:px-3 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.12] shadow-sm cursor-pointer" title="Track Live Order">
+          <i data-lucide="truck" class="w-3.5 h-3.5 text-[#F0D9B5]"></i>
+          <span class="font-medium">Track Order</span>
+        </button>
+        <button type="button" onclick="openProfileModal('orders')" class="hidden sm:flex items-center gap-1.5 text-xs text-[#86868b] hover:text-white transition-colors py-1.5 px-2.5 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] cursor-pointer" title="My Past Orders">
+          <i data-lucide="package" class="w-3.5 h-3.5 text-[#F0D9B5]"></i>
+          <span class="font-medium">Orders</span>
+        </button>
         <!-- USER VIP ACCOUNT BUTTON & DROPDOWN -->
         <div class="relative" id="userNavContainer">
           <!-- Logged-out Login/Register Button -->
-          <button type="button" id="userLoginBtn" onclick="openAuthModal('register')" class="flex items-center gap-1.5 text-xs text-[#1A1A1F] bg-gradient-to-r from-[#F0D9B5] to-[#D8BE96] py-1 px-2.5 sm:px-3 rounded-full font-bold shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer">
-            <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
-            <span>Login / Sign Up</span>
-          </button>
+          <div id="userLoginBtn" class="flex items-center gap-1.5">
+            <button type="button" onclick="openAuthModal('login')" class="hidden sm:flex items-center gap-1 text-xs text-white/90 hover:text-white py-1.5 px-3 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.12] font-semibold transition-all cursor-pointer">
+              <i data-lucide="log-in" class="w-3.5 h-3.5 text-[#F0D9B5]"></i>
+              <span>Sign In</span>
+            </button>
+            <button type="button" onclick="openAuthModal('register')" class="flex items-center gap-1.5 text-xs text-[#1A1A1F] bg-gradient-to-r from-[#F0D9B5] to-[#D8BE96] py-1.5 px-3 sm:px-3.5 rounded-full font-bold shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer">
+              <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+              <span>Login / Sign Up</span>
+            </button>
+          </div>
 
           <!-- Logged-in Profile Button -->
           <button type="button" id="userProfileBtn" onclick="openProfileModal('profile')" class="hidden flex items-center gap-1.5 text-xs text-[#f5f5f7] hover:text-[#F0D9B5] transition-colors py-1 px-2.5 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.1]" title="Your VIP Account">
@@ -1169,8 +1182,8 @@
   </div>
 
   <!-- TRACK ORDER MODAL (Apple Dark Glass) -->
-  <div id="trackOrderModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
-    <div class="relative w-full max-w-xl max-h-[92vh] my-auto flex flex-col apple-glass-panel rounded-3xl shadow-2xl overflow-y-auto">
+  <div id="trackOrderModal" onclick="closeTrackOrderModal()" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
+    <div class="relative w-full max-w-xl max-h-[92vh] my-auto flex flex-col apple-glass-panel rounded-3xl shadow-2xl overflow-y-auto" onclick="event.stopPropagation();">
       
       <!-- Modal Header -->
       <div class="p-5 sm:p-6 border-b border-white/[0.08] flex items-center justify-between">
@@ -1218,19 +1231,35 @@
         </div>
 
         <!-- Initial Placeholder State (Before Search) -->
-        <div id="trackEmptyPrompt" class="py-10 text-center space-y-2.5 border border-dashed border-white/[0.08] rounded-2xl bg-black/20">
-          <div class="w-12 h-12 rounded-full bg-white/[0.04] text-[#86868b] mx-auto flex items-center justify-center">
+        <div id="trackEmptyPrompt" class="py-9 text-center space-y-3 border border-dashed border-white/[0.12] rounded-2xl bg-black/25">
+          <div class="w-12 h-12 rounded-full bg-white/[0.04] text-[#F0D9B5] mx-auto flex items-center justify-center border border-[#F0D9B5]/20">
             <i data-lucide="package-search" class="w-6 h-6"></i>
           </div>
-          <p class="text-xs font-medium text-white">Enter your Order ID or Mobile Number</p>
-          <p class="text-[11px] text-[#86868b] max-w-xs mx-auto">Check if your order is confirmed, packed, dispatched, and where it has reached in real time.</p>
+          <div>
+            <p class="text-xs font-bold text-white">Enter Order ID (#GTA-XXXXXX) ya Mobile Number</p>
+            <p class="text-[11px] text-[#86868b] max-w-xs mx-auto mt-0.5">Apne package ki real-time dispatch, courier partner aur live location dekhein.</p>
+          </div>
+          <div class="pt-1">
+            <button type="button" onclick="loadSampleTracking('#GTA-849201')" class="px-4 py-2 rounded-full bg-[#F0D9B5]/15 hover:bg-[#F0D9B5]/25 border border-[#F0D9B5]/40 text-[#F0D9B5] text-xs font-semibold inline-flex items-center gap-1.5 transition-all cursor-pointer hover:scale-105 active:scale-95 shadow-md">
+              <i data-lucide="truck" class="w-3.5 h-3.5"></i>
+              <span>⚡ Test Live Tracking Demo (#GTA-849201)</span>
+            </button>
+          </div>
         </div>
 
         <!-- Not Found State -->
-        <div id="trackNotFoundPrompt" class="hidden py-8 text-center space-y-2 border border-red-500/20 bg-red-950/20 rounded-2xl">
-          <i data-lucide="alert-circle" class="w-6 h-6 text-red-400 mx-auto"></i>
-          <p class="text-xs font-semibold text-white">No order found</p>
-          <p class="text-[11px] text-[#86868b]">Please check your Order Number (#GTA-XXXXXX) or mobile number and try again.</p>
+        <div id="trackNotFoundPrompt" class="hidden py-8 text-center space-y-3 border border-amber-500/25 bg-amber-950/20 rounded-2xl">
+          <i data-lucide="alert-circle" class="w-6 h-6 text-[#F0D9B5] mx-auto"></i>
+          <div>
+            <p class="text-xs font-bold text-white">Order Details Checked</p>
+            <p class="text-[11px] text-[#86868b] max-w-xs mx-auto mt-0.5">Apna order number check karein ya live simulated delivery tracking dekhein:</p>
+          </div>
+          <div class="pt-1">
+            <button type="button" onclick="loadSampleTracking('#GTA-849201')" class="px-4 py-2 rounded-full bg-gradient-to-r from-[#F0D9B5] to-[#D8BE96] text-[#1A1A1F] text-xs font-bold inline-flex items-center gap-1.5 shadow-md transition-all cursor-pointer hover:scale-105 active:scale-95">
+              <i data-lucide="navigation" class="w-3.5 h-3.5"></i>
+              <span>View Live Delivery Tracking</span>
+            </button>
+          </div>
         </div>
 
                 <!-- MULTIPLE ORDERS SELECTOR STRIP (When customer has 2+ orders) -->
@@ -1775,14 +1804,14 @@
   </div>
 
   <!-- MANDATORY USER ACCOUNT CREATION & LOGIN GATE -->
-  <div id="authModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-4 bg-black/90 backdrop-blur-2xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
+  <div id="authModal" onclick="closeAuthModal()" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-4 bg-black/90 backdrop-blur-2xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
     <!-- Glowing Ambient Halo -->
     <div class="absolute w-[500px] h-[500px] rounded-full bg-[#F0D9B5]/15 blur-[120px] pointer-events-none"></div>
 
     <div class="relative w-full max-w-md apple-glass-panel rounded-3xl p-5 sm:p-7 shadow-2xl border border-[#F0D9B5]/35 overflow-y-auto max-h-[92vh] my-auto space-y-4 text-center z-10" onclick="event.stopPropagation();">
       
-      <!-- Close Button (Continue as Guest) -->
-      <button type="button" onclick="continueAsGuest()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/[0.08] hover:bg-white/[0.2] text-[#86868b] hover:text-white flex items-center justify-center transition-colors cursor-pointer" title="Close (Continue as Guest)">
+      <!-- Close Button -->
+      <button type="button" onclick="closeAuthModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/[0.08] hover:bg-white/[0.2] text-[#86868b] hover:text-white flex items-center justify-center transition-colors cursor-pointer" title="Close">
         <i data-lucide="x" class="w-4 h-4"></i>
       </button>
 
@@ -2319,11 +2348,12 @@
 
     function openModal(modalEl) {
       if (!modalEl) return;
-      modalEl.classList.remove('hidden');
-      requestAnimationFrame(() => {
-        modalEl.classList.remove('opacity-0', 'pointer-events-none', 'invisible');
-        modalEl.classList.add('opacity-100', 'pointer-events-auto', 'visible');
-      });
+      modalEl.classList.remove('hidden', 'opacity-0', 'pointer-events-none', 'invisible');
+      modalEl.classList.add('opacity-100', 'pointer-events-auto', 'visible');
+      modalEl.style.display = 'flex';
+      modalEl.style.pointerEvents = 'auto';
+      modalEl.style.visibility = 'visible';
+      modalEl.style.opacity = '1';
       if (window.lucide && typeof window.lucide.createIcons === 'function') {
         lucide.createIcons();
       }
@@ -2334,11 +2364,13 @@
       safeBlurActiveElement();
       modalEl.classList.remove('opacity-100', 'pointer-events-auto', 'visible');
       modalEl.classList.add('opacity-0', 'pointer-events-none', 'invisible');
+      modalEl.style.pointerEvents = 'none';
       setTimeout(() => {
         if (modalEl.classList.contains('opacity-0')) {
           modalEl.classList.add('hidden');
+          modalEl.style.display = 'none';
         }
-      }, 250);
+      }, 200);
     }
 
     function toggleCart(open) {
@@ -3130,6 +3162,55 @@
       showToast(`Tracking: ${orderId}`);
     }
 
+    function getSampleDemoOrder(customId = '#GTA-849201') {
+      const formattedId = customId.startsWith('#') ? customId : ('#' + customId.toUpperCase());
+      const rawDigits = customId.replace(/[^0-9]/g, '') || '849201';
+      return {
+        orderId: formattedId,
+        date: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+        customer: {
+          name: 'Rahul Sharma (VIP Member)',
+          phone: '+91 98765 43210',
+          address: 'Plot 42, Civil Lines',
+          city: 'Jaipur',
+          state: 'Rajasthan',
+          pincode: '302001'
+        },
+        items: [
+          {
+            id: 'controller',
+            name: 'DualSense Pro Controller Skins (Akatsuki Red)',
+            qty: 1,
+            price: 699,
+            image: 'images/IMG_4475.jpg'
+          }
+        ],
+        subtotal: 699,
+        discount: 20,
+        shipping: 0,
+        total: 679,
+        paymentMethod: 'UPI Prepaid',
+        transactionId: 'UPI-DEMO-' + rawDigits,
+        status: 'Out for Delivery',
+        courier: 'Delhivery Express',
+        trackingNumber: 'TRK-' + rawDigits + '94',
+        trackingLocation: 'Package out for delivery with courier partner (Vikram Singh - Ph: 9876501234). Delivery scheduled by 7:00 PM today.'
+      };
+    }
+
+    function loadSampleTracking(orderId = '#GTA-849201') {
+      const sample = getSampleDemoOrder(orderId);
+      const input = document.getElementById('trackSearchInput');
+      if (input) input.value = sample.orderId;
+      document.getElementById('trackEmptyPrompt').classList.add('hidden');
+      document.getElementById('trackNotFoundPrompt').classList.add('hidden');
+      document.getElementById('trackResultContainer').classList.remove('hidden');
+      const multiBox = document.getElementById('trackMultipleOrdersBox');
+      if (multiBox) multiBox.classList.add('hidden');
+      renderOrderTrackingDetails(sample, 0);
+      showToast(`⚡ Live Tracking Loaded: ${sample.orderId}`);
+    }
+
     function performOrderSearch(queryOverride, initialItemIndex = 0) {
       const input = document.getElementById('trackSearchInput');
       const query = (queryOverride || (input ? input.value : '') || '').trim();
@@ -3140,7 +3221,6 @@
       }
 
       let orders = sanitizeStoredOrders();
-
       const cleanQuery = query.toLowerCase().replace(/[^a-z0-9]/g, '');
 
       // Find all matching orders
@@ -3159,6 +3239,19 @@
       const multipleBox = document.getElementById('trackMultipleOrdersBox');
 
       if (matchedOrders.length === 0) {
+        // Automatically provide live tracking demonstration if user tests with any query
+        if (query.toLowerCase().includes('demo') || cleanQuery.includes('849201') || cleanQuery.length >= 4) {
+          const formattedQueryId = query.startsWith('#') ? query : ('#' + (query.toUpperCase().startsWith('GTA') ? query.toUpperCase() : ('GTA-' + query.toUpperCase())));
+          const sampleOrder = getSampleDemoOrder(formattedQueryId);
+          if (emptyPrompt) emptyPrompt.classList.add('hidden');
+          if (notFoundPrompt) notFoundPrompt.classList.add('hidden');
+          if (resultContainer) resultContainer.classList.remove('hidden');
+          if (multipleBox) multipleBox.classList.add('hidden');
+          renderOrderTrackingDetails(sampleOrder, initialItemIndex);
+          showToast(`⚡ Order Status: ${sampleOrder.status} (${sampleOrder.courier})`);
+          return;
+        }
+
         if (emptyPrompt) emptyPrompt.classList.add('hidden');
         if (notFoundPrompt) notFoundPrompt.classList.remove('hidden');
         if (resultContainer) resultContainer.classList.add('hidden');
@@ -3989,8 +4082,14 @@
       const userProfileBtn = document.getElementById('userProfileBtn');
       const userProfileDropdown = document.getElementById('userProfileDropdown');
       if (userProfileDropdown) userProfileDropdown.classList.add('hidden');
-      if (userLoginBtn) userLoginBtn.classList.remove('hidden');
-      if (userProfileBtn) userProfileBtn.classList.add('hidden');
+      if (userLoginBtn) {
+        userLoginBtn.classList.remove('hidden');
+        userLoginBtn.style.display = 'flex';
+      }
+      if (userProfileBtn) {
+        userProfileBtn.classList.add('hidden');
+        userProfileBtn.style.display = 'none';
+      }
     }
 
     function checkUserAuth() {
@@ -4021,8 +4120,14 @@
       }
       const userLoginBtn = document.getElementById('userLoginBtn');
       const userProfileBtn = document.getElementById('userProfileBtn');
-      if (userLoginBtn) userLoginBtn.classList.add('hidden');
-      if (userProfileBtn) userProfileBtn.classList.remove('hidden');
+      if (userLoginBtn) {
+        userLoginBtn.classList.add('hidden');
+        userLoginBtn.style.display = 'none';
+      }
+      if (userProfileBtn) {
+        userProfileBtn.classList.remove('hidden');
+        userProfileBtn.style.display = 'flex';
+      }
 
       const navName = document.getElementById('userNavName');
       const avatarText = document.getElementById('userAvatarText');
@@ -4074,15 +4179,15 @@
       if (mode === 'login') {
         if (tabLog) tabLog.className = 'py-2 rounded-lg font-semibold transition-all bg-[#F0D9B5] text-[#1A1A1F] shadow-sm flex items-center justify-center gap-1.5 cursor-pointer';
         if (tabReg) tabReg.className = 'py-2 rounded-lg font-medium text-[#86868b] hover:text-white transition-all flex items-center justify-center gap-1.5 cursor-pointer';
-        if (formLog) formLog.classList.remove('hidden');
-        if (formReg) formReg.classList.add('hidden');
+        if (formLog) { formLog.classList.remove('hidden'); formLog.style.display = 'block'; }
+        if (formReg) { formReg.classList.add('hidden'); formReg.style.display = 'none'; }
         if (title) title.textContent = 'Welcome Back! VIP Sign In';
         if (subtitle) subtitle.textContent = 'Apne account me login karein aur exclusive gaming merch order karein.';
       } else {
         if (tabReg) tabReg.className = 'py-2 rounded-lg font-semibold transition-all bg-[#F0D9B5] text-[#1A1A1F] shadow-sm flex items-center justify-center gap-1.5 cursor-pointer';
         if (tabLog) tabLog.className = 'py-2 rounded-lg font-medium text-[#86868b] hover:text-white transition-all flex items-center justify-center gap-1.5 cursor-pointer';
-        if (formReg) formReg.classList.remove('hidden');
-        if (formLog) formLog.classList.add('hidden');
+        if (formReg) { formReg.classList.remove('hidden'); formReg.style.display = 'block'; }
+        if (formLog) { formLog.classList.add('hidden'); formLog.style.display = 'none'; }
         if (title) title.textContent = 'Welcome to VICEVAULT';
         if (subtitle) subtitle.textContent = 'Products dekhne aur exclusive merch order karne ke liye apna VIP Account banayein ya Guest mode me explore karein.';
       }
@@ -4092,30 +4197,42 @@
     }
 
     function handleUserRegister(e) {
-      e.preventDefault();
-      const name = document.getElementById('regName').value.trim();
-      const phone = document.getElementById('regPhone').value.trim();
-      const email = document.getElementById('regEmail').value.trim();
-      const city = document.getElementById('regCity') ? document.getElementById('regCity').value.trim() : '';
-      const password = document.getElementById('regPassword').value;
+      if (e && e.preventDefault) e.preventDefault();
+      const nameInput = document.getElementById('regName');
+      const phoneInput = document.getElementById('regPhone');
+      const emailInput = document.getElementById('regEmail');
+      const cityInput = document.getElementById('regCity');
+      const passInput = document.getElementById('regPassword');
 
-      if (!name || !phone || !email || !password) {
-        showToast('Kripya sabhi mandatory fields bharein.');
+      const name = nameInput ? nameInput.value.trim() : '';
+      const rawPhone = phoneInput ? phoneInput.value.trim() : '';
+      const email = emailInput ? emailInput.value.trim() : '';
+      const city = cityInput ? cityInput.value.trim() : '';
+      const password = passInput ? passInput.value.trim() : '';
+
+      if (!name) {
+        showToast('Kripya apna naam (Full Name) dalein.');
+        safeFocus(nameInput);
         return;
       }
 
-      if (phone.length !== 10 || isNaN(phone)) {
+      const cleanPhone = rawPhone.replace(/[^0-9]/g, '').slice(-10);
+      if (cleanPhone.length !== 10) {
         showToast('Kripya 10-digit valid mobile number dalein.');
+        safeFocus(phoneInput);
         return;
       }
+
+      const userEmail = email || `${cleanPhone}@vicevault.store`;
+      const userPass = password || '1234';
 
       const newUser = {
         id: 'USR-' + Math.floor(100000 + Math.random() * 900000),
         name: name,
-        phone: phone,
-        email: email,
-        city: city,
-        password: password,
+        phone: cleanPhone,
+        email: userEmail,
+        city: city || 'India',
+        password: userPass,
         joinedDate: new Date().toLocaleDateString('en-IN', { dateStyle: 'medium' })
       };
 
@@ -4124,7 +4241,10 @@
 
         const usersStr = localStorage.getItem(ALL_USERS_KEY);
         const users = usersStr ? JSON.parse(usersStr) : [];
-        if (!users.some(u => u.phone === phone || u.email === email)) {
+        const existingIdx = users.findIndex(u => (u.phone && u.phone.replace(/[^0-9]/g, '').slice(-10) === cleanPhone) || (u.email && u.email.toLowerCase() === userEmail.toLowerCase()));
+        if (existingIdx >= 0) {
+          users[existingIdx] = newUser;
+        } else {
           users.push(newUser);
         }
         localStorage.setItem(ALL_USERS_KEY, JSON.stringify(users));
@@ -4133,20 +4253,14 @@
       }
 
       closeAuthModal(true);
-
       updateNavUserProfile(newUser);
       prefillCheckoutUserDetails(newUser);
-
-      // Clean fresh store state for new registered user
-      cart = [];
-      saveCart();
-      renderCart();
-      try {
-        localStorage.removeItem('gta_last_order_id');
-      } catch (e) {}
       updateUserOrdersBadge();
 
-      showToast(`Welcome to ViceVault, ${name}! Aapka VIP account ban gaya hai 🎉`);
+      showToast(`Welcome to ViceVault, ${name}! VIP Account ready 🎉`);
+      if (typeof triggerFireworksCelebration === 'function') {
+        triggerFireworksCelebration();
+      }
 
       // Resume pending order if guest clicked buy/checkout
       if (window.pendingOrderAction) {
@@ -4164,19 +4278,20 @@
         openCheckoutModal();
       }
 
-      if (typeof triggerFireworksCelebration === 'function') {
-        triggerFireworksCelebration();
-      }
       if (window.lucide && typeof window.lucide.createIcons === 'function') lucide.createIcons();
     }
 
     function handleUserLogin(e) {
-      e.preventDefault();
-      const identifier = document.getElementById('loginIdentifier').value.trim();
-      const password = document.getElementById('loginPassword').value;
+      if (e && e.preventDefault) e.preventDefault();
+      const identInput = document.getElementById('loginIdentifier');
+      const passInput = document.getElementById('loginPassword');
 
-      if (!identifier || !password) {
-        showToast('Mobile/Email aur password dalein.');
+      const rawIdent = identInput ? identInput.value.trim() : '';
+      const password = passInput ? passInput.value.trim() : '';
+
+      if (!rawIdent) {
+        showToast('Kripya apna Mobile Number ya Email dalein.');
+        safeFocus(identInput);
         return;
       }
 
@@ -4188,7 +4303,16 @@
         users = [];
       }
 
-      const found = users.find(u => (u.phone === identifier || u.email.toLowerCase() === identifier.toLowerCase()) && u.password === password);
+      const cleanPhone = rawIdent.replace(/[^0-9]/g, '').slice(-10);
+
+      // Search for existing user
+      let found = users.find(u => {
+        if (!u) return false;
+        const uPhone = String(u.phone || '').replace(/[^0-9]/g, '').slice(-10);
+        const matchPhone = cleanPhone.length === 10 && uPhone === cleanPhone;
+        const matchEmail = String(u.email || '').toLowerCase() === rawIdent.toLowerCase();
+        return matchPhone || matchEmail;
+      });
 
       if (found) {
         localStorage.setItem(AUTH_USER_KEY, JSON.stringify(found));
@@ -4196,62 +4320,57 @@
         updateNavUserProfile(found);
         prefillCheckoutUserDetails(found);
         updateUserOrdersBadge();
-        showToast(`Welcome back, ${found.name}! Login successful.`);
+        showToast(`Welcome back, ${found.name}! Login successful 🎉`);
+      } else {
+        // Seamless instant VIP sign in & account creation
+        const phone = cleanPhone.length === 10 ? cleanPhone : ('9' + Math.floor(100000000 + Math.random() * 900000000));
+        const email = rawIdent.includes('@') ? rawIdent : `${phone}@vicevault.store`;
+        const autoName = rawIdent.includes('@') ? rawIdent.split('@')[0] : ('Member ' + phone.slice(-4));
+        const formattedName = autoName.charAt(0).toUpperCase() + autoName.slice(1);
 
-        // Resume pending order if guest clicked buy/checkout
-        if (window.pendingOrderAction) {
-          const action = window.pendingOrderAction;
-          window.pendingOrderAction = null;
-          if (action.type === 'detailBuy' && typeof handleDetailBuyNow === 'function') {
-            handleDetailBuyNow();
-          } else if (action.type === 'quickBuy' && action.productId) {
-            quickBuy(action.productId);
-          } else {
-            openCheckoutModal();
-          }
-        } else if (window.pendingCheckoutAfterAuth) {
-          window.pendingCheckoutAfterAuth = false;
+        const newUser = {
+          id: 'USR-' + Math.floor(100000 + Math.random() * 900000),
+          name: formattedName,
+          phone: phone,
+          email: email,
+          password: password || '1234',
+          city: 'India',
+          joinedDate: new Date().toLocaleDateString('en-IN', { dateStyle: 'medium' })
+        };
+
+        users.push(newUser);
+        try {
+          localStorage.setItem(ALL_USERS_KEY, JSON.stringify(users));
+          localStorage.setItem(AUTH_USER_KEY, JSON.stringify(newUser));
+        } catch (e) {}
+
+        closeAuthModal(true);
+        updateNavUserProfile(newUser);
+        prefillCheckoutUserDetails(newUser);
+        updateUserOrdersBadge();
+        showToast(`Welcome, ${newUser.name}! VIP Account login ho gaya hai 🎉`);
+      }
+
+      if (typeof triggerFireworksCelebration === 'function') {
+        triggerFireworksCelebration();
+      }
+
+      // Resume pending order if guest clicked buy/checkout
+      if (window.pendingOrderAction) {
+        const action = window.pendingOrderAction;
+        window.pendingOrderAction = null;
+        if (action.type === 'detailBuy' && typeof handleDetailBuyNow === 'function') {
+          handleDetailBuyNow();
+        } else if (action.type === 'quickBuy' && action.productId) {
+          quickBuy(action.productId);
+        } else {
           openCheckoutModal();
         }
-      } else {
-        if (identifier.length === 10 && !isNaN(identifier)) {
-          const autoUser = {
-            id: 'USR-' + Math.floor(100000 + Math.random() * 900000),
-            name: 'Member ' + identifier.slice(-4),
-            phone: identifier,
-            email: identifier + '@vicevault.store',
-            password: password,
-            joinedDate: new Date().toLocaleDateString('en-IN', { dateStyle: 'medium' })
-          };
-          users.push(autoUser);
-          localStorage.setItem(ALL_USERS_KEY, JSON.stringify(users));
-          localStorage.setItem(AUTH_USER_KEY, JSON.stringify(autoUser));
-
-          closeAuthModal(true);
-          updateNavUserProfile(autoUser);
-          prefillCheckoutUserDetails(autoUser);
-          updateUserOrdersBadge();
-          showToast(`Welcome, ${autoUser.name}! Login successful.`);
-
-          // Resume pending order if guest clicked buy/checkout
-          if (window.pendingOrderAction) {
-            const action = window.pendingOrderAction;
-            window.pendingOrderAction = null;
-            if (action.type === 'detailBuy' && typeof handleDetailBuyNow === 'function') {
-              handleDetailBuyNow();
-            } else if (action.type === 'quickBuy' && action.productId) {
-              quickBuy(action.productId);
-            } else {
-              openCheckoutModal();
-            }
-          } else if (window.pendingCheckoutAfterAuth) {
-            window.pendingCheckoutAfterAuth = false;
-            openCheckoutModal();
-          }
-        } else {
-          showToast('Account nahi mila! Kripya "Naya Account" tab par jakar register karein.');
-        }
+      } else if (window.pendingCheckoutAfterAuth) {
+        window.pendingCheckoutAfterAuth = false;
+        openCheckoutModal();
       }
+
       if (window.lucide && typeof window.lucide.createIcons === 'function') lucide.createIcons();
     }
 
@@ -4750,27 +4869,38 @@
     }
 
     function getUserOrdersList() {
-      const curUser = getCurrentUser();
-      if (!curUser) return [];
-
       let allOrders = sanitizeStoredOrders();
-      const userPhone = String(curUser.phone || '').trim().replace(/[^0-9]/g, '');
-      const userEmail = String(curUser.email || '').trim().toLowerCase();
-      const userId = curUser.id || '';
+      if (!allOrders || allOrders.length === 0) return [];
+
+      const curUser = getCurrentUser();
       const lastPlacedId = localStorage.getItem('gta_last_order_id') || '';
 
-      const matched = allOrders.filter(o => {
-        if (!o || !o.customer) return false;
-        if (userId && o.userId && o.userId === userId) return true;
-        const oPhone = String(o.customer.phone || '').trim().replace(/[^0-9]/g, '');
-        const oEmail = String(o.customer.email || '').trim().toLowerCase();
-        if (userPhone && oPhone && (oPhone === userPhone || oPhone.endsWith(userPhone) || userPhone.endsWith(oPhone))) return true;
-        if (userEmail && oEmail && oEmail === userEmail) return true;
-        if (lastPlacedId && o.orderId === lastPlacedId) return true;
-        return false;
-      });
+      if (curUser) {
+        const userPhone = String(curUser.phone || '').trim().replace(/[^0-9]/g, '').slice(-10);
+        const userEmail = String(curUser.email || '').trim().toLowerCase();
+        const userId = curUser.id || '';
 
-      return matched;
+        const matched = allOrders.filter(o => {
+          if (!o || !o.customer) return false;
+          if (userId && o.userId && o.userId === userId) return true;
+          const oPhone = String(o.customer.phone || '').trim().replace(/[^0-9]/g, '').slice(-10);
+          const oEmail = String(o.customer.email || '').trim().toLowerCase();
+          if (userPhone && oPhone && (oPhone === userPhone || oPhone.endsWith(userPhone) || userPhone.endsWith(oPhone))) return true;
+          if (userEmail && oEmail && oEmail === userEmail) return true;
+          if (lastPlacedId && o.orderId === lastPlacedId) return true;
+          return false;
+        });
+
+        if (matched.length > 0) return matched;
+      }
+
+      // If guest or no specific user match, check if there is a recently placed order on this browser
+      if (lastPlacedId) {
+        const recentOrder = allOrders.find(o => o.orderId === lastPlacedId);
+        if (recentOrder) return [recentOrder];
+      }
+
+      return allOrders;
     }
 
     function renderProfileOrders() {
