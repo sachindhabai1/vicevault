@@ -68,16 +68,34 @@
       }
     }
 
-    /* Custom Luxury Champagne Scrollbar */
-    ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: #121215; }
-    ::-webkit-scrollbar-thumb { 
-      background: rgba(240, 217, 181, 0.25); 
-      border-radius: 4px; 
-      backdrop-filter: blur(10px); 
-      border: 1px solid rgba(240, 217, 181, 0.15);
+    /* ALWAYS VISIBLE LUXURY GOLD SCROLLBAR (Right side of webpage) */
+    html {
+      overflow-y: scroll !important;
+      scrollbar-width: thin;
+      scrollbar-color: #F0D9B5 #121215;
     }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(240, 217, 181, 0.45); }
+    body {
+      overflow-x: hidden;
+      overflow-y: visible !important;
+    }
+    ::-webkit-scrollbar { 
+      width: 10px !important; 
+      height: 10px !important; 
+    }
+    ::-webkit-scrollbar-track { 
+      background: #121215 !important; 
+      border-left: 1px solid rgba(240, 217, 181, 0.2) !important;
+    }
+    ::-webkit-scrollbar-thumb { 
+      background: linear-gradient(180deg, #F0D9B5 0%, #C49F66 100%) !important; 
+      border-radius: 9999px !important; 
+      border: 2px solid #121215 !important;
+      box-shadow: 0 0 10px rgba(240, 217, 181, 0.4) !important;
+    }
+    ::-webkit-scrollbar-thumb:hover { 
+      background: linear-gradient(180deg, #FFFFFF 0%, #F0D9B5 100%) !important; 
+      box-shadow: 0 0 16px rgba(240, 217, 181, 0.8) !important;
+    }
 
     /* AUTHENTIC LUXURY GLASSMORPHISM ENGINE (#F0D9B5 & #1A1A1F) */
     body {
@@ -3585,11 +3603,12 @@
     }
 
     function lockStoreContent() {
-      document.body.classList.add('overflow-hidden');
+      // Keep page naturally scrollable - do not freeze body
     }
 
     function unlockStoreContent() {
       document.body.classList.remove('overflow-hidden');
+      document.documentElement.classList.remove('overflow-hidden');
       const mainEl = document.querySelector('main');
       if (mainEl) {
         mainEl.style.filter = '';
@@ -3607,7 +3626,6 @@
         if (sub) sub.textContent = customSubtitle;
       }
       openModal(authModal);
-      lockStoreContent();
     }
 
     function closeAuthModal(force = false) {
@@ -3648,12 +3666,6 @@
         updateNavGuestProfile();
         updateUserOrdersBadge();
         unlockStoreContent();
-
-        // Prompt on initial session visit so user can choose Sign Up or Guest
-        const guestChosen = sessionStorage.getItem('vicevault_guest_chosen');
-        if (!guestChosen) {
-          openAuthModal('welcome');
-        }
       }
       if (window.lucide && typeof window.lucide.createIcons === 'function') {
         lucide.createIcons();
@@ -4606,6 +4618,24 @@
       initApp();
     }
 
+    // Scroll to Top visibility listener
+    window.addEventListener('scroll', function() {
+      const topBtn = document.getElementById('scrollToTopBtn');
+      if (!topBtn) return;
+      if (window.scrollY > 280) {
+        topBtn.classList.remove('opacity-0', 'pointer-events-none');
+        topBtn.classList.add('opacity-100', 'pointer-events-auto');
+      } else {
+        topBtn.classList.remove('opacity-100', 'pointer-events-auto');
+        topBtn.classList.add('opacity-0', 'pointer-events-none');
+      }
+    }, { passive: true });
+
   </script>
+
+  <!-- LUXURY FLOATING SCROLL-TO-TOP BUTTON -->
+  <button id="scrollToTopBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" aria-label="Scroll to Top" class="opacity-0 pointer-events-none fixed bottom-6 right-6 z-40 w-11 h-11 rounded-full bg-[#1A1A1F]/95 backdrop-blur-md border border-[#F0D9B5]/40 text-[#F0D9B5] shadow-2xl hover:bg-[#F0D9B5] hover:text-[#121215] flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer group" title="Scroll to top">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200 group-hover:-translate-y-0.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
+  </button>
 </body>
 </html>
