@@ -1752,6 +1752,11 @@
 
     <div class="relative w-full max-w-md apple-glass-panel rounded-3xl p-5 sm:p-7 shadow-2xl border border-[#F0D9B5]/35 overflow-y-auto max-h-[92vh] my-auto space-y-4 text-center z-10" onclick="event.stopPropagation();">
       
+      <!-- Close Button (Continue as Guest) -->
+      <button type="button" onclick="continueAsGuest()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/[0.08] hover:bg-white/[0.2] text-[#86868b] hover:text-white flex items-center justify-center transition-colors cursor-pointer" title="Close (Continue as Guest)">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+
       <!-- Top Brand Emblem & Title -->
       <div class="space-y-2 pt-1">
         <div class="mx-auto w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#F0D9B5]/25 via-[#D8BE96]/15 to-transparent border border-[#F0D9B5]/50 flex items-center justify-center text-[#F0D9B5] shadow-lg shadow-[#F0D9B5]/20">
@@ -1865,6 +1870,15 @@
           <button type="button" onclick="switchAuthMode('register')" class="text-[#F0D9B5] font-semibold hover:underline cursor-pointer">Naya VIP Account Banayein</button>
         </div>
       </form>
+
+      <!-- GUEST EXPLORE OPTION -->
+      <div class="pt-3 border-t border-white/[0.08] text-center space-y-1.5">
+        <button type="button" onclick="continueAsGuest()" class="w-full py-2.5 px-4 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.12] text-[#f5f5f7] text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer">
+          <i data-lucide="eye" class="w-4 h-4 text-[#F0D9B5]"></i>
+          <span>Explore Store as Guest (Sirf Store Dekhein)</span>
+        </button>
+        <p class="text-[10px] text-[#86868b]">Guest mode me aap bina login sabhi products dekh sakte hain. Order karte waqt Sign Up kar sakte hain.</p>
+      </div>
 
     </div>
   </div>
@@ -2091,6 +2105,13 @@
     }
 
     function quickBuy(productId) {
+      const curUser = getCurrentUser();
+      if (!curUser) {
+        window.pendingOrderAction = { type: 'quickBuy', productId: productId };
+        openAuthModal('register', '⚡ Order book karne ke liye kripya pehle apna VIP Account banayein ya Login karein!');
+        return;
+      }
+
       const p = productsDB[productId] || productsDB['controller'];
       if (!p) return;
 
@@ -2216,6 +2237,13 @@
     }
 
     function handleDetailBuyNow() {
+      const curUser = getCurrentUser();
+      if (!curUser) {
+        window.pendingOrderAction = { type: 'detailBuy' };
+        openAuthModal('register', '⚡ Order book karne ke liye kripya pehle apna VIP Account banayein ya Login karein!');
+        return;
+      }
+
       const selectedImg = currentProduct.images[selectedImageIndex] ? currentProduct.images[selectedImageIndex].src : currentProduct.images[0].src;
       const themeSuffix = currentProduct.images[selectedImageIndex] ? ` (${currentProduct.images[selectedImageIndex].name})` : '';
       const fullName = `${currentProduct.title}${themeSuffix}`;
@@ -2716,11 +2744,15 @@
     }
 
     function openCheckoutModal() {
-      initLocationSelectors();
-      const user = getCurrentUser();
-      if (user) {
-        prefillCheckoutUserDetails(user);
+      const curUser = getCurrentUser();
+      if (!curUser) {
+        window.pendingOrderAction = { type: 'checkout' };
+        openAuthModal('register', '⚡ Checkout complete karne ke liye pehle apna VIP Account banayein ya Login karein!');
+        return;
       }
+
+      initLocationSelectors();
+      prefillCheckoutUserDetails(curUser);
 
       if (cart.length === 0) {
         showToast('Your bag is empty! Add products first.');
@@ -3885,12 +3917,6 @@
 
     function lockStoreContent() {
       document.body.classList.add('overflow-hidden');
-      const mainEl = document.querySelector('main');
-      if (mainEl) {
-        mainEl.style.filter = 'blur(10px)';
-        mainEl.style.pointerEvents = 'none';
-        mainEl.style.userSelect = 'none';
-      }
     }
 
     function unlockStoreContent() {
@@ -3903,25 +3929,30 @@
       }
     }
 
-    function openAuthModal(mode = 'register') {
+    function openAuthModal(mode = 'register', customSubtitle = '') {
       const authModal = document.getElementById('authModal');
       if (!authModal) return;
       switchAuthMode(mode);
+      if (customSubtitle) {
+        const sub = document.getElementById('authModalSubtitle');
+        if (sub) sub.textContent = customSubtitle;
+      }
       openModal(authModal);
       lockStoreContent();
     }
 
     function closeAuthModal(force = false) {
-      const user = getCurrentUser();
-      if (!user && !force) {
-        showToast('⚠️ Kripya store dekhne ke liye pehle Login ya Sign Up karein!');
-        return;
-      }
       const authModal = document.getElementById('authModal');
       if (authModal) {
         closeModal(authModal);
       }
       unlockStoreContent();
+    }
+
+    function continueAsGuest() {
+      sessionStorage.setItem('vicevault_guest_chosen', 'true');
+      closeAuthModal(true);
+      showToast('Aap Guest mode me browse kar rahe hain. Order karte waqt Sign Up karein!');
     }
 
     function updateNavGuestProfile() {
@@ -3947,8 +3978,13 @@
       } else {
         updateNavGuestProfile();
         updateUserOrdersBadge();
-        lockStoreContent();
-        openAuthModal('register');
+        unlockStoreContent();
+
+        // Prompt on initial session visit so user can choose Sign Up or Guest
+        const guestChosen = sessionStorage.getItem('vicevault_guest_chosen');
+        if (!guestChosen) {
+          openAuthModal('welcome');
+        }
       }
       if (window.lucide && typeof window.lucide.createIcons === 'function') {
         lucide.createIcons();
@@ -4025,7 +4061,7 @@
         if (formReg) formReg.classList.remove('hidden');
         if (formLog) formLog.classList.add('hidden');
         if (title) title.textContent = 'Welcome to VICEVAULT';
-        if (subtitle) subtitle.textContent = 'Products dekhne aur exclusive merch order karne ke liye pehle apna VIP Account banayein.';
+        if (subtitle) subtitle.textContent = 'Products dekhne aur exclusive merch order karne ke liye apna VIP Account banayein ya Guest mode me explore karein.';
       }
       if (window.lucide && typeof window.lucide.createIcons === 'function') {
         lucide.createIcons();
