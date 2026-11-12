@@ -858,7 +858,10 @@
             <div class="text-[10px] text-[#6e6e73] mt-0.5">${order.date}</div>
           </td>
           <td class="py-4 px-5">
-            <span class="font-medium text-white">${order.customer.name}</span>
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="font-medium text-white">${order.customer.name}</span>
+              ${order.isVvipOrder ? `<span class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[9px] font-black bg-gradient-to-r from-amber-500/20 to-purple-500/20 text-amber-300 border border-amber-400/40 shadow-sm">💎 VVIP+ (10% OFF)</span>` : ''}
+            </div>
             <div class="text-[11px] text-[#86868b] flex items-center gap-1 mt-0.5">
               <span>📞 ${order.customer.phone}</span>
             </div>
@@ -870,7 +873,8 @@
           </td>
           <td class="py-4 px-5">
             <span class="font-semibold text-white text-sm">₹${order.total}</span>
-            ${order.discount && order.discount > 0 ? `<div class="text-[10px] text-emerald-400 font-medium">₹${order.discount} UPI Discount</div>` : ''}
+            ${order.vvipDiscount && order.vvipDiscount > 0 ? `<div class="text-[10px] text-amber-300 font-medium">₹${order.vvipDiscount} VVIP+ 10% Off</div>` : ''}
+            ${order.discount && order.discount > 0 ? `<div class="text-[10px] text-emerald-400 font-medium">₹${order.discount} Discount Applied</div>` : ''}
           </td>
           <td class="py-4 px-5">
             <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-medium ${isUpi ? 'apple-glass-btn-primary/20 text-[#F0D9B5] border border-[#F0D9B5]/30' : 'bg-white/[0.08] text-[#86868b]'}">

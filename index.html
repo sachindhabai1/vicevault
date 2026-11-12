@@ -815,15 +815,29 @@
               <span>Subtotal</span>
               <span id="cartSubtotal" class="font-medium text-[#f5f5f7]">₹0</span>
             </div>
+            <!-- VVIP+ 10% Discount Row in Cart -->
+            <div id="cartVvipDiscountRow" class="hidden flex justify-between text-amber-300 font-semibold">
+              <span class="flex items-center gap-1">
+                <i data-lucide="gem" class="w-3.5 h-3.5 text-amber-300"></i>
+                <span>VVIP+ 10% Member Discount</span>
+              </span>
+              <span id="cartVvipDiscount">-₹0</span>
+            </div>
             <div class="flex justify-between text-[#86868b]">
               <span>Shipping across India</span>
               <span class="text-[#F0D9B5] font-medium">Free</span>
             </div>
             <div class="pt-2 border-t border-white/[0.06] flex justify-between text-sm font-semibold text-[#f5f5f7]">
               <span>Total</span>
-              <span id="cartTotal" class="text-base text-white">₹0</span>
+              <div class="text-right">
+                <span id="cartOldTotal" class="hidden text-xs text-[#86868b] line-through mr-1.5 font-normal"></span>
+                <span id="cartTotal" class="text-base text-white font-bold">₹0</span>
+              </div>
             </div>
           </div>
+
+          <!-- VVIP+ Club banner in cart -->
+          <div id="cartVvipBanner"></div>
 
           <button onclick="openCheckoutModal()" class="w-full py-3 rounded-full apple-glass-btn-primary text-white font-medium text-xs transition-colors flex items-center justify-center gap-1.5 shadow-md">
             <i data-lucide="check" class="w-4 h-4"></i>
@@ -1158,6 +1172,20 @@
           </div>
         </div>
 
+        <!-- VVIP+ 1-CLICK ADD IN CHECKOUT (For Non-Members) -->
+        <div id="checkoutVvipUpsellBlock" class="hidden">
+          <label class="flex items-center justify-between p-3 rounded-2xl bg-gradient-to-r from-purple-950/50 via-amber-950/40 to-purple-950/50 border border-amber-400/40 hover:border-amber-300 transition-all cursor-pointer">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-8 h-8 rounded-xl bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-300 shrink-0 text-sm">💎</div>
+              <div class="min-w-0">
+                <span class="text-xs font-bold text-amber-200 block">Add VVIP+ Lifetime Pass for ₹69</span>
+                <span class="text-[10px] text-[#86868b] block">Get flat 10% OFF on this order & all future orders!</span>
+              </div>
+            </div>
+            <input type="checkbox" id="checkoutAddVvipCheckbox" onchange="onCheckoutVvipCheckboxToggled(this.checked)" class="w-4 h-4 accent-amber-400 cursor-pointer shrink-0 ml-2">
+          </label>
+        </div>
+
         <!-- BREAKDOWN & ORDER TOTAL -->
         <div class="bg-black/40 p-3.5 rounded-xl border border-white/[0.08] space-y-1.5">
           <div class="flex justify-between text-[#86868b]">
@@ -1167,6 +1195,14 @@
           <div class="flex justify-between text-[#86868b]">
             <span>Delivery:</span>
             <span class="text-[#F0D9B5] font-medium">FREE</span>
+          </div>
+          <!-- VVIP+ 10% Discount Row in Checkout -->
+          <div id="modalVvipDiscountRow" class="hidden flex justify-between text-amber-300 font-semibold">
+            <span class="flex items-center gap-1">
+              <i data-lucide="gem" class="w-3.5 h-3.5 text-amber-300"></i>
+              <span>VVIP+ Member Savings (10% OFF):</span>
+            </span>
+            <span id="modalCheckoutVvipDiscount">-₹0</span>
           </div>
           <div id="modalUpiDiscountRow" class="hidden flex justify-between text-emerald-400 font-medium">
             <span class="flex items-center gap-1">
@@ -1725,10 +1761,11 @@
           <div class="min-w-0">
             <div class="flex items-center gap-2 flex-wrap">
               <h3 class="text-base sm:text-lg font-extrabold text-white tracking-tight capitalize truncate" id="profileModalName">VIP Member</h3>
-              <span class="text-[9px] font-bold text-[#F0D9B5] bg-[#F0D9B5]/15 border border-[#F0D9B5]/40 px-2.5 py-0.5 rounded-full uppercase tracking-wider shrink-0 flex items-center gap-1">
+              <span class="text-[9px] font-bold text-[#F0D9B5] bg-[#F0D9B5]/15 border border-[#F0D9B5]/40 px-2.5 py-0.5 rounded-full uppercase tracking-wider shrink-0 flex items-center gap-1" id="profileUserVipBadge">
                 <i data-lucide="crown" class="w-2.5 h-2.5 fill-[#F0D9B5]"></i>
                 <span>VIP Member</span>
               </span>
+              <span id="profileVvipOptionArea" class="shrink-0"></span>
             </div>
             <p class="text-xs text-[#86868b] mt-0.5 truncate" id="profileModalSubtitle">Verified VIP Member</p>
           </div>
@@ -1766,6 +1803,9 @@
           </div>
         </div>
       </div>
+
+      <!-- VVIP+ CLUB BENEFIT BANNER -->
+      <div id="profileVvipBannerArea" class="mb-3 shrink-0"></div>
 
       <!-- Tab Buttons: Orders vs Profile (Orders Tab First & Active) -->
       <div class="grid grid-cols-2 p-1 bg-black/50 rounded-2xl border border-white/[0.08] mb-3 shrink-0 text-xs">
@@ -1901,6 +1941,113 @@
           </form>
         </div>
 
+      </div>
+
+    </div>
+  </div>
+
+  <!-- VICEVAULT VVIP+ ELITE CLUB MODAL (AUTHENTIC LUXURY GLASSMORPHISM) -->
+  <div id="vvipModal" onclick="if(event.target === this) closeVvipModal()" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-4 bg-black/90 backdrop-blur-2xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
+    <div class="absolute w-[600px] h-[600px] rounded-full bg-amber-500/15 blur-[140px] pointer-events-none"></div>
+
+    <div class="relative w-full max-w-lg apple-glass-panel rounded-3xl p-5 sm:p-7 shadow-2xl border border-amber-400/40 flex flex-col my-auto overflow-hidden text-left space-y-4 z-10" onclick="event.stopPropagation();">
+      
+      <!-- Top Bar -->
+      <div class="flex items-center justify-between pb-3.5 border-b border-white/[0.08]">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-400 via-amber-300 to-yellow-500 text-[#1A1A1F] flex items-center justify-center font-black text-xl shadow-lg border border-amber-300/60 shrink-0">
+            💎
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-base sm:text-lg font-extrabold text-white tracking-tight">VICEVAULT VVIP+ Club</h3>
+              <span class="text-[9px] font-black text-black bg-gradient-to-r from-amber-300 to-yellow-400 px-2 py-0.5 rounded-full uppercase tracking-wider">ELITE PASS</span>
+            </div>
+            <p class="text-xs text-[#86868b] mt-0.5">Flat 10% Extra Discount on ALL Products & Every Order</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeVvipModal()" class="w-8 h-8 rounded-full bg-white/[0.06] hover:bg-white/[0.15] text-[#86868b] hover:text-white flex items-center justify-center transition-colors cursor-pointer" title="Close">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Pricing Strip -->
+      <div class="apple-glass-inner p-4 rounded-2xl border border-amber-400/35 flex items-center justify-between bg-gradient-to-r from-amber-500/15 via-purple-950/30 to-amber-500/15">
+        <div>
+          <span class="text-[10px] text-amber-200/90 font-bold uppercase tracking-wider">Lifetime Pass Price</span>
+          <div class="flex items-baseline gap-2 mt-0.5">
+            <span class="text-3xl font-black text-amber-300 font-mono">₹69</span>
+            <span class="text-sm text-[#86868b] line-through font-mono">₹499</span>
+            <span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-500/30">86% OFF</span>
+          </div>
+        </div>
+        <div class="text-right">
+          <span class="text-[11px] text-emerald-400 font-bold block">✓ One-Time Payment</span>
+          <span class="text-[10px] text-[#86868b]">Lifetime Membership</span>
+        </div>
+      </div>
+
+      <!-- VVIP+ Perks -->
+      <div class="space-y-2 text-xs">
+        <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-black/40 border border-white/[0.06]">
+          <div class="w-7 h-7 rounded-lg bg-amber-400/15 border border-amber-400/40 flex items-center justify-center text-amber-300 shrink-0 text-sm">
+            ⚡
+          </div>
+          <div>
+            <p class="font-bold text-white">Flat 10% Extra Discount on EVERYTHING</p>
+            <p class="text-[11px] text-[#86868b] mt-0.5">Cart me sabhi products par automatically 10% discount cut hoga. Har order par extra bachat!</p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-black/40 border border-white/[0.06]">
+          <div class="w-7 h-7 rounded-lg bg-emerald-400/15 border border-emerald-400/40 flex items-center justify-center text-emerald-300 shrink-0 text-sm">
+            🚀
+          </div>
+          <div>
+            <p class="font-bold text-white">Priority Express Packaging & Dispatch</p>
+            <p class="text-[11px] text-[#86868b] mt-0.5">Delhivery Express ke zariye VVIP+ orders ko priority lane me 12 ghante ke andar pack aur dispatch kiya jata hai.</p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-black/40 border border-white/[0.06]">
+          <div class="w-7 h-7 rounded-lg bg-purple-400/15 border border-purple-400/40 flex items-center justify-center text-purple-300 shrink-0 text-sm">
+            👑
+          </div>
+          <div>
+            <p class="font-bold text-white">Exclusive 💎 VVIP+ Gold Badge & VIP Support</p>
+            <p class="text-[11px] text-[#86868b] mt-0.5">Aapke account, tracking receipts aur dispatch invoices me official VVIP+ Elite Member status display hoga.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- UPI Payment for ₹69 -->
+      <div class="apple-glass-inner p-4 rounded-2xl border border-white/[0.08] space-y-3">
+        <div class="flex items-center justify-between text-xs pb-2 border-b border-white/[0.06]">
+          <span class="text-[#86868b]">Payable Amount:</span>
+          <span class="text-base font-extrabold text-amber-300 font-mono">₹69 Only</span>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center gap-3">
+          <div class="w-24 h-24 bg-white p-1 rounded-xl shadow-md border border-amber-400/40 shrink-0 flex items-center justify-center">
+            <img src="images/upi_qr.jpg" alt="UPI QR ₹69" class="w-full h-full object-contain" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi%3A%2F%2Fpay%3Fpa%3D7878075218%40yapl%26pn%3DVICEVAULT%26am%3D69%26cu%3DINR%26tn%3DVVIP%2BPass'">
+          </div>
+          <div class="space-y-1.5 text-xs text-left w-full">
+            <p class="text-[11px] text-[#86868b]">Scan QR or pay ₹69 to UPI ID:</p>
+            <div class="flex items-center gap-1.5 font-mono text-white bg-black/60 px-2.5 py-1.5 rounded-lg border border-white/[0.1] text-xs">
+              <span class="flex-1 truncate">7878075218@yapl</span>
+              <button type="button" onclick="navigator.clipboard.writeText('7878075218@yapl'); showToast('UPI ID copied!');" class="text-[10px] text-amber-300 font-bold hover:underline">Copy</button>
+            </div>
+            <a href="upi://pay?pa=7878075218@yapl&pn=VICEVAULT&am=69&cu=INR&tn=VVIP%2BMembership" class="block w-full text-center py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-[11px] shadow-sm transition-all active:scale-95">
+              📱 Tap to Pay ₹69 in GPay / PhonePe / Paytm
+            </a>
+          </div>
+        </div>
+
+        <!-- Instant Activate Button -->
+        <button type="button" onclick="activateVvipMembership()" class="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-[#1A1A1F] font-extrabold text-xs flex items-center justify-center gap-2 shadow-lg shadow-amber-400/25 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer">
+          <i data-lucide="check-circle-2" class="w-4 h-4 text-[#1A1A1F]"></i>
+          <span>⚡ Maine ₹69 Pay Kar Diya — Activate VVIP+ Club Now</span>
+        </button>
       </div>
 
     </div>
@@ -2161,6 +2308,79 @@
       }
     }
 
+    // ==========================================
+    // VVIP+ MEMBERSHIP ENGINE (₹69 - 10% DISCOUNT ON EVERYTHING)
+    // ==========================================
+    function isVvipUser() {
+      try {
+        const curUser = getCurrentUser();
+        if (curUser && (curUser.isVvip === true || curUser.isVvip === 'true')) return true;
+        if (localStorage.getItem('vicevault_vvip_active') === 'true') return true;
+      } catch (e) {}
+      return false;
+    }
+
+    function openVvipModal() {
+      const modal = document.getElementById('vvipModal');
+      if (!modal) return;
+      openModal(modal);
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        lucide.createIcons();
+      }
+    }
+
+    function closeVvipModal() {
+      const modal = document.getElementById('vvipModal');
+      if (!modal) return;
+      closeModal(modal);
+    }
+
+    function activateVvipMembership() {
+      try {
+        localStorage.setItem('vicevault_vvip_active', 'true');
+        let curUser = getCurrentUser();
+        if (!curUser) {
+          curUser = {
+            id: 'USR-' + Math.floor(100000 + Math.random() * 900000),
+            name: 'VIP Member',
+            joinedDate: new Date().toLocaleDateString('en-IN', { dateStyle: 'medium' }),
+            isVvip: true
+          };
+        } else {
+          curUser.isVvip = true;
+        }
+        localStorage.setItem(AUTH_USER_KEY, JSON.stringify(curUser));
+        try {
+          const usersStr = localStorage.getItem(ALL_USERS_KEY);
+          const users = usersStr ? JSON.parse(usersStr) : [];
+          const idx = users.findIndex(u => (u.id && u.id === curUser.id) || (u.phone && curUser.phone && u.phone === curUser.phone));
+          if (idx !== -1) {
+            users[idx].isVvip = true;
+          } else {
+            users.push(curUser);
+          }
+          localStorage.setItem(ALL_USERS_KEY, JSON.stringify(users));
+        } catch (e) {}
+        updateNavUserProfile(curUser);
+        updateProfileModalHeader(curUser);
+      } catch (e) {
+        console.error('VVIP activation error:', e);
+      }
+
+      if (typeof triggerFireworksCelebration === 'function') {
+        triggerFireworksCelebration();
+      }
+      renderCart();
+      const checkoutModalEl = document.getElementById('checkoutModal');
+      if (checkoutModalEl && !checkoutModalEl.classList.contains('hidden') && !checkoutModalEl.classList.contains('opacity-0')) {
+        const currentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value || 'UPI / Online';
+        togglePaymentMethod(currentMethod);
+      }
+
+      closeVvipModal();
+      showToast('🎉 Mubarak ho! Aapka VVIP+ Pass activate ho gaya! Sabhi products aur orders par flat 10% extra discount unlock ho gaya hai.');
+    }
+
     const productsDB = {
       controller: {
         id: 'controller',
@@ -2340,8 +2560,62 @@
       if (cartItemCountText) cartItemCountText.textContent = totalCount;
 
       const subtotalVal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      const isVvip = isVvipUser();
+      const vvipDiscount = isVvip ? Math.round(subtotalVal * 0.10) : 0;
+      const finalCartTotal = Math.max(0, subtotalVal - vvipDiscount);
+
       if (cartSubtotal) cartSubtotal.textContent = `₹${subtotalVal}`;
-      if (cartTotal) cartTotal.textContent = `₹${subtotalVal}`;
+
+      const cartVvipRow = document.getElementById('cartVvipDiscountRow');
+      const cartVvipVal = document.getElementById('cartVvipDiscount');
+      if (cartVvipRow) {
+        if (isVvip && vvipDiscount > 0) {
+          cartVvipRow.classList.remove('hidden');
+          if (cartVvipVal) cartVvipVal.textContent = `-₹${vvipDiscount}`;
+        } else {
+          cartVvipRow.classList.add('hidden');
+        }
+      }
+
+      const cartOldTotal = document.getElementById('cartOldTotal');
+      if (cartOldTotal) {
+        if (isVvip && vvipDiscount > 0) {
+          cartOldTotal.textContent = `₹${subtotalVal}`;
+          cartOldTotal.classList.remove('hidden');
+        } else {
+          cartOldTotal.classList.add('hidden');
+        }
+      }
+
+      if (cartTotal) cartTotal.textContent = `₹${finalCartTotal}`;
+
+      const cartVvipBanner = document.getElementById('cartVvipBanner');
+      if (cartVvipBanner) {
+        if (!isVvip && subtotalVal > 0) {
+          const prospectiveSavings = Math.round(subtotalVal * 0.10);
+          cartVvipBanner.innerHTML = `
+            <div onclick="openVvipModal()" class="cursor-pointer p-2.5 rounded-xl bg-gradient-to-r from-amber-500/10 via-purple-950/30 to-amber-500/10 border border-amber-400/35 hover:border-amber-300 transition-all flex items-center justify-between gap-2 shadow-sm">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="text-sm">💎</span>
+                <div class="min-w-0">
+                  <p class="text-[11px] font-bold text-amber-200 truncate">VVIP+ se abhi ₹${prospectiveSavings} bachayein!</p>
+                  <p class="text-[9px] text-[#86868b]">Only ₹69 Lifetime • 10% OFF on all orders</p>
+                </div>
+              </div>
+              <span class="text-[10px] text-amber-300 font-extrabold uppercase shrink-0 underline">Get &gt;</span>
+            </div>
+          `;
+        } else if (isVvip && subtotalVal > 0) {
+          cartVvipBanner.innerHTML = `
+            <div class="p-2 rounded-xl bg-gradient-to-r from-purple-950/40 to-amber-950/40 border border-amber-400/30 flex items-center gap-2 text-[10px] text-amber-200">
+              <i data-lucide="gem" class="w-3.5 h-3.5 text-amber-300"></i>
+              <span><b>VVIP+ Active:</b> Flat 10% discount applied on this bag!</span>
+            </div>
+          `;
+        } else {
+          cartVvipBanner.innerHTML = '';
+        }
+      }
 
       if (cart.length === 0) {
         cartItemsContainer.innerHTML = `
@@ -2546,26 +2820,58 @@
       }
     }
 
+    let checkoutAddVvipActive = false;
+
+    function onCheckoutVvipCheckboxToggled(checked) {
+      checkoutAddVvipActive = !!checked;
+      const currentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value || 'UPI / Online';
+      togglePaymentMethod(currentMethod);
+    }
+
     function togglePaymentMethod(method) {
       const settings = getStorePaymentSettings();
       const upiDiscount = settings.upiDiscount || 20;
-      const subtotalVal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      const cartSubtotalVal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      const isVvip = isVvipUser() || checkoutAddVvipActive;
+      const vvipFee = (!isVvipUser() && checkoutAddVvipActive) ? 69 : 0;
+      const subtotalVal = cartSubtotalVal + vvipFee;
+      const vvipDiscount = isVvip ? Math.round(cartSubtotalVal * 0.10) : 0;
 
       const upiBox = document.getElementById('checkoutUpiBox');
       const codNudge = document.getElementById('codDiscountNudge');
       const custUtr = document.getElementById('custUtr');
       const discountRow = document.getElementById('modalUpiDiscountRow');
+      const vvipRow = document.getElementById('modalVvipDiscountRow');
+      const vvipDiscountEl = document.getElementById('modalCheckoutVvipDiscount');
       const oldTotalSpan = document.getElementById('modalCheckoutOldTotal');
       const checkoutTotalSpan = document.getElementById('modalCheckoutTotal');
       const checkoutSubtotalSpan = document.getElementById('modalCheckoutSubtotal');
       const submitBtn = document.getElementById('orderSubmitBtn');
+      const upsellBlock = document.getElementById('checkoutVvipUpsellBlock');
+
+      if (upsellBlock) {
+        if (!isVvipUser()) {
+          upsellBlock.classList.remove('hidden');
+        } else {
+          upsellBlock.classList.add('hidden');
+        }
+      }
 
       if (checkoutSubtotalSpan) {
-        checkoutSubtotalSpan.textContent = `₹${subtotalVal}`;
+        checkoutSubtotalSpan.textContent = vvipFee > 0 ? `₹${cartSubtotalVal} + ₹69 (VVIP+)` : `₹${cartSubtotalVal}`;
+      }
+
+      if (vvipRow) {
+        if (isVvip && vvipDiscount > 0) {
+          vvipRow.classList.remove('hidden');
+          if (vvipDiscountEl) vvipDiscountEl.textContent = `-₹${vvipDiscount} (10% OFF)`;
+        } else {
+          vvipRow.classList.add('hidden');
+        }
       }
 
       if (method === 'UPI / Online') {
-        const finalPayable = Math.max(1, subtotalVal - upiDiscount);
+        const finalPayable = Math.max(1, subtotalVal - vvipDiscount - upiDiscount);
 
         if (codNudge) codNudge.classList.add('hidden');
         if (upiBox) upiBox.classList.remove('hidden');
@@ -2576,8 +2882,12 @@
           document.getElementById('modalCheckoutDiscount').textContent = `-₹${upiDiscount}`;
         }
         if (oldTotalSpan) {
-          oldTotalSpan.textContent = `₹${subtotalVal}`;
-          oldTotalSpan.classList.remove('hidden');
+          if (vvipDiscount > 0 || upiDiscount > 0) {
+            oldTotalSpan.textContent = `₹${subtotalVal}`;
+            oldTotalSpan.classList.remove('hidden');
+          } else {
+            oldTotalSpan.classList.add('hidden');
+          }
         }
         if (checkoutTotalSpan) {
           checkoutTotalSpan.textContent = `₹${finalPayable}`;
@@ -2594,6 +2904,8 @@
         loadCheckoutPaymentSettings(finalPayable);
       } else {
         // COD selected
+        const finalPayable = Math.max(1, subtotalVal - vvipDiscount);
+
         if (codNudge) codNudge.classList.remove('hidden');
         if (upiBox) upiBox.classList.add('hidden');
         if (custUtr) {
@@ -2601,9 +2913,16 @@
           custUtr.value = '';
         }
         if (discountRow) discountRow.classList.add('hidden');
-        if (oldTotalSpan) oldTotalSpan.classList.add('hidden');
+        if (oldTotalSpan) {
+          if (vvipDiscount > 0) {
+            oldTotalSpan.textContent = `₹${subtotalVal}`;
+            oldTotalSpan.classList.remove('hidden');
+          } else {
+            oldTotalSpan.classList.add('hidden');
+          }
+        }
         if (checkoutTotalSpan) {
-          checkoutTotalSpan.textContent = `₹${subtotalVal}`;
+          checkoutTotalSpan.textContent = `₹${finalPayable}`;
         }
         if (submitBtn) {
           submitBtn.innerHTML = `<span>Confirm Cash on Delivery Order</span>`;
@@ -2789,7 +3108,11 @@
       
       const settings = getStorePaymentSettings();
       const upiDiscount = settings.upiDiscount || 20;
-      const subtotalVal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      const cartSubtotalVal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      const isVvip = isVvipUser() || checkoutAddVvipActive;
+      const vvipFee = (!isVvipUser() && checkoutAddVvipActive) ? 69 : 0;
+      const subtotalVal = cartSubtotalVal + vvipFee;
+      const vvipDiscount = isVvip ? Math.round(cartSubtotalVal * 0.10) : 0;
       const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
       const selectedStateVal = document.getElementById('custState').value.trim();
       const selectedDistrictVal = document.getElementById('custCity').value.trim();
@@ -2807,13 +3130,13 @@
       }
 
       
-      let finalTotal = subtotalVal;
-      let appliedDiscount = 0;
+      let finalTotal = Math.max(1, subtotalVal - vvipDiscount);
+      let appliedDiscount = vvipDiscount;
       let transactionId = 'N/A';
 
       if (paymentMethod === 'UPI / Online') {
-        appliedDiscount = upiDiscount;
-        finalTotal = Math.max(1, subtotalVal - upiDiscount);
+        appliedDiscount += upiDiscount;
+        finalTotal = Math.max(1, subtotalVal - vvipDiscount - upiDiscount);
 
         const utrEl = document.getElementById('custUtr');
         const utrVal = utrEl ? utrEl.value.trim() : '';
@@ -2833,12 +3156,20 @@
         }
       }
 
+      if (checkoutAddVvipActive) {
+        try {
+          localStorage.setItem('vicevault_vvip_active', 'true');
+        } catch (e) {}
+        checkoutAddVvipActive = false;
+      }
+
       const orderId = '#GTA-' + Math.floor(100000 + Math.random() * 900000);
 
-            // Save address & pincode into user profile for 1-click future orders
+      
       let curUser = getCurrentUser();
       try {
         if (curUser) {
+          if (isVvip) curUser.isVvip = true;
           curUser.address = document.getElementById('custAddress').value.trim();
           curUser.pincode = document.getElementById('custPincode').value.trim();
           curUser.city = document.getElementById('custCity').value.trim();
@@ -2854,7 +3185,8 @@
             pincode: document.getElementById('custPincode').value.trim(),
             city: document.getElementById('custCity').value.trim(),
             state: document.getElementById('custState').value.trim(),
-            joinedDate: new Date().toLocaleDateString('en-IN', { dateStyle: 'medium' })
+            joinedDate: new Date().toLocaleDateString('en-IN', { dateStyle: 'medium' }),
+            isVvip: isVvip
           };
           localStorage.setItem(AUTH_USER_KEY, JSON.stringify(curUser));
           try {
@@ -2883,6 +3215,8 @@
         items: [...cart],
         subtotal: subtotalVal,
         discount: appliedDiscount,
+        vvipDiscount: vvipDiscount,
+        isVvipOrder: isVvip,
         total: finalTotal,
         paymentMethod: paymentMethod,
         transactionId: transactionId,
@@ -4765,6 +5099,64 @@
           locStat.textContent = 'India';
         }
       }
+
+      // VVIP+ Badges in Profile Modal
+      const isVvip = isVvipUser();
+      const vvipArea = document.getElementById('profileVvipOptionArea');
+      if (vvipArea) {
+        if (isVvip) {
+          vvipArea.innerHTML = `
+            <span class="text-[9px] font-black text-amber-200 bg-gradient-to-r from-purple-950/80 via-amber-900/60 to-purple-950/80 border border-amber-400/70 px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1 shadow-sm shadow-amber-500/20">
+              <i data-lucide="gem" class="w-2.5 h-2.5 text-amber-300 fill-amber-300"></i>
+              <span>💎 VVIP+ MEMBER • 10% OFF ACTIVE</span>
+            </span>
+          `;
+        } else {
+          vvipArea.innerHTML = `
+            <button type="button" onclick="openVvipModal()" class="text-[9px] font-black text-amber-200 bg-gradient-to-r from-amber-500/20 via-purple-600/30 to-amber-500/20 hover:from-amber-500/30 hover:to-purple-600/40 border border-amber-400/60 hover:border-amber-300 px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1.5 shadow-sm hover:scale-105 active:scale-95 transition-all cursor-pointer animate-pulse" title="Get Flat 10% OFF on all products & orders for ₹69">
+              <i data-lucide="sparkles" class="w-2.5 h-2.5 text-amber-300 fill-amber-300"></i>
+              <span>⚡ VVIP+ (₹69 • 10% OFF)</span>
+            </button>
+          `;
+        }
+      }
+
+      const vvipBannerArea = document.getElementById('profileVvipBannerArea');
+      if (vvipBannerArea) {
+        if (isVvip) {
+          vvipBannerArea.innerHTML = `
+            <div class="flex items-center justify-between p-3 rounded-2xl bg-gradient-to-r from-purple-950/60 via-amber-950/40 to-purple-950/60 border border-amber-400/40 shadow-md">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-8 h-8 rounded-xl bg-amber-400/15 border border-amber-400/40 flex items-center justify-center text-amber-300 shrink-0 text-sm">💎</div>
+                <div class="min-w-0">
+                  <p class="text-xs font-bold text-amber-200">VVIP+ Lifetime Membership Active</p>
+                  <p class="text-[10px] text-[#86868b] truncate">Flat 10% extra discount is active on all products & future orders.</p>
+                </div>
+              </div>
+              <span class="text-[9px] font-black text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-500/30 shrink-0">10% OFF ACTIVE</span>
+            </div>
+          `;
+        } else {
+          vvipBannerArea.innerHTML = `
+            <div onclick="openVvipModal()" class="flex items-center justify-between p-3 rounded-2xl bg-gradient-to-r from-amber-500/10 via-purple-950/25 to-amber-500/10 border border-amber-400/35 hover:border-amber-300 transition-all cursor-pointer group shadow-sm">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-8 h-8 rounded-xl bg-amber-400/15 border border-amber-400/40 flex items-center justify-center text-amber-300 shrink-0 text-sm group-hover:scale-110 transition-transform">⚡</div>
+                <div class="min-w-0">
+                  <p class="text-xs font-bold text-white group-hover:text-amber-200 transition-colors">Upgrade to <span class="text-amber-300 font-extrabold">VVIP+ Club</span> for only <span class="text-amber-300 font-mono font-bold">₹69</span></p>
+                  <p class="text-[10px] text-[#86868b] truncate">Har product aur order par flat 10% extra discount paayein!</p>
+                </div>
+              </div>
+              <button type="button" class="px-3 py-1 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-500 text-black font-extrabold text-[10px] uppercase tracking-wider shrink-0 shadow-sm group-hover:scale-105 active:scale-95 transition-all">
+                Join @ ₹69 &gt;
+              </button>
+            </div>
+          `;
+        }
+      }
+
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        lucide.createIcons();
+      }
     }
 
     function populateProfileForm(user) {
@@ -5050,9 +5442,10 @@
 
             <div class="pt-2 border-t border-white/[0.06] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
               <div class="space-y-0.5">
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 flex-wrap">
                   <span class="text-xs font-bold text-white">Grand Total: ₹${total}</span>
                   <span class="text-[9px] text-[#86868b] bg-white/[0.06] px-1.5 py-0.2 rounded border border-white/[0.08]">${paymentMethod}</span>
+                  ${order.isVvipOrder ? `<span class="text-[9px] font-bold text-amber-300 bg-amber-500/15 border border-amber-400/30 px-1.5 py-0.2 rounded flex items-center gap-1">💎 VVIP+ (10% OFF Saved)</span>` : ''}
                 </div>
                 <p class="text-[10px] text-[#86868b] truncate max-w-xs">
                   <i data-lucide="map-pin" class="w-3 h-3 inline mr-1 text-[#F0D9B5]"></i>${customer.address || ''}, ${customer.city || ''}, ${customer.state || ''} - ${customer.pincode || ''}
