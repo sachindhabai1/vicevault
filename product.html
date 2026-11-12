@@ -742,6 +742,9 @@
         </button>
       </div>
 
+      <!-- User / Guest Auth Status Banner inside Checkout -->
+      <div id="checkoutAuthBanner"></div>
+
       <form id="orderForm" onsubmit="submitCustomerOrder(event)" class="space-y-4 text-xs">
         
         <!-- Order Items & Quantity Adjuster inside Checkout -->
@@ -2043,6 +2046,17 @@
   <script>
     lucide.createIcons();
     const STORAGE_KEY = 'gta_orders_vault';
+    const AUTH_USER_KEY = 'vicevault_current_user';
+    const ALL_USERS_KEY = 'vicevault_registered_users';
+
+    function getCurrentUser() {
+      try {
+        const data = localStorage.getItem(AUTH_USER_KEY);
+        return data ? JSON.parse(data) : null;
+      } catch (e) {
+        return null;
+      }
+    }
 
     // STRICT SEPARATION: CONTROLLERS ONLY vs CONSOLES ONLY vs MOUSEPAD vs KEYCHAINS
     const productsDB = {
@@ -2256,13 +2270,6 @@
     }
 
     function quickBuy(productId) {
-      const curUser = getCurrentUser();
-      if (!curUser) {
-        window.pendingOrderAction = { type: 'quickBuy', productId: productId };
-        openAuthModal('register', '⚡ Order book karne ke liye kripya pehle apna VIP Account banayein ya Login karein!');
-        return;
-      }
-
       const p = productsDB[productId] || productsDB['controller'];
       if (!p) return;
 
@@ -2484,20 +2491,13 @@
     }
 
     function handleDetailBuyNow() {
-      const curUser = getCurrentUser();
-      if (!curUser) {
-        window.pendingOrderAction = { type: 'detailBuy' };
-        openAuthModal('register', '⚡ Order book karne ke liye kripya pehle apna VIP Account banayein ya Login karein!');
-        return;
-      }
-
       const selectedImg = currentProduct.images[selectedImageIndex] ? currentProduct.images[selectedImageIndex].src : currentProduct.images[0].src;
       const themeSuffix = currentProduct.images[selectedImageIndex] ? ` (${currentProduct.images[selectedImageIndex].name})` : '';
       const fullName = `${currentProduct.title}${themeSuffix}`;
 
       const existing = cart.find(item => item.name === fullName);
       if (existing) {
-        existing.qty = detailPageQty;
+        existing.qty = Math.max(existing.qty, detailPageQty);
       } else {
         cart.push({ name: fullName, price: currentProduct.price, image: selectedImg, qty: detailPageQty });
       }
@@ -2995,14 +2995,38 @@
 
     function openCheckoutModal() {
       const curUser = getCurrentUser();
-      if (!curUser) {
-        window.pendingOrderAction = { type: 'checkout' };
-        openAuthModal('register', '⚡ Checkout complete karne ke liye pehle apna VIP Account banayein ya Login karein!');
-        return;
-      }
 
       initLocationSelectors();
-      prefillCheckoutUserDetails(curUser);
+      if (curUser) {
+        prefillCheckoutUserDetails(curUser);
+      }
+
+      const authBanner = document.getElementById('checkoutAuthBanner');
+      if (authBanner) {
+        if (curUser) {
+          authBanner.innerHTML = `
+            <div class="flex items-center justify-between p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-xs">
+              <span class="flex items-center gap-1.5 font-medium truncate">
+                <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
+                <span class="truncate">Logged in as <b>${curUser.name || 'VIP Member'}</b> (${curUser.phone || curUser.email || ''})</span>
+              </span>
+              <span class="text-[10px] bg-emerald-500/20 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider flex-shrink-0">1-Click Autofill</span>
+            </div>
+          `;
+        } else {
+          authBanner.innerHTML = `
+            <div class="flex items-center justify-between p-2.5 rounded-xl bg-[#F0D9B5]/10 border border-[#F0D9B5]/25 text-[#f5f5f7] text-xs">
+              <span class="flex items-center gap-1.5 font-medium truncate">
+                <i data-lucide="zap" class="w-4 h-4 text-[#F0D9B5] flex-shrink-0"></i>
+                <span>Fast 1-Click Checkout • No password required</span>
+              </span>
+              <button type="button" onclick="openAuthModal('login')" class="text-[11px] text-[#F0D9B5] hover:underline font-bold flex-shrink-0 ml-2">
+                Have account? Login &gt;
+              </button>
+            </div>
+          `;
+        }
+      }
 
       if (cart.length === 0) {
         showToast('Your bag is empty! Add products first.');
@@ -3049,7 +3073,7 @@
         return;
       }
 
-      if (!selectedDistrictVal || !INDIA_STATES_DISTRICTS[selectedStateVal].includes(selectedDistrictVal)) {
+      if (!selectedDistrictVal || (!INDIA_STATES_DISTRICTS[selectedStateVal].includes(selectedDistrictVal) && selectedDistrictVal !== 'Other')) {
         showToast(`Kripya dropdown se ${selectedStateVal} ka valid District / ज़िला select karein!`);
         safeFocus(document.getElementById('custCity'));
         return;
@@ -3106,6 +3130,12 @@
             joinedDate: new Date().toLocaleDateString('en-IN', { dateStyle: 'medium' })
           };
           localStorage.setItem(AUTH_USER_KEY, JSON.stringify(curUser));
+          try {
+            const usersStr = localStorage.getItem(ALL_USERS_KEY);
+            const users = usersStr ? JSON.parse(usersStr) : [];
+            users.push(curUser);
+            localStorage.setItem(ALL_USERS_KEY, JSON.stringify(users));
+          } catch (e) {}
           updateNavUserProfile(curUser);
         }
       } catch (e) {}
@@ -4163,6 +4193,14 @@
         districtSelect.appendChild(opt);
       });
 
+      const otherOpt = document.createElement('option');
+      otherOpt.value = 'Other';
+      otherOpt.textContent = 'Other / District Not Listed';
+      if (preselectDistrict && preselectDistrict.toLowerCase() === 'other') {
+        otherOpt.selected = true;
+      }
+      districtSelect.appendChild(otherOpt);
+
       if (hintBadge) {
         hintBadge.innerHTML = `<span class="text-emerald-400 font-semibold">✓ ${districts.length} Districts in ${selectedState}</span>`;
       }
@@ -4211,18 +4249,6 @@
           onStateChanged(detectedState);
           showToast(`Pincode se State detected: ${detectedState}! Ab apna District chunein.`);
         }
-      }
-    }
-
-    const AUTH_USER_KEY = 'vicevault_current_user';
-    const ALL_USERS_KEY = 'vicevault_registered_users';
-
-    function getCurrentUser() {
-      try {
-        const data = localStorage.getItem(AUTH_USER_KEY);
-        return data ? JSON.parse(data) : null;
-      } catch (e) {
-        return null;
       }
     }
 
