@@ -45,6 +45,13 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
+  <!-- Firebase SDKs (v10 Compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="firebase-auth.js"></script>
+
         <style>
     /* Mobile Touch & Tap Latency Optimization */
     * {
@@ -2170,9 +2177,12 @@
       <!-- Divider -->
       <div class="flex items-center gap-3 my-2 text-[10px] text-[#86868b]">
         <div class="h-px bg-white/[0.08] flex-1"></div>
-        <span class="uppercase tracking-wider font-semibold">Ya Details Bharein</span>
+        <span class="uppercase tracking-wider font-semibold">Firebase Secure Sign Up</span>
         <div class="h-px bg-white/[0.08] flex-1"></div>
       </div>
+
+      <!-- Firebase reCAPTCHA Invisible Container -->
+      <div id="recaptcha-container"></div>
 
       <!-- REGISTER FORM -->
       <form id="registerForm" onsubmit="handleUserRegister(event)" class="space-y-3 text-left text-xs">
@@ -2186,48 +2196,21 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           <div>
-            <label class="block text-[11px] font-semibold text-white/90 mb-1">Mobile No. *</label>
+            <label class="block text-[11px] font-semibold text-white/90 mb-1">Mobile No. (+91 India) *</label>
             <div class="relative">
               <span class="absolute left-3 top-2.5 text-xs text-[#86868b] font-mono">+91</span>
-              <input type="tel" id="regPhone" required pattern="[0-9]{10}" maxlength="10" placeholder="10 digits" class="w-full pl-11 pr-3 py-2.5 bg-black/70 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] font-mono text-xs focus:outline-none focus:border-[#F0D9B5]">
+              <input type="tel" id="regPhone" required pattern="[0-9]{10}" maxlength="10" placeholder="10-digit number" class="w-full pl-11 pr-3 py-2.5 bg-black/70 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] font-mono text-xs focus:outline-none focus:border-[#F0D9B5]">
             </div>
+            <p class="text-[9px] text-[#86868b] mt-0.5">Firebase SMS OTP verification</p>
           </div>
           <div>
-            <div class="flex items-center justify-between mb-1">
-              <label class="text-[11px] font-semibold text-white/90">Email ID (OTP Verify) *</label>
-              <span id="regEmailStatusBadge" class="text-[10px] text-amber-300 font-semibold flex items-center gap-1 hidden"></span>
+            <label class="block text-[11px] font-semibold text-white/90 mb-1">Email ID (Official) *</label>
+            <div class="relative">
+              <i data-lucide="mail" class="absolute left-3 top-3 w-3.5 h-3.5 text-[#86868b]"></i>
+              <input type="email" id="regEmail" required placeholder="name@email.com" class="w-full pl-9 pr-3 py-2.5 bg-black/70 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] text-xs focus:outline-none focus:border-[#F0D9B5]">
             </div>
-            <div class="relative flex items-center gap-1.5">
-              <div class="relative flex-1">
-                <i data-lucide="mail" class="absolute left-3 top-3 w-3.5 h-3.5 text-[#86868b]"></i>
-                <input type="email" id="regEmail" required placeholder="name@email.com" oninput="onRegEmailChanged()" class="w-full pl-9 pr-2 py-2.5 bg-black/70 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] text-xs focus:outline-none focus:border-[#F0D9B5]">
-              </div>
-              <button type="button" id="btnSendRegEmailOtp" onclick="sendRegEmailOtp()" class="shrink-0 px-3 py-2.5 rounded-xl bg-[#F0D9B5]/15 hover:bg-[#F0D9B5]/25 border border-[#F0D9B5]/40 text-[#F0D9B5] font-bold text-[11px] flex items-center gap-1 transition-all cursor-pointer shadow-sm">
-                <i data-lucide="send" class="w-3 h-3"></i>
-                <span id="btnSendRegEmailOtpText">Send OTP</span>
-              </button>
-            </div>
+            <p class="text-[9px] text-[#86868b] mt-0.5">Verification link will be sent</p>
           </div>
-        </div>
-
-        <!-- EMAIL OTP VERIFICATION BOX -->
-        <div id="regEmailOtpBox" class="hidden p-3 rounded-2xl bg-gradient-to-r from-purple-950/40 via-amber-950/30 to-purple-950/40 border border-amber-400/40 space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="text-[11px] font-bold text-amber-200 flex items-center gap-1.5">
-              <i data-lucide="shield-check" class="w-3.5 h-3.5 text-amber-300"></i>
-              <span>Enter 6-Digit Email OTP</span>
-            </span>
-            <span id="regEmailOtpTimer" class="text-[10px] text-[#86868b] font-mono">Resend in 60s</span>
-          </div>
-          <p class="text-[10px] text-[#86868b]">Humne <span id="regEmailOtpTarget" class="text-white font-medium"></span> par verification OTP bheja hai.</p>
-          <div class="flex items-center gap-2">
-            <input type="text" id="regEmailOtpInput" maxlength="6" pattern="[0-9]{6}" placeholder="Enter 6-Digit OTP" class="flex-1 px-3 py-2 bg-black/70 border border-white/[0.15] rounded-xl text-white text-center font-mono tracking-widest text-sm focus:outline-none focus:border-amber-400">
-            <button type="button" onclick="verifyRegEmailOtp()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-emerald-500/20 cursor-pointer">
-              <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
-              <span>Verify OTP</span>
-            </button>
-          </div>
-          <div id="regEmailOtpMsg" class="text-[10px] hidden"></div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -2237,11 +2220,11 @@
           </div>
           <div>
             <label class="block text-[11px] font-semibold text-white/90 mb-1 flex items-center justify-between">
-              <span>Create Password *</span>
+              <span>Create Password (Min 6) *</span>
             </label>
             <div class="relative">
               <i data-lucide="lock" class="absolute left-3 top-3 w-3.5 h-3.5 text-[#86868b]"></i>
-              <input type="password" id="regPassword" required placeholder="Min 4 characters" minlength="4" class="w-full pl-9 pr-9 py-2.5 bg-black/70 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] text-xs focus:outline-none focus:border-[#F0D9B5]">
+              <input type="password" id="regPassword" required placeholder="Min 6 characters" minlength="6" class="w-full pl-9 pr-9 py-2.5 bg-black/70 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] text-xs focus:outline-none focus:border-[#F0D9B5]">
               <button type="button" onclick="togglePasswordVisibility('regPassword', 'regPassEyeIcon')" class="absolute right-3 top-2.5 text-[#86868b] hover:text-white cursor-pointer">
                 <i id="regPassEyeIcon" data-lucide="eye" class="w-4 h-4"></i>
               </button>
@@ -3186,6 +3169,16 @@
     function submitCustomerOrder(e) {
       e.preventDefault();
       
+      // Protected Action Gate: Require Phone + Email verification
+      if (window.isFirebaseConfigured && window.isFirebaseConfigured()) {
+        const fbUser = window.firebaseAuth ? window.firebaseAuth.currentUser : null;
+        if (!fbUser || !window.firebaseAuthService.isUserFullyVerified(fbUser)) {
+          window.firebaseAuthService.openVerifyGateModal(fbUser);
+          showToast('⚠️ Protected: Order place karne ke liye Phone aur Email dono verify hone chahiye.');
+          return;
+        }
+      }
+
       const settings = getStorePaymentSettings();
       const upiDiscount = settings.upiDiscount || 20;
       const cartSubtotalVal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
@@ -3314,6 +3307,17 @@
         localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
         localStorage.setItem('gta_last_order_id', orderId);
         updateUserOrdersBadge();
+
+        // Sync Order to Cloud Firestore if Firebase is active
+        if (window.isFirebaseConfigured && window.isFirebaseConfigured() && window.firebaseDb) {
+          const fbUser = window.firebaseAuth ? window.firebaseAuth.currentUser : null;
+          window.firebaseDb.collection('orders').doc(orderId).set({
+            ...newOrder,
+            userId: fbUser ? fbUser.uid : (curUser ? curUser.id : ''),
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true }).catch(err => console.warn('Firestore order sync notice:', err));
+        }
       } catch (err) {
         console.error('Storage error:', err);
       }
@@ -5096,7 +5100,7 @@
       }
     }
 
-    function handleUserRegister(e) {
+    async function handleUserRegister(e) {
       if (e && e.preventDefault) e.preventDefault();
       const nameInput = document.getElementById('regName');
       const phoneInput = document.getElementById('regPhone');
@@ -5135,72 +5139,46 @@
         return;
       }
 
-      // STRICT EMAIL OTP VERIFICATION
-      if (!activeEmailOtpData.verified || activeEmailOtpData.email !== email.toLowerCase()) {
-        showToast('⚠️ Kripya pehle apni Email ID verify karein (Humne OTP bhej diya hai).');
-        sendRegEmailOtp();
+      if (!password || password.length < 6) {
+        showToast('Password kam se kam 6 characters ka hona chahiye.');
+        safeFocus(passInput);
         return;
       }
 
-      const userEmail = email.toLowerCase();
-      const userPass = password || '1234';
+      // Check Firebase configuration state
+      if (!window.isFirebaseConfigured || !window.isFirebaseConfigured()) {
+        window.showFirebaseSetupBanner('Firebase setup required: Please add your project credentials in "firebase-config.js" to enable live Firebase SMS OTP & Email Verification.');
+        return;
+      }
 
-      const newUser = {
-        id: 'USR-' + Math.floor(100000 + Math.random() * 900000),
-        name: name,
-        phone: cleanPhone,
-        email: userEmail,
-        emailVerified: true,
-        city: city || 'India',
-        password: userPass,
-        joinedDate: new Date().toLocaleDateString('en-IN', { dateStyle: 'medium' })
-      };
+      const submitBtn = document.querySelector('#registerForm button[type="submit"]');
+      const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<span class="flex items-center gap-2 justify-center"><i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Sending SMS OTP & Email Link...</span></span>`;
+        if (window.lucide && typeof window.lucide.createIcons === 'function') lucide.createIcons();
+      }
 
       try {
-        localStorage.setItem(AUTH_USER_KEY, JSON.stringify(newUser));
-
-        const usersStr = localStorage.getItem(ALL_USERS_KEY);
-        const users = usersStr ? JSON.parse(usersStr) : [];
-        const existingIdx = users.findIndex(u => (u.phone && u.phone.replace(/[^0-9]/g, '').slice(-10) === cleanPhone) || (u.email && u.email.toLowerCase() === userEmail.toLowerCase()));
-        if (existingIdx >= 0) {
-          users[existingIdx] = newUser;
-        } else {
-          users.push(newUser);
-        }
-        localStorage.setItem(ALL_USERS_KEY, JSON.stringify(users));
+        await window.firebaseAuthService.handleSignUp({
+          name: name,
+          email: email,
+          phone: cleanPhone,
+          password: password,
+          city: city
+        });
       } catch (err) {
-        console.error('Storage error:', err);
-      }
-
-      closeAuthModal(true);
-      updateNavUserProfile(newUser);
-      prefillCheckoutUserDetails(newUser);
-      updateUserOrdersBadge();
-
-      showToast(`Welcome to ViceVault, ${name}! VIP Account ready 🎉`);
-      if (typeof triggerFireworksCelebration === 'function') {
-        triggerFireworksCelebration();
-      }
-
-      // Resume pending order if guest clicked buy/checkout
-      if (window.pendingOrderAction) {
-        const action = window.pendingOrderAction;
-        window.pendingOrderAction = null;
-        if (action.type === 'quickBuy' && action.productId) {
-          quickBuy(action.productId);
-        } else if (action.type === 'detailBuy' && typeof handleDetailBuyNow === 'function') {
-          handleDetailBuyNow();
-        } else {
-          openCheckoutModal();
+        showToast(err.message || 'Registration failed. Kripya dobara try karein.');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalBtnHtml;
+          if (window.lucide && typeof window.lucide.createIcons === 'function') lucide.createIcons();
         }
-      } else if (window.pendingCheckoutAfterAuth) {
-        window.pendingCheckoutAfterAuth = false;
-        openCheckoutModal();
       }
-      if (window.lucide && typeof window.lucide.createIcons === 'function') lucide.createIcons();
     }
 
-    function handleUserLogin(e) {
+    async function handleUserLogin(e) {
       if (e && e.preventDefault) e.preventDefault();
       const identInput = document.getElementById('loginIdentifier');
       const passInput = document.getElementById('loginPassword');
@@ -5214,82 +5192,39 @@
         return;
       }
 
-      let users = [];
+      if (!password) {
+        showToast('Kripya apna password enter karein.');
+        safeFocus(passInput);
+        return;
+      }
+
+      if (!window.isFirebaseConfigured || !window.isFirebaseConfigured()) {
+        window.showFirebaseSetupBanner('Firebase setup required: Please configure "firebase-config.js" for live secure login.');
+        return;
+      }
+
+      const submitBtn = document.querySelector('#loginForm button[type="submit"]');
+      const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<span class="flex items-center gap-2 justify-center"><i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Logging in...</span></span>`;
+        if (window.lucide && typeof window.lucide.createIcons === 'function') lucide.createIcons();
+      }
+
       try {
-        const usersStr = localStorage.getItem(ALL_USERS_KEY);
-        users = usersStr ? JSON.parse(usersStr) : [];
+        await window.firebaseAuthService.handleLogin({
+          identifier: rawIdent,
+          password: password
+        });
       } catch (err) {
-        users = [];
-      }
-
-      const cleanPhone = rawIdent.replace(/[^0-9]/g, '').slice(-10);
-
-      // Search for existing user
-      let found = users.find(u => {
-        if (!u) return false;
-        const uPhone = String(u.phone || '').replace(/[^0-9]/g, '').slice(-10);
-        const matchPhone = cleanPhone.length === 10 && uPhone === cleanPhone;
-        const matchEmail = String(u.email || '').toLowerCase() === rawIdent.toLowerCase();
-        return matchPhone || matchEmail;
-      });
-
-      if (found) {
-        localStorage.setItem(AUTH_USER_KEY, JSON.stringify(found));
-        closeAuthModal(true);
-        updateNavUserProfile(found);
-        prefillCheckoutUserDetails(found);
-        updateUserOrdersBadge();
-        showToast(`Welcome back, ${found.name}! Login successful 🎉`);
-      } else {
-        // Seamless instant VIP sign in & account creation
-        const phone = cleanPhone.length === 10 ? cleanPhone : ('9' + Math.floor(100000000 + Math.random() * 900000000));
-        const email = rawIdent.includes('@') ? rawIdent : `${phone}@vicevault.store`;
-        const autoName = rawIdent.includes('@') ? rawIdent.split('@')[0] : ('Member ' + phone.slice(-4));
-        const formattedName = autoName.charAt(0).toUpperCase() + autoName.slice(1);
-
-        const newUser = {
-          id: 'USR-' + Math.floor(100000 + Math.random() * 900000),
-          name: formattedName,
-          phone: phone,
-          email: email,
-          password: password || '1234',
-          city: 'India',
-          joinedDate: new Date().toLocaleDateString('en-IN', { dateStyle: 'medium' })
-        };
-
-        users.push(newUser);
-        try {
-          localStorage.setItem(ALL_USERS_KEY, JSON.stringify(users));
-          localStorage.setItem(AUTH_USER_KEY, JSON.stringify(newUser));
-        } catch (e) {}
-
-        closeAuthModal(true);
-        updateNavUserProfile(newUser);
-        prefillCheckoutUserDetails(newUser);
-        updateUserOrdersBadge();
-        showToast(`Welcome, ${newUser.name}! VIP Account login ho gaya hai 🎉`);
-      }
-
-      if (typeof triggerFireworksCelebration === 'function') {
-        triggerFireworksCelebration();
-      }
-
-      // Resume pending order if guest clicked buy/checkout
-      if (window.pendingOrderAction) {
-        const action = window.pendingOrderAction;
-        window.pendingOrderAction = null;
-        if (action.type === 'quickBuy' && action.productId) {
-          quickBuy(action.productId);
-        } else if (action.type === 'detailBuy' && typeof handleDetailBuyNow === 'function') {
-          handleDetailBuyNow();
-        } else {
-          openCheckoutModal();
+        showToast(err.message || 'Login failed.');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalBtnHtml;
+          if (window.lucide && typeof window.lucide.createIcons === 'function') lucide.createIcons();
         }
-      } else if (window.pendingCheckoutAfterAuth) {
-        window.pendingCheckoutAfterAuth = false;
-        openCheckoutModal();
       }
-      if (window.lucide && typeof window.lucide.createIcons === 'function') lucide.createIcons();
     }
 
     function handleUserLogout() {

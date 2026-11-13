@@ -45,6 +45,12 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
+  <!-- Firebase SDKs (v10 Compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
         <style>
     /* Mobile Touch & Tap Latency Optimization */
     * {
@@ -1185,6 +1191,23 @@
         initPaymentSettings();
       }
     });
+
+    // Firestore Live Realtime Sync for Admin Dashboard
+    if (window.isFirebaseConfigured && window.isFirebaseConfigured() && window.firebaseDb) {
+      try {
+        window.firebaseDb.collection('orders').onSnapshot(snapshot => {
+          const firestoreOrders = [];
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            firestoreOrders.push({ id: doc.id, ...data });
+          });
+          if (firestoreOrders.length > 0) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(firestoreOrders));
+            renderDashboard();
+          }
+        }, err => console.warn('Firestore orders sync notice:', err));
+      } catch (e) {}
+    }
 
     initPaymentSettings();
     renderDashboard();

@@ -1,0 +1,266 @@
+rules_version = '2';
+
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: users
+// Document ID: userId (matches Firebase Authentication UID)
+// Fields:
+//   - uid: string (optional, 1-128 chars, matches userId, immutable)
+//   - name: string (required, 1-100 chars)
+//   - email: string (required, valid email format, 5-150 chars)
+//   - phone: string (required, valid phone format, 10-20 chars)
+//   - emailVerified: bool (required)
+//   - phoneVerified: bool (required)
+//   - createdAt: timestamp (required, creation timestamp, immutable)
+//   - role: string (optional, enum: ['customer', 'vip', 'member', 'admin'], default 'customer', privilege protected)
+//   - address: string (optional, max 300 chars)
+//   - city: string (optional, max 100 chars)
+//   - state: string (optional, max 100 chars)
+//   - pincode: string (optional, 4-10 chars)
+//   - photoURL: string (optional, max 500 chars, valid http/https URL)
+//   - updatedAt: timestamp (optional)
+//
+// Collection: orders
+// Document ID: orderId (e.g., auto-generated or 'VV-...' order reference)
+// Fields:
+//   - orderId: string (optional, max 64 chars)
+//   - userId: string (required, 1-128 chars, matches request.auth.uid, immutable)
+//   - items: list (required, 1-50 items, cart items array)
+//   - total: number (required, positive, max 10,000,000)
+//   - subtotal: number (optional, >= 0)
+//   - discount: number (optional, >= 0)
+//   - vvipDiscount: number (optional, >= 0)
+//   - isVvipOrder: bool (optional)
+//   - paymentMethod: string (optional, max 50 chars)
+//   - transactionId: string (optional, max 100 chars)
+//   - status: string (optional, enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'])
+//   - courier: string (optional, max 100 chars)
+//   - trackingNumber: string (optional, max 100 chars)
+//   - trackingLocation: string (optional, max 500 chars)
+//   - customer: map (optional, shipping & contact metadata)
+//   - createdAt: timestamp (optional)
+//   - date: string (optional, formatted date string, max 100 chars)
+//   - updatedAt: timestamp (optional)
+//
+// ===============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    // Check if the request is from an authenticated user
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Check if the authenticated user owns the resource by matching their UID
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Check if the authenticated user has administrative privileges
+    // Authority is derived exclusively from trusted Firebase Auth Custom Claims
+    function isAdmin() {
+      return isAuthenticated() &&
+        (
+          (request.auth.token.role == 'admin') ||
+          (request.auth.token.admin == true)
+        );
+    }
+
+    // Validate that required fields are present in request data
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    // Validate that request data contains only allowed fields (Strict Schema Enforcement)
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    // Ensure specified immutable fields cannot be changed or deleted during update
+    function areImmutableFieldsUnchanged(fields) {
+      return !request.resource.data.diff(resource.data).affectedKeys().hasAny(fields);
+    }
+
+    // Validate email format
+    function isValidEmail(email) {
+      return email is string &&
+        email.size() >= 5 &&
+        email.size() <= 150 &&
+        email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    // Validate phone number format
+    function isValidPhone(phone) {
+      return phone is string &&
+        phone.size() >= 10 &&
+        phone.size() <= 20 &&
+        phone.matches("^[+]?[0-9 -]+$");
+    }
+
+    // Validate URL format (must start with http:// or https:// and not exceed 500 chars)
+    function isValidUrl(url) {
+      return url is string &&
+        url.size() <= 500 &&
+        (url.matches("^https://.*") || url.matches("^http://.*"));
+    }
+
+    // Validate customer address/shipping sub-map inside an order
+    function isValidCustomerMap(cust) {
+      let allowedCustKeys = ['name', 'phone', 'email', 'pincode', 'address', 'city', 'state'];
+      return cust is map &&
+        cust.keys().hasOnly(allowedCustKeys) &&
+        (!('name' in cust) || (cust.name is string && cust.name.size() <= 100)) &&
+        (!('phone' in cust) || (cust.phone is string && cust.phone.size() <= 25)) &&
+        (!('email' in cust) || (cust.email is string && cust.email.size() <= 150)) &&
+        (!('pincode' in cust) || (cust.pincode is string && cust.pincode.size() <= 15)) &&
+        (!('address' in cust) || (cust.address is string && cust.address.size() <= 300)) &&
+        (!('city' in cust) || (cust.city is string && cust.city.size() <= 100)) &&
+        (!('state' in cust) || (cust.state is string && cust.state.size() <= 100));
+    }
+
+    // ===============================================================
+    // Domain Validators (Used in BOTH create and update)
+    // ===============================================================
+
+    // Validate User Profile document structure, types, and constraints
+    function isValidUser(data) {
+      let allowedFields = [
+        'uid', 'name', 'email', 'phone', 'emailVerified', 'phoneVerified',
+        'createdAt', 'role', 'address', 'city', 'state', 'pincode',
+        'photoURL', 'updatedAt'
+      ];
+      let requiredFields = ['name', 'email', 'phone', 'emailVerified', 'phoneVerified', 'createdAt'];
+
+      return data.keys().hasOnly(allowedFields) &&
+        data.keys().hasAll(requiredFields) &&
+        data.name is string && data.name.size() >= 1 && data.name.size() <= 100 &&
+        isValidEmail(data.email) &&
+        isValidPhone(data.phone) &&
+        data.emailVerified is bool &&
+        data.phoneVerified is bool &&
+        data.createdAt is timestamp &&
+        data.createdAt <= request.time &&
+        (!('uid' in data) || (data.uid is string && data.uid.size() >= 1 && data.uid.size() <= 128)) &&
+        (!('role' in data) || (data.role is string && data.role in ['customer', 'vip', 'member', 'admin'])) &&
+        (!('address' in data) || (data.address is string && data.address.size() <= 300)) &&
+        (!('city' in data) || (data.city is string && data.city.size() <= 100)) &&
+        (!('state' in data) || (data.state is string && data.state.size() <= 100)) &&
+        (!('pincode' in data) || (data.pincode is string && data.pincode.size() >= 4 && data.pincode.size() <= 10)) &&
+        (!('photoURL' in data) || isValidUrl(data.photoURL)) &&
+        (!('updatedAt' in data) || data.updatedAt is timestamp);
+    }
+
+    // Validate Order document structure, types, and constraints
+    function isValidOrder(data) {
+      let allowedFields = [
+        'orderId', 'userId', 'items', 'subtotal', 'discount',
+        'vvipDiscount', 'isVvipOrder', 'total', 'paymentMethod',
+        'transactionId', 'status', 'courier', 'trackingNumber',
+        'trackingLocation', 'customer', 'createdAt', 'date', 'updatedAt'
+      ];
+      let requiredFields = ['userId', 'items', 'total'];
+
+      return data.keys().hasOnly(allowedFields) &&
+        data.keys().hasAll(requiredFields) &&
+        data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+        data.items is list && data.items.size() > 0 && data.items.size() <= 50 &&
+        data.total is number && data.total > 0 && data.total <= 10000000 &&
+        (!('orderId' in data) || (data.orderId is string && data.orderId.size() <= 64)) &&
+        (!('subtotal' in data) || (data.subtotal is number && data.subtotal >= 0)) &&
+        (!('discount' in data) || (data.discount is number && data.discount >= 0)) &&
+        (!('vvipDiscount' in data) || (data.vvipDiscount is number && data.vvipDiscount >= 0)) &&
+        (!('isVvipOrder' in data) || data.isVvipOrder is bool) &&
+        (!('paymentMethod' in data) || (data.paymentMethod is string && data.paymentMethod.size() <= 50)) &&
+        (!('transactionId' in data) || (data.transactionId is string && data.transactionId.size() <= 100)) &&
+        (!('status' in data) || (data.status is string && data.status in ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'])) &&
+        (!('courier' in data) || (data.courier is string && data.courier.size() <= 100)) &&
+        (!('trackingNumber' in data) || (data.trackingNumber is string && data.trackingNumber.size() <= 100)) &&
+        (!('trackingLocation' in data) || (data.trackingLocation is string && data.trackingLocation.size() <= 500)) &&
+        (!('customer' in data) || isValidCustomerMap(data.customer)) &&
+        (!('createdAt' in data) || data.createdAt is timestamp) &&
+        (!('date' in data) || (data.date is string && data.date.size() <= 100)) &&
+        (!('updatedAt' in data) || data.updatedAt is timestamp);
+    }
+
+    // ===============================================================
+    // Collection Rules
+    // ===============================================================
+
+    // -------------------------------------------------------------
+    // USERS COLLECTION
+    // -------------------------------------------------------------
+    match /users/{userId} {
+      // READ: Only the authenticated user matching userId can read their own profile.
+      // Strict PII protection: No unauthenticated access, and users cannot view other profiles.
+      allow read: if isOwner(userId) || isAdmin();
+
+      // CREATE: Authenticated user creating their own profile document.
+      // - Must match request.auth.uid == userId
+      // - Must pass full schema and constraint checks via isValidUser()
+      // - If uid is present, it must match userId
+      // - RBAC / Privilege Escalation Prevention: Non-admin users cannot grant themselves 'admin' role
+      allow create: if isOwner(userId) &&
+                       isValidUser(request.resource.data) &&
+                       (!('uid' in request.resource.data) || request.resource.data.uid == userId) &&
+                       (!('role' in request.resource.data) || request.resource.data.role in ['customer', 'vip', 'member'] || isAdmin());
+
+      // UPDATE: Authenticated user updating their own profile document.
+      // - Must match request.auth.uid == userId
+      // - Must pass full schema and constraint checks via isValidUser()
+      // - Immutable fields ('uid', 'createdAt') cannot be modified or deleted
+      // - Non-admin users cannot alter or escalate their 'role'
+      allow update: if isOwner(userId) &&
+                       isValidUser(request.resource.data) &&
+                       (!('uid' in request.resource.data) || request.resource.data.uid == userId) &&
+                       areImmutableFieldsUnchanged(['uid', 'createdAt']) &&
+                       (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']) || isAdmin());
+
+      // DELETE: Profile deletion disabled for safety
+      allow delete: if false;
+    }
+
+    // -------------------------------------------------------------
+    // ORDERS COLLECTION
+    // -------------------------------------------------------------
+    match /orders/{orderId} {
+      // READ: Authenticated users can read only their own orders where resource.data.userId matches request.auth.uid.
+      // Store admins can query and read all orders.
+      allow read: if isAuthenticated() &&
+                     (resource.data.userId == request.auth.uid || isAdmin());
+
+      // CREATE: Authenticated users can place orders for themselves.
+      // - Must bind request.resource.data.userId to caller's request.auth.uid
+      // - Must validate complete order structure with isValidOrder()
+      // - Customers cannot initialize an order with elevated status; default must be 'Pending' (or omitted)
+      allow create: if isAuthenticated() &&
+                       isValidOrder(request.resource.data) &&
+                       request.resource.data.userId == request.auth.uid &&
+                       (!('status' in request.resource.data) || request.resource.data.status == 'Pending' || isAdmin());
+
+      // UPDATE: Disabled for regular customers.
+      // Only store admins can update orders (e.g. status updates, courier tracking), with userId protected.
+      allow update: if isAdmin() &&
+                       isValidOrder(request.resource.data) &&
+                       areImmutableFieldsUnchanged(['userId']);
+
+      // DELETE: Disabled for regular customers.
+      // Only store admins can delete orders.
+      allow delete: if isAdmin();
+    }
+
+    // -------------------------------------------------------------
+    // DEFAULT DENY RULE
+    // -------------------------------------------------------------
+    // Deny all reads and writes to any unspecified collections or documents.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
