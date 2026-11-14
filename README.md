@@ -14,7 +14,7 @@ VICEVAULT is a high-performance, responsive luxury e-commerce web application in
 - **Complete Cart & 1-Click Checkout**:
   - Instant order summary & quantity manager
   - All-India 36 States & 780+ Districts pre-fill validation engine
-  - Dynamic payment modes: Cash on Delivery (COD) & Instant UPI (Dynamic QR Code + UPI Collect Pop-up simulation)
+  - Dynamic payment modes: Cash on Delivery (COD) & Instant UPI (Dynamic QR Code with exact amount + Direct UPI Intent)
   - Seamless COD to UPI conversion for existing orders
 - **Order Management & Live Tracking**:
   - Multi-order tracking with step-by-step progress bars and courier tracking IDs

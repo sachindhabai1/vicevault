@@ -109,7 +109,7 @@ function showFirebaseSetupBanner(customMsg) {
             <li>Credentials copy karke <span class="text-[#F0D9B5] font-mono">firebase-config.js</span> mein dalein.</li>
             <li>Authentication &gt; Sign-in method me <b>Phone</b> aur <b>Email/Password</b> enable karein.</li>
           </ol>
-          <p class="text-[10px] text-amber-400/90 font-mono">Mock OTPs ko real verification ke roop mein emulate nahi kiya jayega.</p>
+          <p class="text-[10px] text-amber-400/90 font-mono">Live Firebase Authentication setup zaroori hai.</p>
         </div>
         <button type="button" onclick="document.getElementById('firebaseSetupModal').remove()" class="w-full py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-bold text-xs transition-all shadow-md">
           Theek Hai, Samajh Gaya (Close)

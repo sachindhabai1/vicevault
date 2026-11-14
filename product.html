@@ -1296,13 +1296,7 @@
           </div>
           <div>
             <p class="text-xs font-bold text-white">Enter Order ID (#GTA-XXXXXX) ya Mobile Number</p>
-            <p class="text-[11px] text-[#86868b] max-w-xs mx-auto mt-0.5">Apne package ki real-time dispatch, courier partner aur live location dekhein.</p>
-          </div>
-          <div class="pt-1">
-            <button type="button" onclick="loadSampleTracking('#GTA-849201')" class="px-4 py-2 rounded-full bg-[#F0D9B5]/15 hover:bg-[#F0D9B5]/25 border border-[#F0D9B5]/40 text-[#F0D9B5] text-xs font-semibold inline-flex items-center gap-1.5 transition-all cursor-pointer hover:scale-105 active:scale-95 shadow-md">
-              <i data-lucide="truck" class="w-3.5 h-3.5"></i>
-              <span>⚡ Test Live Tracking Demo (#GTA-849201)</span>
-            </button>
+            <p class="text-[11px] text-[#86868b] max-w-xs mx-auto mt-0.5">Apne package ki real-time dispatch, courier partner aur live location track karein.</p>
           </div>
         </div>
 
@@ -1310,13 +1304,13 @@
         <div id="trackNotFoundPrompt" class="hidden py-8 text-center space-y-3 border border-amber-500/25 bg-amber-950/20 rounded-2xl">
           <i data-lucide="alert-circle" class="w-6 h-6 text-[#F0D9B5] mx-auto"></i>
           <div>
-            <p class="text-xs font-bold text-white">Order Details Checked</p>
-            <p class="text-[11px] text-[#86868b] max-w-xs mx-auto mt-0.5">Apna order number check karein ya live simulated delivery tracking dekhein:</p>
+            <p class="text-xs font-bold text-white">Koi Order Nahi Mila</p>
+            <p class="text-[11px] text-[#86868b] max-w-xs mx-auto mt-0.5">Kripya apna sahi Order ID (e.g. #GTA-XXXXXX) ya order ke waqt diya gaya mobile number check karke dobara search karein.</p>
           </div>
           <div class="pt-1">
-            <button type="button" onclick="loadSampleTracking('#GTA-849201')" class="px-4 py-2 rounded-full bg-gradient-to-r from-[#F0D9B5] to-[#D8BE96] text-[#1A1A1F] text-xs font-bold inline-flex items-center gap-1.5 shadow-md transition-all cursor-pointer hover:scale-105 active:scale-95">
-              <i data-lucide="navigation" class="w-3.5 h-3.5"></i>
-              <span>View Live Delivery Tracking</span>
+            <button type="button" onclick="document.getElementById('trackSearchInput').focus(); document.getElementById('trackSearchInput').select();" class="px-4 py-2 rounded-full bg-white/[0.08] hover:bg-white/[0.15] text-white text-xs font-medium inline-flex items-center gap-1.5 transition-all cursor-pointer">
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+              <span>Search Dobara Karein</span>
             </button>
           </div>
         </div>
@@ -1478,7 +1472,7 @@
                 </div>
                 <div class="space-y-0.5">
                   <p id="stepTitle2" class="text-xs font-bold text-white">Quality Checked & Armor Packaging</p>
-                  <p id="stepDesc2" class="text-[11px] text-[#86868b]">Precision QA test passed, bubble-wrapped and packed.</p>
+                  <p id="stepDesc2" class="text-[11px] text-[#86868b]">Quality inspection passed, securely bubble-wrapped and packed.</p>
                 </div>
               </div>
 
@@ -3745,6 +3739,8 @@
             if (!o) return false;
             if (o.orderId === '#GTA-849201' || o.orderId === '#GTA-392817') return false;
             if (o.trackingNumber === 'TRK-849201' || o.trackingNumber === 'TRK-392817') return false;
+            if (typeof o.transactionId === 'string' && o.transactionId.includes('DEMO')) return false;
+            if (o.customer && (o.customer.name === 'Rahul Sharma (VIP Member)' || o.customer.name === 'Rahul Sharma')) return false;
             return true;
           });
           if (cleaned.length !== orders.length) {
@@ -3880,53 +3876,10 @@
       showToast(`Tracking: ${orderId}`);
     }
 
-    function getSampleDemoOrder(customId = '#GTA-849201') {
-      const formattedId = customId.startsWith('#') ? customId : ('#' + customId.toUpperCase());
-      const rawDigits = customId.replace(/[^0-9]/g, '') || '849201';
-      return {
-        orderId: formattedId,
-        date: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
-        customer: {
-          name: 'Rahul Sharma (VIP Member)',
-          phone: '+91 98765 43210',
-          address: 'Plot 42, Civil Lines',
-          city: 'Jaipur',
-          state: 'Rajasthan',
-          pincode: '302001'
-        },
-        items: [
-          {
-            id: 'controller',
-            name: 'DualSense Pro Controller Skins (Akatsuki Red)',
-            qty: 1,
-            price: 699,
-            image: 'images/IMG_4475.jpg'
-          }
-        ],
-        subtotal: 699,
-        discount: 20,
-        shipping: 0,
-        total: 679,
-        paymentMethod: 'UPI Prepaid',
-        transactionId: 'UPI-DEMO-' + rawDigits,
-        status: 'Out for Delivery',
-        courier: 'Delhivery Express',
-        trackingNumber: 'TRK-' + rawDigits + '94',
-        trackingLocation: 'Package out for delivery with courier partner (Vikram Singh - Ph: 9876501234). Delivery scheduled by 7:00 PM today.'
-      };
-    }
-
-    function loadSampleTracking(orderId = '#GTA-849201') {
-      const sample = getSampleDemoOrder(orderId);
-      const input = document.getElementById('trackSearchInput');
-      if (input) input.value = sample.orderId;
-      document.getElementById('trackEmptyPrompt').classList.add('hidden');
-      document.getElementById('trackNotFoundPrompt').classList.add('hidden');
-      document.getElementById('trackResultContainer').classList.remove('hidden');
-      const multiBox = document.getElementById('trackMultipleOrdersBox');
-      if (multiBox) multiBox.classList.add('hidden');
-      renderOrderTrackingDetails(sample, 0);
-      showToast(`⚡ Live Tracking Loaded: ${sample.orderId}`);
+    function loadSampleTracking(orderId) {
+      if (orderId) {
+        performOrderSearch(orderId, 0);
+      }
     }
 
     function performOrderSearch(queryOverride, initialItemIndex = 0) {
@@ -3957,23 +3910,11 @@
       const multipleBox = document.getElementById('trackMultipleOrdersBox');
 
       if (matchedOrders.length === 0) {
-        // Automatically provide live tracking demonstration if user tests with any query
-        if (query.toLowerCase().includes('demo') || cleanQuery.includes('849201') || cleanQuery.length >= 4) {
-          const formattedQueryId = query.startsWith('#') ? query : ('#' + (query.toUpperCase().startsWith('GTA') ? query.toUpperCase() : ('GTA-' + query.toUpperCase())));
-          const sampleOrder = getSampleDemoOrder(formattedQueryId);
-          if (emptyPrompt) emptyPrompt.classList.add('hidden');
-          if (notFoundPrompt) notFoundPrompt.classList.add('hidden');
-          if (resultContainer) resultContainer.classList.remove('hidden');
-          if (multipleBox) multipleBox.classList.add('hidden');
-          renderOrderTrackingDetails(sampleOrder, initialItemIndex);
-          showToast(`⚡ Order Status: ${sampleOrder.status} (${sampleOrder.courier})`);
-          return;
-        }
-
         if (emptyPrompt) emptyPrompt.classList.add('hidden');
         if (notFoundPrompt) notFoundPrompt.classList.remove('hidden');
         if (resultContainer) resultContainer.classList.add('hidden');
         if (multipleBox) multipleBox.classList.add('hidden');
+        showToast('Koi order nahi mila. Sahi Order ID ya phone number dalein.');
         return;
       }
 
