@@ -9,12 +9,13 @@
 // NEVER place Firebase Admin SDK / Service Account private keys in frontend files.
 
 const DEFAULT_FIREBASE_CONFIG = {
-  apiKey: "YOUR_FIREBASE_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.firebasestorage.app",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyA0bGA0W28MGU_tv23uVrOjP9vuxrIvhVI",
+  authDomain: "webcode-5ecca.firebaseapp.com",
+  projectId: "webcode-5ecca",
+  storageBucket: "webcode-5ecca.firebasestorage.app",
+  messagingSenderId: "860275457565",
+  appId: "1:860275457565:web:20d513c1a9debb903b50f4",
+  measurementId: "G-8ZNPHRDY21"
 };
 
 // Allow environment variable injection if available on window.__ENV__
@@ -50,6 +51,15 @@ if (typeof firebase !== 'undefined') {
       }
       firebaseAuth = firebase.auth();
       firebaseDb = firebase.firestore();
+      let firebaseAnalytics = null;
+      if (typeof firebase.analytics === 'function' && activeFirebaseConfig.measurementId) {
+        try {
+          firebaseAnalytics = firebase.analytics();
+        } catch (analyticsErr) {
+          console.debug('Analytics init:', analyticsErr);
+        }
+      }
+      window.firebaseAnalytics = firebaseAnalytics;
       console.log('⚡ Firebase initialized successfully for project:', activeFirebaseConfig.projectId);
     } catch (err) {
       console.error('Firebase initialization error:', err);
