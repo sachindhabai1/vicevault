@@ -44,6 +44,18 @@ rules_version = '2';
 //   - date: string (optional, formatted date string, max 100 chars)
 //   - updatedAt: timestamp (optional)
 //
+// Collection: otp
+// Document ID: email
+// Access: Server-only (Firebase Admin SDK). All client read/write denied.
+//
+// Collection: loginAttempts
+// Document ID: email
+// Access: Server-only (Firebase Admin SDK). All client read/write denied.
+//
+// Collection: otpRateLimits
+// Document ID: email
+// Access: Server-only (Firebase Admin SDK). All client read/write denied.
+//
 // ===============================================================
 
 service cloud.firestore {
@@ -253,6 +265,24 @@ service cloud.firestore {
       // DELETE: Disabled for regular customers.
       // Only store admins can delete orders.
       allow delete: if isAdmin();
+    }
+
+    // -------------------------------------------------------------
+    // AUTHENTICATION & RATE LIMITING (Backend Admin SDK Only)
+    // -------------------------------------------------------------
+    // Explicitly ensure client SDKs (browser / web) cannot read or write
+    // OTP tokens, login attempts, or rate limits.
+    // The Firebase Admin SDK running on secure backend server bypasses rules automatically.
+    match /otp/{email} {
+      allow read, write: if false;
+    }
+
+    match /loginAttempts/{email} {
+      allow read, write: if false;
+    }
+
+    match /otpRateLimits/{email} {
+      allow read, write: if false;
     }
 
     // -------------------------------------------------------------

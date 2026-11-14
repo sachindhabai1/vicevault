@@ -5097,7 +5097,7 @@
       const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
       if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.innerHTML = `<span class="flex items-center gap-2 justify-center"><i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Sending SMS OTP & Email Link...</span></span>`;
+        submitBtn.innerHTML = `<span class="flex items-center gap-2 justify-center"><i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Sending 6-Digit Email OTP...</span></span>`;
         if (window.lucide && typeof window.lucide.createIcons === 'function') lucide.createIcons();
       }
 
