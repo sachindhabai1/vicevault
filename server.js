@@ -74,8 +74,13 @@ const auth = admin.auth();
 let mailTransporter = null;
 
 function getMailTransporter() {
-  const user = process.env.GMAIL_USER;
-  const pass = process.env.GMAIL_APP_PASSWORD;
+  const user = (process.env.GMAIL_USER && !process.env.GMAIL_USER.includes('your_email'))
+    ? process.env.GMAIL_USER
+    : (process.env.EMAIL_USER || process.env.GMAIL_USER);
+
+  const pass = (process.env.GMAIL_APP_PASSWORD && !process.env.GMAIL_APP_PASSWORD.includes('your_16_char'))
+    ? process.env.GMAIL_APP_PASSWORD
+    : (process.env.EMAIL_APP_PASSWORD || process.env.GMAIL_APP_PASSWORD);
 
   if (!user || !pass || user.includes('your_email') || pass.includes('your_16_char')) {
     return null;
@@ -297,7 +302,7 @@ async function sendOtpInternal(email, uid) {
 
   // 4. Send Email via Nodemailer (Gmail SMTP)
   const transporter = getMailTransporter();
-  const senderEmail = process.env.GMAIL_USER || 'noreply@vicevault.store';
+  const senderEmail = process.env.GMAIL_USER || process.env.EMAIL_USER || 'noreply@vicevault.store';
 
   const htmlContent = `
     <!DOCTYPE html>
