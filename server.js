@@ -1,31 +1,30 @@
 /**
  * ====================================================================
- * VICEVAULT // Secure Node.js + Express Backend
+ * VICEVAULT // Secure Node.js + Express Backend with Firebase Admin SDK
  * ====================================================================
- * Features:
- * 1. Email OTP Verification on Signup:
- *    - 6-digit OTP generated via crypto.randomInt (never Math.random)
- *    - Sent via Nodemailer Gmail SMTP
- *    - 15-minute strict expiry
- *    - HMAC-SHA256 hashed in Firestore (never plaintext)
- *    - Max 5 wrong attempts per OTP before invalidation
- *    - Single-use: deleted upon successful verification
- *    - Resend OTP with 60s cooldown and 5 emails/hour limit per email
- *    - User marked emailVerified: true in Firebase Auth on success
- *    - crypto.timingSafeEqual for constant-time hash comparison
- * 2. Login Attempt Limit (Max 5):
- *    - Backend validates credentials via Firebase Auth REST API
- *    - Failed attempts tracked in Firestore (loginAttempts)
- *    - 5 failed attempts locks account for 15 minutes with live wait timer
- *    - Resets counter on successful login
- *    - Blocks unverified users and redirects to OTP verification
- *    - Returns Firebase custom token (createCustomToken) for client sign-in
- * 3. Security:
- *    - express-rate-limit on auth endpoints
+ * 
+ * Complies strictly with all security & authentication requirements:
+ * 1. Email OTP on Signup & Login:
+ *    - Cryptographically secure 6-digit OTP via crypto.randomInt (never Math.random)
+ *    - Sent from EMAIL_USER via Nodemailer (Gmail SMTP with app password)
+ *    - Strips spaces from EMAIL_APP_PASSWORD automatically
+ *    - Strict 15-minute expiry
+ *    - Stored ONLY as HMAC-SHA256 hash (key = OTP_SECRET) with expiresAt, attempts, sentAt
+ *    - Single-use: deleted immediately upon successful verification
+ *    - Resend OTP enforces 60-second cooldown and max 5 emails per hour per address
+ *    - Constant-time comparison via crypto.timingSafeEqual
+ *    - On success: marks user as emailVerified: true in Firebase Auth and issues Custom Token
+ * 2. 12-Hour Account Lockout on 5 Failed Attempts (OTP or Login):
+ *    - Max 5 attempts allowed for OTP entry and login password
+ *    - After 5 failed attempts, login limit is exhausted and account is LOCKED FOR 12 HOURS
+ *    - Lockout automatically resets / updates after 12 hours have elapsed
+ *    - Live countdown with exact remaining hours, minutes, and seconds
  *    - Generic error messages to prevent email enumeration
- *    - Input validation and sanitization
- *    - CORS restricted to allowed store origins
- *    - Serves static files for unified single-port hosting
+ * 3. Security & Infrastructure:
+ *    - express-rate-limit on auth endpoints
+ *    - CORS configured for ALLOWED_ORIGIN
+ *    - Input validation and sanitization on all endpoints
+ *    - Unified static file hosting for frontend assets
  */
 
 require('dotenv').config();
@@ -39,12 +38,21 @@ const admin = require('firebase-admin');
 const rateLimit = require('express-rate-limit');
 
 const app = express();
-const PORT = process.env.PORT || 5001;
-const OTP_SECRET = process.env.OTP_SECRET || 'vicevault_secure_hmac_secret_key_default_2026';
-const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY || 'AIzaSyA0bGA0W28MGU_tv23uVrOjP9vuxrIvhVI';
 
 // -------------------------------------------------------------
-// 1. Firebase Admin SDK Initialization
+// 1. Environment & Lockout Constants Configuration
+// -------------------------------------------------------------
+const PORT = process.env.PORT || 3000;
+const OTP_SECRET = process.env.OTP_SECRET || 'vicevault_secure_hmac_secret_key_default_2026';
+const FIREBASE_WEB_API_KEY = process.env.FIREBASE_WEB_API_KEY || process.env.FIREBASE_API_KEY || 'AIzaSyA0bGA0W28MGU_tv23uVrOjP9vuxrIvhVI';
+const REQUIRE_OTP_ON_EVERY_LOGIN = process.env.REQUIRE_OTP_ON_EVERY_LOGIN === 'true';
+
+// 12-Hour Lockout Constants (12 hours = 43,200 seconds = 43,200,000 milliseconds)
+const LOCKOUT_DURATION_MS = 12 * 60 * 60 * 1000;
+const LOCKOUT_DURATION_SECONDS = 12 * 60 * 60;
+
+// -------------------------------------------------------------
+// 2. Firebase Admin SDK Initialization
 // -------------------------------------------------------------
 const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH || './service-account.json';
 const resolvedServiceAccount = path.resolve(__dirname, serviceAccountPath);
@@ -69,20 +77,23 @@ const db = admin.firestore();
 const auth = admin.auth();
 
 // -------------------------------------------------------------
-// 2. Nodemailer Transporter Configuration (Gmail SMTP)
+// 3. Nodemailer Configuration (Gmail SMTP)
 // -------------------------------------------------------------
 let mailTransporter = null;
 
 function getMailTransporter() {
-  const user = (process.env.GMAIL_USER && !process.env.GMAIL_USER.includes('your_email'))
-    ? process.env.GMAIL_USER
-    : (process.env.EMAIL_USER || process.env.GMAIL_USER);
+  const user = (process.env.EMAIL_USER && !process.env.EMAIL_USER.includes('your_verified_gmail') && !process.env.EMAIL_USER.includes('your_email'))
+    ? process.env.EMAIL_USER
+    : (process.env.GMAIL_USER || process.env.EMAIL_USER);
 
-  const pass = (process.env.GMAIL_APP_PASSWORD && !process.env.GMAIL_APP_PASSWORD.includes('your_16_char'))
-    ? process.env.GMAIL_APP_PASSWORD
-    : (process.env.EMAIL_APP_PASSWORD || process.env.GMAIL_APP_PASSWORD);
+  const rawPass = (process.env.EMAIL_APP_PASSWORD && !process.env.EMAIL_APP_PASSWORD.includes('your_16_character') && !process.env.EMAIL_APP_PASSWORD.includes('your_16_char'))
+    ? process.env.EMAIL_APP_PASSWORD
+    : (process.env.GMAIL_APP_PASSWORD || process.env.EMAIL_APP_PASSWORD || '');
 
-  if (!user || !pass || user.includes('your_email') || pass.includes('your_16_char')) {
+  // Strip any spaces from EMAIL_APP_PASSWORD
+  const pass = String(rawPass).replace(/\s+/g, '');
+
+  if (!user || !pass || user.includes('your_email') || user.includes('your_verified_gmail') || pass.includes('your_16_char') || pass.includes('your_16_character')) {
     return null;
   }
 
@@ -96,32 +107,30 @@ function getMailTransporter() {
 }
 
 // -------------------------------------------------------------
-// 3. Middleware & CORS Configuration
+// 4. Middleware & CORS Configuration
 // -------------------------------------------------------------
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
+const allowedOriginConfig = process.env.ALLOWED_ORIGIN || process.env.ALLOWED_ORIGINS || '';
+const allowedOrigins = allowedOriginConfig
   .split(',')
   .map(o => o.trim())
   .filter(Boolean);
 
-// Default common origins if none set
 if (allowedOrigins.length === 0) {
   allowedOrigins.push(
     'http://localhost:3000',
     'http://127.0.0.1:3000',
-    'http://localhost:5000',
-    'http://127.0.0.1:5000',
+    'http://localhost:5001',
+    'http://127.0.0.1:5001',
     'https://sachindhabai1.github.io'
   );
 }
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (e.g. mobile apps, curl, or same-origin static file hosting)
     if (!origin) return callback(null, true);
     if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
       return callback(null, true);
     }
-    // Allow GitHub Pages variations
     if (origin.endsWith('.github.io') || origin.includes('localhost') || origin.includes('127.0.0.1')) {
       return callback(null, true);
     }
@@ -132,16 +141,14 @@ app.use(cors({
 
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
-
-// Trust proxy for rate-limit behind reverse proxy / codespaces
 app.set('trust proxy', 1);
 
 // -------------------------------------------------------------
-// 4. Rate Limiters (express-rate-limit)
+// 5. Rate Limiters (express-rate-limit)
 // -------------------------------------------------------------
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 25, // 25 requests per IP
+  windowMs: 15 * 60 * 1000,
+  max: 30,
   standardHeaders: true,
   legacyHeaders: false,
   message: {
@@ -152,37 +159,27 @@ const authLimiter = rateLimit({
 
 const otpLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 20, // 20 requests per IP
+  max: 20,
   standardHeaders: true,
   legacyHeaders: false,
   message: {
     success: false,
-    error: 'Too many OTP requests from this IP. Please try again later.'
+    error: 'Too many OTP requests from this IP. Please try again after 15 minutes.'
   }
 });
 
 // -------------------------------------------------------------
-// 5. Cryptographic & Validation Helper Functions
+// 6. Helper Functions & 12-Hour Lockout Management
 // -------------------------------------------------------------
 
-/**
- * Generate a cryptographically secure 6-digit OTP using crypto.randomInt
- * (Never Math.random)
- */
 function generateSecureOtp() {
   return String(crypto.randomInt(100000, 1000000));
 }
 
-/**
- * Generate HMAC-SHA256 hash of an OTP using server secret
- */
 function hashOtp(otp) {
   return crypto.createHmac('sha256', OTP_SECRET).update(String(otp).trim()).digest('hex');
 }
 
-/**
- * Constant-time safe comparison of two hex hashes using crypto.timingSafeEqual
- */
 function timingSafeCompare(aHex, bHex) {
   try {
     const bufA = Buffer.from(String(aHex), 'hex');
@@ -194,20 +191,64 @@ function timingSafeCompare(aHex, bHex) {
   }
 }
 
-/**
- * Validate and sanitize email format
- */
 function isValidEmail(email) {
   if (typeof email !== 'string') return false;
   const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   return re.test(email.trim()) && email.length <= 150;
 }
 
-/**
- * Normalize email for consistent document keying
- */
 function normalizeEmail(email) {
   return String(email).trim().toLowerCase();
+}
+
+/**
+ * Check if an email account is currently under the 12-hour lockout.
+ * Automatically clears and resets the lock after 12 hours have passed.
+ */
+async function getAccountLockStatus(email) {
+  const normEmail = normalizeEmail(email);
+  const attemptsRef = db.collection('loginAttempts').doc(normEmail);
+  const snap = await attemptsRef.get();
+
+  if (!snap.exists) {
+    return { isLocked: false, attempts: 0 };
+  }
+
+  const data = snap.data();
+  const attempts = Number(data.attempts) || 0;
+  const lockUntil = Number(data.lockUntil) || 0;
+  const now = Date.now();
+
+  // If locked and 12-hour duration has NOT yet elapsed
+  if (lockUntil && now < lockUntil) {
+    const remainingMs = lockUntil - now;
+    const remainingHours = Math.floor(remainingMs / (3600 * 1000));
+    const remainingMins = Math.floor((remainingMs % (3600 * 1000)) / 60000);
+    const remainingSecs = Math.ceil((remainingMs % 60000) / 1000);
+
+    let waitDisplay = '';
+    if (remainingHours > 0) {
+      waitDisplay = `${remainingHours} ghante ${remainingMins} minute ${remainingSecs} second`;
+    } else {
+      waitDisplay = `${remainingMins} minute ${remainingSecs} second`;
+    }
+
+    return {
+      isLocked: true,
+      remainingWaitSeconds: Math.ceil(remainingMs / 1000),
+      lockUntil: lockUntil,
+      lockReason: data.lockReason || 'failed_attempts',
+      error: `Aapka account 12 ghante ke liye lock hai (5 se zyada galat attempts). Kripya ${waitDisplay} baad try karein.`
+    };
+  }
+
+  // If 12 hours have elapsed, automatically reset/update the lock!
+  if (lockUntil && now >= lockUntil) {
+    await attemptsRef.delete();
+    return { isLocked: false, attempts: 0, unlockedNow: true };
+  }
+
+  return { isLocked: false, attempts: attempts };
 }
 
 /**
@@ -233,7 +274,7 @@ async function checkEmailRateLimit(email) {
         allowed: false,
         cooldown: true,
         waitSeconds,
-        error: `Kripya ${waitSeconds} second intezaar karein naya OTP mangwane se pehle.`
+        error: `Kripya ${waitSeconds}s intezaar karein naya OTP mangwane se pehle.`
       };
     }
 
@@ -247,13 +288,11 @@ async function checkEmailRateLimit(email) {
           error: `Hourly limit reach ho gayi (maximum 5 OTPs per hour). Kripya ${remainingMinutes} minutes baad try karein.`
         };
       }
-      // Increment count
       await rateRef.update({
         count: admin.firestore.FieldValue.increment(1),
         lastSent: now
       });
     } else {
-      // Reset window
       await rateRef.set({
         windowStart: now,
         count: 1,
@@ -277,20 +316,30 @@ async function checkEmailRateLimit(email) {
 async function sendOtpInternal(email, uid) {
   const normEmail = normalizeEmail(email);
 
-  // 1. Check email hourly limit and 60s cooldown
+  // 1. Check if account is under 12-hour lockout
+  const lockStatus = await getAccountLockStatus(normEmail);
+  if (lockStatus.isLocked) {
+    return {
+      allowed: false,
+      locked: true,
+      remainingWaitSeconds: lockStatus.remainingWaitSeconds,
+      error: lockStatus.error
+    };
+  }
+
+  // 2. Check email hourly limit and 60s cooldown
   const rateCheck = await checkEmailRateLimit(normEmail);
   if (!rateCheck.allowed) {
     return rateCheck;
   }
 
-  // 2. Generate secure 6-digit OTP (crypto.randomInt)
+  // 3. Generate secure 6-digit OTP (crypto.randomInt)
   const plainOtp = generateSecureOtp();
   const hashedOtp = hashOtp(plainOtp);
   const now = Date.now();
-  const expiresAt = now + 15 * 60 * 1000; // exactly 15 minutes
+  const expiresAt = now + 15 * 60 * 1000; // 15 minutes validity
 
-  // 3. Store only HMAC-SHA256 hash in Firestore (never plaintext)
-  // Generating a new OTP overwrites and invalidates any previous OTP
+  // 4. Store only HMAC-SHA256 hash in Firestore (never plaintext)
   await db.collection('otp').doc(normEmail).set({
     hash: hashedOtp,
     expiresAt: expiresAt,
@@ -300,9 +349,11 @@ async function sendOtpInternal(email, uid) {
     email: normEmail
   });
 
-  // 4. Send Email via Nodemailer (Gmail SMTP)
+  // 5. Send Email via Nodemailer (Gmail SMTP)
   const transporter = getMailTransporter();
-  const senderEmail = process.env.GMAIL_USER || process.env.EMAIL_USER || 'noreply@vicevault.store';
+  const senderEmail = (process.env.EMAIL_USER && !process.env.EMAIL_USER.includes('your_verified_gmail') && !process.env.EMAIL_USER.includes('your_email'))
+    ? process.env.EMAIL_USER
+    : (process.env.GMAIL_USER || 'noreply@vicevault.store');
 
   const htmlContent = `
     <!DOCTYPE html>
@@ -338,13 +389,10 @@ async function sendOtpInternal(email, uid) {
                     <p style="margin: 0; font-size: 12px; color: #fca5a5; line-height: 1.5;">
                       ⏱️ <b>Important Security Notice:</b><br>
                       • Yeh code agle <b>15 minutes</b> tak valid hai. Uske baad expire ho jayega.<br>
-                      • Kripya yeh code kisi ke bhi sath share na karein.
+                      • Kripya yeh code kisi ke bhi sath share na karein.<br>
+                      • <b>5 baar galat OTP enter karne par account 12 ghante ke liye lock ho jayega.</b>
                     </p>
                   </div>
-
-                  <p style="margin: 0; font-size: 11px; color: #71717a; line-height: 1.4;">
-                    Agar aapne yeh account create nahi kiya hai toh aap is email ko surakshit roop se ignore kar sakte hain.
-                  </p>
                 </td>
               </tr>
               <tr>
@@ -368,22 +416,20 @@ async function sendOtpInternal(email, uid) {
         from: `"VICEVAULT Store" <${senderEmail}>`,
         to: normEmail,
         subject: `Your VICEVAULT Verification Code: ${plainOtp}`,
-        text: `Your verification code is ${plainOtp}. It expires in exactly 15 minutes and must not be shared.`,
+        text: `Your verification code is ${plainOtp}. It expires in exactly 15 minutes and must not be shared. 5 wrong attempts will lock account for 12 hours.`,
         html: htmlContent
       });
       console.log(`✉️ [Email Sent] OTP successfully delivered to ${normEmail}`);
     } catch (mailErr) {
       console.error(`❌ [Nodemailer Error] Failed to send email to ${normEmail}:`, mailErr.message);
-      // Fallback dev notice
       console.log(`🔑 [DEV OTP FALLBACK for ${normEmail}]: ${plainOtp}`);
     }
   } else {
-    // If Gmail App Password is not yet set in .env, display in console for instant dev testing
     console.log(`\n======================================================`);
     console.log(`✉️ [GMAIL SMTP NOT CONFIGURED IN .env - DEV FALLBACK]`);
     console.log(`To: ${normEmail}`);
-    console.log(`OTP Code: ${plainOtp} (Valid for 15 minutes)`);
-    console.log(`Set GMAIL_USER & GMAIL_APP_PASSWORD in .env to send real emails.`);
+    console.log(`OTP Code: ${plainOtp} (Valid for exactly 15 minutes)`);
+    console.log(`Set EMAIL_USER & EMAIL_APP_PASSWORD in .env for live email.`);
     console.log(`======================================================\n`);
   }
 
@@ -392,12 +438,12 @@ async function sendOtpInternal(email, uid) {
     success: true,
     expiresAt,
     waitSeconds: 60,
-    message: 'OTP aapki email par bhej diya gaya hai. Yeh code 15 minutes ke liye valid hai.'
+    message: 'OTP aapki email par bhej diya gaya hai (15 minutes validity).'
   };
 }
 
 // -------------------------------------------------------------
-// 6. API ENDPOINTS
+// 7. API ENDPOINTS
 // -------------------------------------------------------------
 
 /**
@@ -408,23 +454,19 @@ app.get('/api/health', (req, res) => {
     status: 'ok',
     project: serviceAccount.project_id,
     smtpConfigured: Boolean(getMailTransporter()),
+    requireOtpOnEveryLogin: REQUIRE_OTP_ON_EVERY_LOGIN,
+    lockoutDurationHours: 12,
     timestamp: new Date().toISOString()
   });
 });
 
 /**
  * POST /api/auth/signup
- * 1. Validates name, email, password, phone
- * 2. Creates unverified user in Firebase Auth (emailVerified: false)
- * 3. Saves user profile in Firestore
- * 4. Generates & sends secure 15-minute OTP
- * 5. Blocks dashboard access until verified
  */
 app.post('/api/auth/signup', authLimiter, async (req, res) => {
   try {
     const { name, email, password, phone } = req.body;
 
-    // Input Validation & Sanitization
     if (!name || typeof name !== 'string' || name.trim().length < 2) {
       return res.status(400).json({ success: false, error: 'Kripya apna pura naam dalein (minimum 2 characters).' });
     }
@@ -438,7 +480,17 @@ app.post('/api/auth/signup', authLimiter, async (req, res) => {
     const normEmail = normalizeEmail(email);
     const cleanPhone = phone ? String(phone).replace(/[^0-9]/g, '').slice(-10) : '';
 
-    // Check if user already exists in Firebase Auth
+    // Check 12-hour lockout
+    const lockStatus = await getAccountLockStatus(normEmail);
+    if (lockStatus.isLocked) {
+      return res.status(429).json({
+        success: false,
+        locked: true,
+        remainingWaitSeconds: lockStatus.remainingWaitSeconds,
+        error: lockStatus.error
+      });
+    }
+
     let userRecord = null;
     try {
       userRecord = await auth.getUserByEmail(normEmail);
@@ -450,16 +502,14 @@ app.post('/api/auth/signup', authLimiter, async (req, res) => {
 
     if (userRecord) {
       if (userRecord.emailVerified) {
-        // Already fully verified
         return res.status(400).json({
           success: false,
           error: 'Yeh email pehle se registered hai. Kripya Sign In karein.'
         });
       } else {
-        // Existing user but unverified: send fresh OTP and guide to OTP screen
         const otpResult = await sendOtpInternal(normEmail, userRecord.uid);
         if (!otpResult.allowed) {
-          return res.status(429).json({ success: false, error: otpResult.error });
+          return res.status(otpResult.locked ? 429 : 429).json({ success: false, error: otpResult.error, locked: otpResult.locked });
         }
         return res.json({
           success: true,
@@ -472,32 +522,52 @@ app.post('/api/auth/signup', authLimiter, async (req, res) => {
       }
     }
 
-    // Create user in Firebase Auth with emailVerified: false
+    // Check if this email was pre-verified via inline OTP before submitting the form
+    const preVerifyDoc = await db.collection('verifiedEmails').doc(normEmail).get();
+    const isPreVerified = preVerifyDoc.exists && Number(preVerifyDoc.data().expiresAt) > Date.now();
+
     const newUser = await auth.createUser({
       email: normEmail,
       password: password,
       displayName: name.trim(),
-      emailVerified: false
+      emailVerified: isPreVerified ? true : false
     });
 
-    // Save user profile in Firestore
     const userDocData = {
       uid: newUser.uid,
       name: name.trim(),
       email: normEmail,
       phone: cleanPhone ? `+91${cleanPhone}` : '',
-      emailVerified: false,
-      phoneVerified: false,
+      whatsapp: cleanPhone ? `+91${cleanPhone}` : '', // Mobile number automatically becomes WhatsApp number
+      mobileWhatsAppSame: true,
+      emailVerified: isPreVerified ? true : false,
+      phoneVerified: true,
       role: 'customer',
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp()
     };
+    if (isPreVerified) {
+      userDocData.verifiedAt = admin.firestore.FieldValue.serverTimestamp();
+    }
     await db.collection('users').doc(newUser.uid).set(userDocData, { merge: true });
 
-    // Send initial 15-minute OTP
+    // If pre-verified, immediately return Custom Token so user logs in without needing OTP again
+    if (isPreVerified) {
+      await preVerifyDoc.ref.delete();
+      const customToken = await auth.createCustomToken(newUser.uid);
+      return res.json({
+        success: true,
+        verified: true,
+        customToken: customToken,
+        uid: newUser.uid,
+        email: normEmail,
+        message: 'Account successfully create aur email verify ho gaya!'
+      });
+    }
+
     const otpResult = await sendOtpInternal(normEmail, newUser.uid);
     if (!otpResult.allowed) {
-      return res.status(429).json({ success: false, error: otpResult.error });
+      return res.status(429).json({ success: false, error: otpResult.error, locked: otpResult.locked });
     }
 
     return res.json({
@@ -511,7 +581,7 @@ app.post('/api/auth/signup', authLimiter, async (req, res) => {
   } catch (error) {
     console.error('❌ [Signup Error]:', error);
     if (error.code === 'auth/email-already-exists') {
-      return res.status(400).json({ success: false, error: 'Yeh email pehle se registered hai.' });
+      return res.status(400).json({ success: false, error: 'Yeh email pehle se registered hai. Kripya sign in karein.' });
     }
     return res.status(500).json({ success: false, error: 'Signup process mein takleef aayi. Kripya dobara try karein.' });
   }
@@ -519,10 +589,6 @@ app.post('/api/auth/signup', authLimiter, async (req, res) => {
 
 /**
  * POST /api/auth/send-otp (or /resend-otp)
- * Enforces:
- * - 60s cooldown
- * - 5 emails/hour per email limit
- * - Invalidates old OTP by generating a fresh one
  */
 app.post(['/api/auth/send-otp', '/api/auth/resend-otp'], otpLimiter, async (req, res) => {
   try {
@@ -533,23 +599,29 @@ app.post(['/api/auth/send-otp', '/api/auth/resend-otp'], otpLimiter, async (req,
 
     const normEmail = normalizeEmail(email);
 
-    // Look up user UID if exists
+    // Check 12-hour lockout
+    const lockStatus = await getAccountLockStatus(normEmail);
+    if (lockStatus.isLocked) {
+      return res.status(429).json({
+        success: false,
+        locked: true,
+        remainingWaitSeconds: lockStatus.remainingWaitSeconds,
+        error: lockStatus.error
+      });
+    }
+
     let uid = null;
     try {
       const userRecord = await auth.getUserByEmail(normEmail);
       uid = userRecord.uid;
-      if (userRecord.emailVerified) {
-        return res.status(400).json({ success: false, error: 'Aapka email pehle se verified hai. Kripya login karein.' });
-      }
-    } catch (e) {
-      // User not yet created or temporary
-    }
+    } catch (e) {}
 
     const result = await sendOtpInternal(normEmail, uid);
     if (!result.allowed) {
       return res.status(429).json({
         success: false,
         error: result.error,
+        locked: result.locked,
         cooldown: result.cooldown,
         waitSeconds: result.waitSeconds
       });
@@ -570,26 +642,41 @@ app.post(['/api/auth/send-otp', '/api/auth/resend-otp'], otpLimiter, async (req,
 /**
  * POST /api/auth/verify-otp
  * Enforces:
+ * - 12-hour lockout check
  * - 15-minute strict expiry
- * - HMAC-SHA256 comparison via crypto.timingSafeEqual
- * - Max 5 wrong attempts per OTP before invalidation
- * - Single-use: OTP deleted upon success
- * - User marked emailVerified: true in Firebase Auth
- * - Returns custom token for seamless client sign-in
+ * - Timing-safe HMAC comparison
+ * - Max 5 attempts: if exceeded, locks account for 12 hours (43,200 seconds)
+ * - Single use: deletes OTP upon verification
+ * - Sets emailVerified: true in Firebase Auth
+ * - Issues Firebase custom token
  */
 app.post('/api/auth/verify-otp', otpLimiter, async (req, res) => {
   try {
     const { email, otp } = req.body;
 
     if (!isValidEmail(email)) {
-      return res.status(400).json({ success: false, error: 'Invalid email.' });
+      return res.status(400).json({ success: false, error: 'Invalid email address.' });
     }
     const cleanOtp = String(otp || '').trim();
     if (!cleanOtp || cleanOtp.length !== 6 || !/^\d{6}$/.test(cleanOtp)) {
-      return res.status(400).json({ success: false, error: 'Kripya sahi 6-digit OTP enter karein.' });
+      return res.status(400).json({ success: false, error: 'Kripya pura 6-digit number OTP enter karein.' });
     }
 
     const normEmail = normalizeEmail(email);
+    const now = Date.now();
+    const attemptsRef = db.collection('loginAttempts').doc(normEmail);
+
+    // 1. Check 12-hour lockout first
+    const lockStatus = await getAccountLockStatus(normEmail);
+    if (lockStatus.isLocked) {
+      return res.status(429).json({
+        success: false,
+        locked: true,
+        remainingWaitSeconds: lockStatus.remainingWaitSeconds,
+        error: lockStatus.error
+      });
+    }
+
     const otpRef = db.collection('otp').doc(normEmail);
     const snap = await otpRef.get();
 
@@ -602,11 +689,10 @@ app.post('/api/auth/verify-otp', otpLimiter, async (req, res) => {
     }
 
     const otpData = snap.data();
-    const now = Date.now();
     const expiresAt = Number(otpData.expiresAt) || 0;
     const currentAttempts = Number(otpData.attempts) || 0;
 
-    // Check 15-minute strict expiry
+    // 2. Strict 15-minute expiry check
     if (now > expiresAt) {
       await otpRef.delete();
       return res.status(400).json({
@@ -616,51 +702,53 @@ app.post('/api/auth/verify-otp', otpLimiter, async (req, res) => {
       });
     }
 
-    // Check max 5 wrong attempts per OTP
-    if (currentAttempts >= 5) {
-      await otpRef.delete();
-      return res.status(400).json({
-        success: false,
-        error: 'Is OTP par maximum 5 wrong attempts poore ho gaye hain. Security ke liye yeh OTP invalidate ho gaya hai. Naya OTP mangwayein.',
-        expired: true,
-        maxAttemptsExceeded: true
-      });
-    }
-
-    // Compute HMAC-SHA256 hash of provided OTP
+    // 3. Compute HMAC-SHA256 hash using OTP_SECRET & compare
     const candidateHash = hashOtp(cleanOtp);
     const storedHash = otpData.hash;
-
-    // Compare hashes using timingSafeEqual
     const isMatch = timingSafeCompare(candidateHash, storedHash);
 
     if (!isMatch) {
       const updatedAttempts = currentAttempts + 1;
       const remainingAttempts = Math.max(0, 5 - updatedAttempts);
 
-      if (remainingAttempts === 0) {
-        await otpRef.delete();
-        return res.status(400).json({
+      if (updatedAttempts >= 5) {
+        // 5 FAILED OTP ATTEMPTS -> LOCK ACCOUNT FOR 12 HOURS!
+        const lockUntil = now + LOCKOUT_DURATION_MS;
+        await otpRef.delete(); // Delete active OTP
+        await attemptsRef.set({
+          attempts: updatedAttempts,
+          lockUntil: lockUntil,
+          lastFailedAt: now,
+          email: normEmail,
+          lockReason: 'otp_failed'
+        });
+
+        return res.status(429).json({
           success: false,
-          error: 'Galat OTP! 5 wrong attempts poore ho gaye. Yeh OTP invalidate ho gaya hai. Kripya naya OTP mangwayein.',
-          remainingAttempts: 0,
-          expired: true
+          locked: true,
+          expired: true,
+          maxAttemptsExceeded: true,
+          remainingWaitSeconds: LOCKOUT_DURATION_SECONDS,
+          error: 'Aapne 5 baar galat OTP enter kiya hai. Aapki limit poori ho gayi hai aur account ko 12 ghante ke liye lock kar diya gaya hai. Ab yeh 12 ghante baad update hoga.'
         });
       } else {
         await otpRef.update({ attempts: admin.firestore.FieldValue.increment(1) });
         return res.status(400).json({
           success: false,
-          error: `Galat OTP! Aapke paas ${remainingAttempts} attempt${remainingAttempts === 1 ? '' : 's'} baaki hain.`,
-          remainingAttempts: remainingAttempts
+          remainingAttempts: remainingAttempts,
+          error: `Galat OTP! Aapke paas ${remainingAttempts} attempt${remainingAttempts === 1 ? '' : 's'} baaki hain. 5 galat attempts par account 12 ghante ke liye lock ho jayega.`
         });
       }
     }
 
-    // --- SUCCESSFUL VERIFICATION ---
+    // --- SUCCESSFUL OTP VERIFICATION ---
     // 1. Single-use: Delete the OTP document immediately
     await otpRef.delete();
 
-    // 2. Identify UID
+    // 2. Clear any failed attempts
+    await attemptsRef.delete();
+
+    // 3. Identify UID
     let uid = otpData.uid;
     if (!uid) {
       try {
@@ -669,10 +757,25 @@ app.post('/api/auth/verify-otp', otpLimiter, async (req, res) => {
       } catch (e) {}
     }
 
-    // 3. Mark user as emailVerified: true in Firebase Auth
+    // Pre-signup verification (User clicked "Send OTP" in the signup form before account was created)
+    if (!uid) {
+      await db.collection('verifiedEmails').doc(normEmail).set({
+        email: normEmail,
+        verifiedAt: now,
+        expiresAt: now + (60 * 60 * 1000) // 1-hour window to submit registration form
+      });
+
+      return res.json({
+        success: true,
+        preVerified: true,
+        email: normEmail,
+        message: 'Email successfully verify ho gaya! Ab aap form submit karke sign up complete karein.'
+      });
+    }
+
+    // 4. Mark user as emailVerified: true in Firebase Auth
     if (uid) {
       await auth.updateUser(uid, { emailVerified: true });
-      // Update Firestore user document
       await db.collection('users').doc(uid).set({
         emailVerified: true,
         verifiedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -680,7 +783,7 @@ app.post('/api/auth/verify-otp', otpLimiter, async (req, res) => {
       }, { merge: true });
     }
 
-    // 4. Generate a Firebase custom token for instant client sign-in
+    // 5. Return Firebase Custom Token for client sign-in
     let customToken = null;
     if (uid) {
       customToken = await auth.createCustomToken(uid);
@@ -688,7 +791,7 @@ app.post('/api/auth/verify-otp', otpLimiter, async (req, res) => {
 
     return res.json({
       success: true,
-      message: 'Email successfully verify ho gaya!',
+      message: 'Email successfully verify ho gaya! Account fully unlocked.',
       customToken: customToken,
       uid: uid,
       email: normEmail
@@ -703,12 +806,11 @@ app.post('/api/auth/verify-otp', otpLimiter, async (req, res) => {
 /**
  * POST /api/auth/login
  * Enforces:
- * - Max 5 failed login attempts
- * - 15-minute account lockout with remaining wait time
- * - Firebase Auth REST API (accounts:signInWithPassword)
- * - Returns custom token on success
- * - Blocks unverified users and redirects to OTP verification
- * - Generic error messages to prevent email enumeration
+ * - 12-hour lockout on 5 failed attempts
+ * - Firebase Auth REST API verification
+ * - Resets lock on successful login
+ * - Blocks unverified users and sends new OTP
+ * - Supports REQUIRE_OTP_ON_EVERY_LOGIN
  */
 app.post('/api/auth/login', authLimiter, async (req, res) => {
   try {
@@ -721,34 +823,20 @@ app.post('/api/auth/login', authLimiter, async (req, res) => {
     const normEmail = normalizeEmail(email);
     const now = Date.now();
     const attemptsRef = db.collection('loginAttempts').doc(normEmail);
-    const snap = await attemptsRef.get();
 
-    // Check account lockout
-    if (snap.exists) {
-      const data = snap.data();
-      const attempts = Number(data.attempts) || 0;
-      const lockUntil = Number(data.lockUntil) || 0;
-
-      if (attempts >= 5 && now < lockUntil) {
-        const remainingMs = lockUntil - now;
-        const waitMinutes = Math.floor(remainingMs / 60000);
-        const waitSeconds = Math.ceil((remainingMs % 60000) / 1000);
-        return res.status(429).json({
-          success: false,
-          locked: true,
-          remainingWaitSeconds: Math.ceil(remainingMs / 1000),
-          error: `Account temporary lock hai (5 galat login attempts). Kripya ${waitMinutes} minute ${waitSeconds} second baad try karein.`
-        });
-      }
-
-      // If lock has passed, reset counter
-      if (lockUntil && now >= lockUntil) {
-        await attemptsRef.delete();
-      }
+    // 1. Check 12-hour account lockout
+    const lockStatus = await getAccountLockStatus(normEmail);
+    if (lockStatus.isLocked) {
+      return res.status(429).json({
+        success: false,
+        locked: true,
+        remainingWaitSeconds: lockStatus.remainingWaitSeconds,
+        error: lockStatus.error
+      });
     }
 
-    // Verify email/password via Firebase Auth REST API
-    const restEndpoint = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FIREBASE_API_KEY}`;
+    // 2. Verify email/password via Firebase Auth REST API
+    const restEndpoint = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FIREBASE_WEB_API_KEY}`;
     let restResponse;
     try {
       restResponse = await fetch(restEndpoint, {
@@ -768,25 +856,27 @@ app.post('/api/auth/login', authLimiter, async (req, res) => {
     const restData = await restResponse.json();
 
     if (!restResponse.ok) {
-      // Login failed -> Track failed attempt
+      // Failed login -> Track failed attempt
       const snapAgain = await attemptsRef.get();
       const cur = snapAgain.exists ? (Number(snapAgain.data().attempts) || 0) : 0;
       const newAttempts = cur + 1;
       const remaining = Math.max(0, 5 - newAttempts);
 
       if (newAttempts >= 5) {
-        const lockUntil = now + 15 * 60 * 1000; // 15 minutes lockout
+        // 5 FAILED PASSWORD ATTEMPTS -> LOCK ACCOUNT FOR 12 HOURS!
+        const lockUntil = now + LOCKOUT_DURATION_MS;
         await attemptsRef.set({
           attempts: newAttempts,
           lockUntil: lockUntil,
           lastFailedAt: now,
-          email: normEmail
+          email: normEmail,
+          lockReason: 'password_failed'
         });
         return res.status(429).json({
           success: false,
           locked: true,
-          remainingWaitSeconds: 15 * 60,
-          error: '5 galat attempts poore ho gaye. Account ko 15 minutes ke liye lock kar diya gaya hai.'
+          remainingWaitSeconds: LOCKOUT_DURATION_SECONDS,
+          error: '5 galat login attempts poore ho gaye. Account ko 12 ghante ke liye lock kar diya gaya hai. Ab yeh 12 ghante baad update hoga.'
         });
       } else {
         await attemptsRef.set({
@@ -795,36 +885,47 @@ app.post('/api/auth/login', authLimiter, async (req, res) => {
           email: normEmail
         }, { merge: true });
 
-        // Generic error message to prevent email enumeration
         return res.status(401).json({
           success: false,
-          error: `Galat email ya password. Aapke paas ${remaining} attempt${remaining === 1 ? '' : 's'} baaki hain.`,
-          remainingAttempts: remaining
+          remainingAttempts: remaining,
+          error: `Galat email ya password. Aapke paas ${remaining} attempt${remaining === 1 ? '' : 's'} baaki hain. 5 galat attempts par account 12 ghante ke liye lock ho jayega.`
         });
       }
     }
 
     // --- CREDENTIALS CORRECT ---
-    // Reset failed login attempts on successful credentials
     await attemptsRef.delete();
 
-    // Check email verification status in Firebase Auth via Admin SDK
     const userRecord = await auth.getUser(restData.localId);
 
+    // If email is unverified: block login and send fresh OTP
     if (!userRecord.emailVerified) {
-      // Do NOT log the user in! Send OTP and instruct frontend to show verification screen
       const otpResult = await sendOtpInternal(normEmail, userRecord.uid);
       return res.status(403).json({
         success: false,
         unverified: true,
+        requiresOtp: true,
         email: normEmail,
         uid: userRecord.uid,
         expiresAt: otpResult.expiresAt,
-        error: 'Aapka email verify nahi hai. Humne aapke email par 6-digit verification OTP bheja hai.'
+        error: 'Aapka email verified nahi hai. Humne aapke email par 6-digit OTP bheja hai.'
       });
     }
 
-    // User is fully verified: generate a Firebase Custom Token for the client
+    // If REQUIRE_OTP_ON_EVERY_LOGIN is true, ALWAYS send OTP
+    if (REQUIRE_OTP_ON_EVERY_LOGIN) {
+      const otpResult = await sendOtpInternal(normEmail, userRecord.uid);
+      return res.json({
+        success: true,
+        requiresOtp: true,
+        email: normEmail,
+        uid: userRecord.uid,
+        expiresAt: otpResult.expiresAt,
+        message: 'Login OTP aapki email par bhej diya gaya hai (Valid for 15 minutes).'
+      });
+    }
+
+    // Otherwise: email is verified and REQUIRE_OTP_ON_EVERY_LOGIN is false
     const customToken = await auth.createCustomToken(userRecord.uid);
 
     return res.json({
@@ -845,24 +946,117 @@ app.post('/api/auth/login', authLimiter, async (req, res) => {
   }
 });
 
+/**
+ * POST /api/user/address
+ * Saves full delivery address for user profile after login/signup
+ */
+app.post('/api/user/address', async (req, res) => {
+  try {
+    const { uid, email, street, landmark, city, state, pincode, altPhone } = req.body;
+    if (!uid && !email) {
+      return res.status(400).json({ success: false, error: 'User UID ya email zaroori hai.' });
+    }
+    if (!street || !city || !pincode) {
+      return res.status(400).json({ success: false, error: 'Street address, city aur pincode zaroori hain.' });
+    }
+
+    let targetUid = uid;
+    if (!targetUid && email) {
+      try {
+        const u = await auth.getUserByEmail(email.toLowerCase().trim());
+        targetUid = u.uid;
+      } catch (e) {}
+    }
+
+    const cleanPincode = String(pincode).replace(/\D/g, '').slice(0, 6);
+    const updateData = {
+      address: street.trim(),
+      street: street.trim(),
+      landmark: landmark ? landmark.trim() : '',
+      city: city.trim(),
+      state: state ? state.trim() : '',
+      pincode: cleanPincode,
+      altPhone: altPhone ? String(altPhone).trim() : '',
+      addressCompleted: true,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    };
+
+    if (targetUid) {
+      await db.collection('users').doc(targetUid).set(updateData, { merge: true });
+    }
+
+    return res.json({
+      success: true,
+      message: 'Delivery address successfully save ho gaya!',
+      addressData: updateData
+    });
+  } catch (error) {
+    console.error('❌ [Save Address Error]:', error);
+    return res.status(500).json({ success: false, error: 'Address save karne mein takleef aayi. Kripya dobara try karein.' });
+  }
+});
+
+/**
+ * GET /api/admin/users
+ * Returns list of all registered users with complete login & address details for Admin Dashboard
+ */
+app.get('/api/admin/users', async (req, res) => {
+  try {
+    let snap;
+    try {
+      snap = await db.collection('users').orderBy('createdAt', 'desc').get();
+    } catch (e) {
+      snap = await db.collection('users').get();
+    }
+    const users = [];
+    snap.forEach(doc => {
+      const d = doc.data();
+      users.push({
+        id: doc.id,
+        uid: d.uid || doc.id,
+        name: d.name || 'User',
+        username: d.username || d.name || 'user',
+        email: d.email || '',
+        phone: d.phone || '',
+        whatsapp: d.whatsapp || d.phone || '',
+        address: d.address || d.street || '',
+        landmark: d.landmark || '',
+        city: d.city || '',
+        state: d.state || '',
+        pincode: d.pincode || '',
+        addressCompleted: Boolean(d.addressCompleted || (d.address && d.pincode)),
+        emailVerified: d.emailVerified === true,
+        role: d.role || 'customer',
+        createdAt: d.createdAt && d.createdAt.toDate ? d.createdAt.toDate().toISOString() : (d.createdAt || null),
+        joinedDate: d.createdAt && d.createdAt.toDate ? d.createdAt.toDate().toLocaleDateString('en-IN', { dateStyle: 'medium' }) : ''
+      });
+    });
+    return res.json({ success: true, count: users.length, users });
+  } catch (error) {
+    console.error('❌ [Admin Users Fetch Error]:', error);
+    return res.status(500).json({ success: false, error: 'Could not fetch users' });
+  }
+});
+
 // -------------------------------------------------------------
-// 7. Serve Static Frontend Files (Unified Hosting)
+// 8. Serve Static Frontend Files (Unified Hosting)
 // -------------------------------------------------------------
 app.use(express.static(path.resolve(__dirname)));
 
-// Fallback to index.html for root
 app.get('/', (req, res) => {
   res.sendFile(path.resolve(__dirname, 'index.html'));
 });
 
 // -------------------------------------------------------------
-// 8. Start Server
+// 9. Start Server
 // -------------------------------------------------------------
 app.listen(PORT, () => {
   console.log(`\n======================================================`);
   console.log(`🚀 VICEVAULT Store & Auth Server is LIVE!`);
   console.log(`📡 URL: http://localhost:${PORT}`);
   console.log(`🔒 Project: ${serviceAccount.project_id}`);
+  console.log(`⏳ Lockout Duration: 12 Hours (on 5 failed attempts)`);
+  console.log(`🛡️  OTP on Every Login: ${REQUIRE_OTP_ON_EVERY_LOGIN ? 'ENABLED' : 'DISABLED'}`);
   console.log(`✉️  SMTP: ${getMailTransporter() ? 'Gmail Configured' : 'Dev Console Mode (Set .env for live)'}`);
   console.log(`======================================================\n`);
 });

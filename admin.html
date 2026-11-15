@@ -540,30 +540,49 @@
     </div>
 
   
-    <!-- REGISTERED VIP MEMBERS DIRECTORY CARD (Apple Glass Style) -->
+    <!-- REGISTERED VIP MEMBERS DIRECTORY CARD (Orders Ke Alava) -->
     <div class="apple-glass-card rounded-3xl p-6 sm:p-7 border border-white/[0.1] space-y-4">
-      <div class="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/[0.08]">
         <div class="flex items-center gap-2.5">
-          <div class="w-9 h-9 rounded-xl bg-[#F0D9B5]/10 border border-[#F0D9B5]/30 text-[#F0D9B5] flex items-center justify-center">
-            <i data-lucide="users" class="w-4 h-4"></i>
+          <div class="w-10 h-10 rounded-2xl bg-[#F0D9B5]/10 border border-[#F0D9B5]/30 text-[#F0D9B5] flex items-center justify-center">
+            <i data-lucide="users" class="w-5 h-5"></i>
           </div>
           <div>
-            <h3 class="font-bold text-white text-sm">Registered VIP Customer Directory</h3>
-            <p class="text-[11px] text-[#86868b]">Customers who registered their account on first visit</p>
+            <div class="flex items-center gap-2">
+              <h3 class="font-bold text-white text-base">Registered Users & Login Details</h3>
+              <span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">Orders Ke Alava</span>
+            </div>
+            <p class="text-xs text-[#86868b]">Users who registered with Email OTP and saved account & delivery address details</p>
           </div>
         </div>
-        <span id="registeredUsersBadge" class="text-xs font-mono font-bold text-[#F0D9B5] bg-[#F0D9B5]/10 px-2.5 py-1 rounded-full border border-[#F0D9B5]/30">0 Members</span>
+        <div class="flex items-center gap-2">
+          <button onclick="fetchAdminUsers()" class="px-3 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.12] text-xs text-white font-medium flex items-center gap-1.5 transition-all cursor-pointer" title="Refresh Users from Server">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-[#F0D9B5]"></i>
+            <span>Refresh</span>
+          </button>
+          <span id="registeredUsersBadge" class="text-xs font-mono font-bold text-[#F0D9B5] bg-[#F0D9B5]/10 px-3 py-1.5 rounded-full border border-[#F0D9B5]/30">0 Users</span>
+        </div>
+      </div>
+
+      <!-- User Search & Filter Bar -->
+      <div class="flex items-center gap-3">
+        <div class="relative flex-1">
+          <i data-lucide="search" class="absolute left-3.5 top-3 w-4 h-4 text-[#86868b]"></i>
+          <input type="text" id="userSearchInput" oninput="filterAdminUsers()" placeholder="Search users by Name, Email, Mobile, City, State, or Pincode..." class="w-full pl-10 pr-4 py-2.5 bg-black/60 border border-white/[0.1] rounded-xl text-xs text-white placeholder-[#86868b] focus:outline-none focus:border-[#F0D9B5]">
+        </div>
       </div>
 
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs">
           <thead>
             <tr class="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider border-b border-white/[0.06]">
-              <th class="py-3 px-4">Member Name</th>
-              <th class="py-3 px-4">Phone / WhatsApp</th>
-              <th class="py-3 px-4">Email ID</th>
-              <th class="py-3 px-4">City</th>
+              <th class="py-3 px-4">User Name</th>
+              <th class="py-3 px-4">User Email (Verified)</th>
+              <th class="py-3 px-4">Mobile Number</th>
+              <th class="py-3 px-4">Delivery Address & Pincode</th>
+              <th class="py-3 px-4">City & State</th>
               <th class="py-3 px-4">Joined Date</th>
+              <th class="py-3 px-4 text-right">Details</th>
             </tr>
           </thead>
           <tbody id="registeredUsersTableBody" class="divide-y divide-white/[0.06] text-[#86868b]">
@@ -572,7 +591,7 @@
         </table>
       </div>
       <div id="noUsersState" class="hidden py-8 text-center text-xs text-[#86868b]">
-        No registered members yet. When first-time visitors create accounts, they will appear here!
+        No registered users found matching the search.
       </div>
     </div>
 
@@ -598,6 +617,37 @@
 
       <div class="pt-3 border-t border-white/[0.08] flex justify-end gap-2">
         <button onclick="closeDetailModal()" class="px-5 py-2 rounded-full text-xs font-medium apple-glass-pill text-white">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- USER DETAIL MODAL (Apple Glass Modal) -->
+  <div id="adminUserDetailModal" class="fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-4 bg-black/85 backdrop-blur-xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-200" onclick="if (event.target === this) closeAdminUserModal();">
+    <div class="w-full max-w-lg apple-glass-panel rounded-3xl p-5 sm:p-7 shadow-2xl relative space-y-5 overflow-y-auto max-h-[92vh] my-auto text-left" onclick="event.stopPropagation();">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-[#F0D9B5]/15 border border-[#F0D9B5]/40 text-[#F0D9B5] flex items-center justify-center font-bold" id="adminUserModalAvatar">
+            U
+          </div>
+          <div>
+            <h3 class="font-bold text-white text-base" id="adminUserModalName">User Profile</h3>
+            <p id="adminUserModalEmail" class="text-xs text-[#86868b]"></p>
+          </div>
+        </div>
+        <button onclick="closeAdminUserModal()" class="p-1.5 rounded-full text-[#86868b] hover:text-white bg-white/[0.06] cursor-pointer">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div id="adminUserModalContent" class="space-y-4 text-xs">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <div class="pt-3 border-t border-white/[0.08] flex justify-end gap-2">
+        <button onclick="closeAdminUserModal()" class="px-5 py-2 rounded-full text-xs font-medium apple-glass-pill text-white cursor-pointer">
           Close
         </button>
       </div>
@@ -801,31 +851,13 @@
       const statRegEl = document.getElementById('statRegisteredUsers');
       if (statRegEl) statRegEl.textContent = registeredUsers.length;
       const regBadge = document.getElementById('registeredUsersBadge');
-      if (regBadge) regBadge.textContent = `${registeredUsers.length} Member${registeredUsers.length === 1 ? '' : 's'}`;
+      if (regBadge) regBadge.textContent = `${registeredUsers.length} User${registeredUsers.length === 1 ? '' : 's'}`;
 
-      const usersTbody = document.getElementById('registeredUsersTableBody');
-      const noUsersState = document.getElementById('noUsersState');
-      if (usersTbody) {
-        if (registeredUsers.length === 0) {
-          usersTbody.innerHTML = '';
-          if (noUsersState) noUsersState.classList.remove('hidden');
-        } else {
-          if (noUsersState) noUsersState.classList.add('hidden');
-          usersTbody.innerHTML = registeredUsers.map(u => `
-            <tr class="hover:bg-white/[0.02] transition-colors">
-              <td class="py-3 px-4 text-white font-medium flex items-center gap-2">
-                <span class="w-6 h-6 rounded-full bg-gradient-to-tr from-[#F0D9B5] to-[#D8BE96] text-[#1A1A1F] text-[10px] font-bold flex items-center justify-center">
-                  ${(u.name || 'U').charAt(0).toUpperCase()}
-                </span>
-                <span>${u.name || 'VIP Member'}</span>
-              </td>
-              <td class="py-3 px-4 font-mono text-emerald-400">+91 ${u.phone || 'N/A'}</td>
-              <td class="py-3 px-4 text-white/80">${u.email || 'N/A'}</td>
-              <td class="py-3 px-4 text-[#86868b]">${u.city || 'India'}</td>
-              <td class="py-3 px-4 text-[11px] text-[#86868b]">${u.joinedDate || 'Recently'}</td>
-            </tr>
-          `).join('');
-        }
+      // Render local cache immediately, then fetch fresh users from backend
+      renderAdminUsersTable(registeredUsers);
+      if (!window._usersFetchedOnce) {
+        window._usersFetchedOnce = true;
+        fetchAdminUsers();
       }
 
 
@@ -1121,6 +1153,205 @@
 
     function closeDetailModal() {
       const modal = document.getElementById('orderDetailModal');
+      modal.classList.remove('opacity-100', 'pointer-events-auto', 'visible');
+      modal.classList.add('opacity-0', 'pointer-events-none', 'invisible');
+    }
+
+    // ==========================================
+    // REGISTERED USERS MANAGEMENT (Orders Ke Alava)
+    // ==========================================
+    window._cachedAdminUsers = [];
+
+    async function fetchAdminUsers() {
+      try {
+        const res = await fetch('http://localhost:5001/api/admin/users');
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.success && Array.isArray(data.users)) {
+            // Merge with local storage registered users
+            const localUsersStr = localStorage.getItem('vicevault_registered_users');
+            const localUsers = localUsersStr ? JSON.parse(localUsersStr) : [];
+            
+            const mergedMap = new Map();
+            data.users.forEach(u => {
+              if (u.email) mergedMap.set(u.email.toLowerCase(), u);
+            });
+            localUsers.forEach(u => {
+              if (u.email) {
+                const existing = mergedMap.get(u.email.toLowerCase()) || {};
+                mergedMap.set(u.email.toLowerCase(), { ...existing, ...u });
+              }
+            });
+
+            window._cachedAdminUsers = Array.from(mergedMap.values());
+            localStorage.setItem('vicevault_registered_users', JSON.stringify(window._cachedAdminUsers));
+            
+            const statRegEl = document.getElementById('statRegisteredUsers');
+            if (statRegEl) statRegEl.textContent = window._cachedAdminUsers.length;
+            const regBadge = document.getElementById('registeredUsersBadge');
+            if (regBadge) regBadge.textContent = `${window._cachedAdminUsers.length} User${window._cachedAdminUsers.length === 1 ? '' : 's'}`;
+
+            filterAdminUsers();
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn('Backend /api/admin/users unreachable, using local directory:', e);
+      }
+
+      // Fallback local storage
+      const localUsersStr = localStorage.getItem('vicevault_registered_users');
+      window._cachedAdminUsers = localUsersStr ? JSON.parse(localUsersStr) : [];
+      filterAdminUsers();
+    }
+
+    function filterAdminUsers() {
+      const searchInput = document.getElementById('userSearchInput');
+      const term = searchInput ? searchInput.value.trim().toLowerCase() : '';
+      
+      const filtered = window._cachedAdminUsers.filter(u => {
+        if (!term) return true;
+        const name = (u.name || '').toLowerCase();
+        const username = (u.username || '').toLowerCase();
+        const email = (u.email || '').toLowerCase();
+        const phone = (u.phone || '').toLowerCase();
+        const city = (u.city || '').toLowerCase();
+        const state = (u.state || '').toLowerCase();
+        const address = (u.address || u.street || '').toLowerCase();
+        const pincode = (u.pincode || '').toLowerCase();
+        return name.includes(term) || username.includes(term) || email.includes(term) || phone.includes(term) || city.includes(term) || state.includes(term) || address.includes(term) || pincode.includes(term);
+      });
+
+      renderAdminUsersTable(filtered);
+    }
+
+    function renderAdminUsersTable(usersList) {
+      const usersTbody = document.getElementById('registeredUsersTableBody');
+      const noUsersState = document.getElementById('noUsersState');
+      if (!usersTbody) return;
+
+      if (!usersList || usersList.length === 0) {
+        usersTbody.innerHTML = '';
+        if (noUsersState) noUsersState.classList.remove('hidden');
+        return;
+      }
+
+      if (noUsersState) noUsersState.classList.add('hidden');
+      usersTbody.innerHTML = usersList.map((u, idx) => {
+        const fullAddr = [u.address || u.street, u.landmark, u.pincode ? `PIN: ${u.pincode}` : ''].filter(Boolean).join(', ');
+        return `
+          <tr class="hover:bg-white/[0.03] transition-colors">
+            <td class="py-3 px-4 text-white font-medium">
+              <div class="flex items-center gap-2">
+                <span class="w-7 h-7 rounded-full bg-gradient-to-tr from-[#F0D9B5] to-[#D8BE96] text-[#1A1A1F] text-xs font-bold flex items-center justify-center flex-shrink-0">
+                  ${(u.name || u.username || 'U').charAt(0).toUpperCase()}
+                </span>
+                <div class="min-w-0">
+                  <p class="font-bold text-white text-xs truncate">${u.name || 'User'}</p>
+                  <p class="text-[10px] text-[#86868b] font-mono truncate">@${u.username || 'user'}</p>
+                </div>
+              </div>
+            </td>
+            <td class="py-3 px-4">
+              <div class="flex items-center gap-1.5">
+                <span class="text-white/90 text-xs font-mono">${u.email || 'N/A'}</span>
+                <span class="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.2 rounded border border-emerald-500/20">Verified ✓</span>
+              </div>
+            </td>
+            <td class="py-3 px-4 font-mono text-emerald-400 font-medium">
+              ${u.phone ? (u.phone.startsWith('+91') ? u.phone : `+91 ${u.phone}`) : 'N/A'}
+            </td>
+            <td class="py-3 px-4 max-w-[220px]">
+              ${fullAddr ? `<span class="text-white/80 text-xs line-clamp-2" title="${fullAddr}">${fullAddr}</span>` : `<span class="text-[10px] font-medium text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">Address Pending</span>`}
+            </td>
+            <td class="py-3 px-4 text-[#86868b]">
+              ${[u.city, u.state].filter(Boolean).join(', ') || 'India'}
+            </td>
+            <td class="py-3 px-4 text-[11px] text-[#86868b] whitespace-nowrap">
+              ${u.joinedDate || 'Recently'}
+            </td>
+            <td class="py-3 px-4 text-right">
+              <button onclick="viewAdminUserDetail('${encodeURIComponent(u.email || u.uid || '')}')" class="px-2.5 py-1 rounded-lg bg-white/[0.06] hover:bg-white/[0.14] text-[#F0D9B5] text-xs font-medium border border-white/[0.1] transition-colors cursor-pointer">
+                View
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        lucide.createIcons();
+      }
+    }
+
+    function viewAdminUserDetail(encodedKey) {
+      const key = decodeURIComponent(encodedKey).toLowerCase();
+      const user = window._cachedAdminUsers.find(u => 
+        (u.email && u.email.toLowerCase() === key) || 
+        (u.uid && u.uid === key) || 
+        (u.id && u.id === key)
+      );
+
+      if (!user) {
+        showAdminToast('User details not found');
+        return;
+      }
+
+      document.getElementById('adminUserModalAvatar').textContent = (user.name || user.username || 'U').charAt(0).toUpperCase();
+      document.getElementById('adminUserModalName').textContent = user.name || 'User Profile';
+      document.getElementById('adminUserModalEmail').textContent = user.email || '';
+
+      const content = document.getElementById('adminUserModalContent');
+      content.innerHTML = `
+        <div class="space-y-3.5">
+          <div class="grid grid-cols-2 gap-2 p-3 rounded-2xl bg-white/[0.04] border border-white/[0.08]">
+            <div>
+              <span class="text-[10px] text-[#86868b] block">Username</span>
+              <span class="font-bold text-white text-xs">@${user.username || user.name || 'user'}</span>
+            </div>
+            <div>
+              <span class="text-[10px] text-[#86868b] block">Email Verification</span>
+              <span class="font-bold text-emerald-400 text-xs">Verified ✓</span>
+            </div>
+            <div>
+              <span class="text-[10px] text-[#86868b] block">Mobile / WhatsApp</span>
+              <span class="font-mono text-emerald-400 text-xs">${user.phone ? (user.phone.startsWith('+91') ? user.phone : `+91 ${user.phone}`) : 'N/A'}</span>
+            </div>
+            <div>
+              <span class="text-[10px] text-[#86868b] block">Joined Date</span>
+              <span class="text-white/80 text-xs">${user.joinedDate || 'Recently'}</span>
+            </div>
+          </div>
+
+          <div class="p-3.5 rounded-2xl bg-white/[0.04] border border-white/[0.08] space-y-2">
+            <div class="flex items-center gap-1.5 text-[#F0D9B5] font-bold text-xs">
+              <i data-lucide="map-pin" class="w-4 h-4"></i>
+              <span>Delivery Address Details</span>
+            </div>
+            <div class="text-white/90 text-xs space-y-1">
+              <p><b>Street Address:</b> ${user.address || user.street || '<span class="text-amber-300">Not provided yet</span>'}</p>
+              ${user.landmark ? `<p><b>Landmark:</b> ${user.landmark}</p>` : ''}
+              <p><b>City & State:</b> ${user.city || 'N/A'}${user.state ? `, ${user.state}` : ''}</p>
+              <p><b>PIN Code:</b> <span class="font-mono">${user.pincode || 'N/A'}</span></p>
+              ${user.altPhone ? `<p><b>Alternate Phone:</b> <span class="font-mono">+91 ${user.altPhone}</span></p>` : ''}
+            </div>
+          </div>
+
+          <div class="p-3 rounded-2xl bg-black/40 border border-white/[0.06] text-[10px] text-[#86868b] space-y-1 font-mono">
+            <div>User UID: <span class="text-white/70">${user.uid || user.id || 'N/A'}</span></div>
+            <div>Account Role: <span class="text-[#F0D9B5]">VIP Customer</span></div>
+          </div>
+        </div>
+      `;
+
+      const modal = document.getElementById('adminUserDetailModal');
+      modal.classList.remove('opacity-0', 'pointer-events-none', 'invisible');
+      modal.classList.add('opacity-100', 'pointer-events-auto', 'visible');
+      if (window.lucide && typeof window.lucide.createIcons === 'function') lucide.createIcons();
+    }
+
+    function closeAdminUserModal() {
+      const modal = document.getElementById('adminUserDetailModal');
       modal.classList.remove('opacity-100', 'pointer-events-auto', 'visible');
       modal.classList.add('opacity-0', 'pointer-events-none', 'invisible');
     }

@@ -905,7 +905,7 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block font-medium text-[#f5f5f7] mb-1">Mobile / WhatsApp *</label>
+            <label class="block font-medium text-[#f5f5f7] mb-1">Mobile Number *</label>
             <input type="tel" id="custPhone" required placeholder="e.g. 9876543210" pattern="[0-9]{10}"
                    class="w-full px-3.5 py-2.5 apple-glass-input rounded-xl text-white placeholder-[#6e6e73] focus:outline-none focus:border-[#F0D9B5]">
           </div>
@@ -1857,7 +1857,7 @@
                        class="w-full px-3.5 py-2.5 apple-glass-input rounded-xl text-white placeholder-[#6e6e73] focus:outline-none focus:border-[#F0D9B5]">
               </div>
               <div>
-                <label class="block font-medium text-[#f5f5f7] mb-1">Mobile / WhatsApp Number *</label>
+                <label class="block font-medium text-[#f5f5f7] mb-1">Mobile Number *</label>
                 <input type="tel" id="profEditPhone" required placeholder="e.g. 9876543210" pattern="[0-9]{10}"
                        class="w-full px-3.5 py-2.5 apple-glass-input rounded-xl text-white placeholder-[#6e6e73] focus:outline-none focus:border-[#F0D9B5]">
               </div>
@@ -2123,7 +2123,7 @@
       </div>
 
       <!-- Mode Tabs: Register (Create Account) vs Login (Sign In) -->
-      <div class="grid grid-cols-2 gap-1.5 p-1 bg-black/60 rounded-xl border border-white/[0.08] text-xs">
+      <div id="authTabsContainer" class="grid grid-cols-2 gap-1.5 p-1 bg-black/60 rounded-xl border border-white/[0.08] text-xs">
         <button type="button" id="authTabRegister" onclick="switchAuthMode('register')" class="py-2.5 rounded-lg font-bold transition-all bg-[#F0D9B5] text-[#1A1A1F] shadow-sm flex items-center justify-center gap-1.5 cursor-pointer">
           <i data-lucide="user-plus" class="w-4 h-4"></i>
           <span>Naya Account (Sign Up)</span>
@@ -2135,7 +2135,7 @@
       </div>
 
       <!-- FAST 1-CLICK SIGN IN OPTIONS -->
-      <div class="space-y-2.5 pt-1">
+      <div id="authQuickOptions" class="space-y-2.5 pt-1">
         <!-- Google 1-Click Button -->
         <button type="button" onclick="handleGoogleSignIn()" class="w-full py-2.5 px-4 rounded-xl bg-white text-[#1f1f1f] hover:bg-neutral-100 font-bold text-xs flex items-center justify-center gap-2.5 transition-all shadow-md active:scale-95 cursor-pointer">
           <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24">
@@ -2146,27 +2146,6 @@
           </svg>
           <span>Continue with Google (1-Click Sign In)</span>
         </button>
-
-        <!-- Instant Mobile / WhatsApp Login Box -->
-        <div class="p-3 rounded-2xl bg-white/[0.04] border border-[#F0D9B5]/20 space-y-2 text-left">
-          <div class="flex items-center justify-between text-[11px]">
-            <span class="font-bold text-white flex items-center gap-1.5">
-              <i data-lucide="smartphone" class="w-3.5 h-3.5 text-[#F0D9B5]"></i>
-              <span>Instant Mobile / WhatsApp Login</span>
-            </span>
-            <span class="text-[9px] text-[#F0D9B5] bg-[#F0D9B5]/10 px-1.5 py-0.2 rounded font-semibold">1-Tap Access</span>
-          </div>
-          <div class="flex gap-2">
-            <div class="relative flex-1">
-              <span class="absolute left-3 top-2.5 text-xs text-[#86868b] font-mono">+91</span>
-              <input type="tel" id="quickMobileInput" maxlength="10" placeholder="10-digit mobile number" class="w-full pl-11 pr-3 py-2 bg-black/60 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] font-mono text-xs focus:outline-none focus:border-[#F0D9B5]">
-            </div>
-            <button type="button" onclick="handleQuickMobileAuth()" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#F0D9B5] to-[#D8BE96] text-[#1A1A1F] font-bold text-xs shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-1">
-              <span>Go</span>
-              <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-            </button>
-          </div>
-        </div>
       </div>
 
       <!-- Divider -->
@@ -2181,47 +2160,111 @@
 
       <!-- REGISTER FORM -->
       <form id="registerForm" onsubmit="handleUserRegister(event)" class="space-y-3 text-left text-xs">
+        <!-- 1. USER NAME -->
         <div>
-          <label class="block text-[11px] font-semibold text-white/90 mb-1">Pura Naam (Full Name) *</label>
+          <label class="block text-[11px] font-semibold text-white/90 mb-1">User Name *</label>
           <div class="relative">
             <i data-lucide="user" class="absolute left-3.5 top-3 w-4 h-4 text-[#86868b]"></i>
-            <input type="text" id="regName" required placeholder="e.g. Rahul Sharma" class="w-full pl-10 pr-3.5 py-2.5 bg-black/70 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] text-xs focus:outline-none focus:border-[#F0D9B5]">
+            <input type="text" id="regName" required placeholder="User Name / Username" class="w-full pl-10 pr-3.5 py-2.5 bg-black/70 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] text-xs focus:outline-none focus:border-[#F0D9B5]">
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          <div>
-            <label class="block text-[11px] font-semibold text-white/90 mb-1">Mobile No. (+91 India) *</label>
-            <div class="relative">
-              <span class="absolute left-3 top-2.5 text-xs text-[#86868b] font-mono">+91</span>
-              <input type="tel" id="regPhone" required pattern="[0-9]{10}" maxlength="10" placeholder="10-digit number" class="w-full pl-11 pr-3 py-2.5 bg-black/70 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] font-mono text-xs focus:outline-none focus:border-[#F0D9B5]">
-            </div>
-            <p class="text-[9px] text-[#86868b] mt-0.5">Firebase SMS OTP verification</p>
+        <!-- 2. USER EMAIL -->
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-[11px] font-semibold text-white/90">User Email *</label>
+            <span id="regEmailStatusBadge" class="hidden inline-flex items-center gap-1 text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
+              <i data-lucide="check" class="w-2.5 h-2.5"></i>
+              <span>Verified ✓</span>
+            </span>
           </div>
-          <div>
-            <label class="block text-[11px] font-semibold text-white/90 mb-1">Email ID (Official) *</label>
-            <div class="relative">
-              <i data-lucide="mail" class="absolute left-3 top-3 w-3.5 h-3.5 text-[#86868b]"></i>
-              <input type="email" id="regEmail" required placeholder="name@email.com" class="w-full pl-9 pr-3 py-2.5 bg-black/70 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] text-xs focus:outline-none focus:border-[#F0D9B5]">
+          <div class="relative flex items-center">
+            <i data-lucide="mail" class="absolute left-3 top-3 w-3.5 h-3.5 text-[#86868b]"></i>
+            <input type="email" id="regEmail" required placeholder="User Email (name@email.com)" class="w-full pl-9 pr-24 py-2.5 bg-black/70 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] text-xs focus:outline-none focus:border-[#F0D9B5]">
+            <button type="button" id="btnSendRegOtp" onclick="window.sendOtpFromRegisterForm()" class="absolute right-1.5 top-1.5 px-2.5 py-1.5 bg-gradient-to-r from-[#F0D9B5] to-[#D8BE96] hover:brightness-110 text-[#1A1A1F] text-[10px] font-extrabold rounded-lg transition-all shadow flex items-center gap-1 cursor-pointer active:scale-95">
+              <span id="btnSendRegOtpText">Send OTP</span>
+              <i data-lucide="send" class="w-2.5 h-2.5"></i>
+            </button>
+          </div>
+          <p id="regEmailHelperText" class="text-[9px] text-[#86868b] mt-0.5">Email par aane wale OTP ke liye "Send OTP" par tap karein</p>
+        </div>
+
+        <!-- 3. EMAIL KE NICHE OPTION: EMAIL PAR AANE WALE OTP LIKHANE KA OPTION -->
+        <div id="regInlineOtpSection" class="hidden p-3.5 rounded-2xl bg-gradient-to-b from-white/[0.05] to-black/80 border border-[#F0D9B5]/40 space-y-3 transition-all">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+              <span class="text-[11px] font-bold text-white tracking-wide">Email OTP Option (OTP Yahan Likhein)</span>
             </div>
-            <p class="text-[9px] text-[#86868b] mt-0.5">Verification link will be sent</p>
+            <div class="flex items-center gap-1 text-[10px] font-mono text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
+              <i data-lucide="clock" class="w-3 h-3 text-amber-400"></i>
+              <span>Validity:</span>
+              <b id="regInlineCountdownTimer" class="font-extrabold">15:00</b>
+            </div>
+          </div>
+
+          <p class="text-[10px] text-[#86868b]">
+            Humne aapki email <span id="regInlineTargetEmail" class="text-[#F0D9B5] font-mono font-semibold">user@email.com</span> par OTP bheja hai:
+          </p>
+
+          <!-- 6 DIGIT OTP INPUT SLOTS -->
+          <div class="flex items-center justify-between gap-1.5 sm:gap-2" id="regInlineOtpBoxes">
+            <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" data-inline-index="0" class="reg-inline-otp-box w-9 h-11 sm:w-11 sm:h-12 text-center font-mono text-lg font-bold bg-black/90 border border-white/[0.2] rounded-xl text-white focus:outline-none focus:border-[#F0D9B5] focus:ring-1 focus:ring-[#F0D9B5] transition-all shadow-inner" autocomplete="one-time-code">
+            <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" data-inline-index="1" class="reg-inline-otp-box w-9 h-11 sm:w-11 sm:h-12 text-center font-mono text-lg font-bold bg-black/90 border border-white/[0.2] rounded-xl text-white focus:outline-none focus:border-[#F0D9B5] focus:ring-1 focus:ring-[#F0D9B5] transition-all shadow-inner">
+            <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" data-inline-index="2" class="reg-inline-otp-box w-9 h-11 sm:w-11 sm:h-12 text-center font-mono text-lg font-bold bg-black/90 border border-white/[0.2] rounded-xl text-white focus:outline-none focus:border-[#F0D9B5] focus:ring-1 focus:ring-[#F0D9B5] transition-all shadow-inner">
+            <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" data-inline-index="3" class="reg-inline-otp-box w-9 h-11 sm:w-11 sm:h-12 text-center font-mono text-lg font-bold bg-black/90 border border-white/[0.2] rounded-xl text-white focus:outline-none focus:border-[#F0D9B5] focus:ring-1 focus:ring-[#F0D9B5] transition-all shadow-inner">
+            <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" data-inline-index="4" class="reg-inline-otp-box w-9 h-11 sm:w-11 sm:h-12 text-center font-mono text-lg font-bold bg-black/90 border border-white/[0.2] rounded-xl text-white focus:outline-none focus:border-[#F0D9B5] focus:ring-1 focus:ring-[#F0D9B5] transition-all shadow-inner">
+            <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" data-inline-index="5" class="reg-inline-otp-box w-9 h-11 sm:w-11 sm:h-12 text-center font-mono text-lg font-bold bg-black/90 border border-white/[0.2] rounded-xl text-white focus:outline-none focus:border-[#F0D9B5] focus:ring-1 focus:ring-[#F0D9B5] transition-all shadow-inner">
+          </div>
+
+          <!-- Inline Error & Lock Alert Box -->
+          <div id="regInlineOtpError" class="text-rose-400 text-[11px] hidden text-center font-medium p-2 bg-rose-950/40 rounded-lg border border-rose-800/40 leading-relaxed"></div>
+
+          <!-- Verify Button -->
+          <button type="button" id="btnVerifyRegInlineOtp" onclick="window.verifyOtpFromRegisterForm()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-[#F0D9B5] to-[#D8BE96] hover:brightness-110 text-[#1A1A1F] font-bold text-xs shadow-md shadow-[#F0D9B5]/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95">
+            <span id="btnVerifyRegInlineOtpText">Verify OTP & Unlock Email</span>
+            <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+          </button>
+
+          <!-- Security note and Resend link -->
+          <div class="flex items-center justify-between text-[10px] text-[#86868b] pt-1 border-t border-white/[0.06]">
+            <span>🔒 5 galat attempts par <b>12 ghante</b> lock</span>
+            <div class="flex items-center gap-1.5">
+              <span id="regInlineResendStatus" class="font-mono text-[#86868b]">Resend: <b id="regInlineResendSeconds">60s</b></span>
+              <button type="button" id="btnResendRegInlineOtp" onclick="window.resendOtpFromRegisterForm()" disabled class="text-[#F0D9B5] font-semibold hover:underline disabled:opacity-40 disabled:no-underline cursor-pointer">Resend OTP</button>
+            </div>
           </div>
         </div>
 
+        <!-- 4. MOBILE NUMBER -->
+        <div>
+          <label class="block text-[11px] font-semibold text-white/90 mb-1">Mobile Number (+91 India) *</label>
+          <div class="relative">
+            <span class="absolute left-3 top-2.5 text-xs text-[#86868b] font-mono">+91</span>
+            <input type="tel" id="regPhone" required pattern="[0-9]{10}" maxlength="10" placeholder="10-digit mobile number" class="w-full pl-11 pr-3 py-2.5 bg-black/70 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] font-mono text-xs focus:outline-none focus:border-[#F0D9B5]">
+          </div>
+          <p class="text-[9px] text-[#86868b] mt-0.5">Primary mobile number for orders & WhatsApp updates</p>
+        </div>
+
+        <!-- 5. PASSWORD & CONFIRM PASSWORD -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           <div>
-            <label class="block text-[11px] font-semibold text-white/90 mb-1">City / Shehar</label>
-            <input type="text" id="regCity" placeholder="e.g. Jaipur" class="w-full px-3.5 py-2.5 bg-black/70 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] text-xs focus:outline-none focus:border-[#F0D9B5]">
-          </div>
-          <div>
-            <label class="block text-[11px] font-semibold text-white/90 mb-1 flex items-center justify-between">
-              <span>Create Password (Min 6) *</span>
-            </label>
+            <label class="block text-[11px] font-semibold text-white/90 mb-1">Password *</label>
             <div class="relative">
               <i data-lucide="lock" class="absolute left-3 top-3 w-3.5 h-3.5 text-[#86868b]"></i>
               <input type="password" id="regPassword" required placeholder="Min 6 characters" minlength="6" class="w-full pl-9 pr-9 py-2.5 bg-black/70 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] text-xs focus:outline-none focus:border-[#F0D9B5]">
               <button type="button" onclick="togglePasswordVisibility('regPassword', 'regPassEyeIcon')" class="absolute right-3 top-2.5 text-[#86868b] hover:text-white cursor-pointer">
                 <i id="regPassEyeIcon" data-lucide="eye" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-white/90 mb-1">Confirm Password *</label>
+            <div class="relative">
+              <i data-lucide="shield-check" class="absolute left-3 top-3 w-3.5 h-3.5 text-[#86868b]"></i>
+              <input type="password" id="regConfirmPassword" required placeholder="Confirm Password" minlength="6" class="w-full pl-9 pr-9 py-2.5 bg-black/70 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] text-xs focus:outline-none focus:border-[#F0D9B5]">
+              <button type="button" onclick="togglePasswordVisibility('regConfirmPassword', 'regConfirmPassEyeIcon')" class="absolute right-3 top-2.5 text-[#86868b] hover:text-white cursor-pointer">
+                <i id="regConfirmPassEyeIcon" data-lucide="eye" class="w-4 h-4"></i>
               </button>
             </div>
           </div>
@@ -2235,7 +2278,7 @@
         </div>
 
         <button type="submit" class="w-full py-3.5 rounded-full apple-glass-btn-primary text-white text-xs font-bold transition-all shadow-lg shadow-[#F0D9B5]/25 flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98]">
-          <span>✨ Create VIP Account & Enter Store</span>
+          <span>✨ Sign Up & Continue</span>
           <i data-lucide="arrow-right" class="w-4 h-4"></i>
         </button>
 
@@ -2248,21 +2291,21 @@
       <!-- LOGIN FORM -->
       <form id="loginForm" onsubmit="handleUserLogin(event)" class="hidden space-y-3.5 text-left text-xs">
         <div>
-          <label class="block text-[11px] font-semibold text-white/90 mb-1">Mobile No. ya Email *</label>
+          <label class="block text-[11px] font-semibold text-white/90 mb-1">User Email ya Username *</label>
           <div class="relative">
             <i data-lucide="user" class="absolute left-3.5 top-3 w-4 h-4 text-[#86868b]"></i>
-            <input type="text" id="loginIdentifier" required placeholder="10-digit mobile number ya email" class="w-full pl-10 pr-3.5 py-2.5 bg-black/70 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] text-xs focus:outline-none focus:border-[#F0D9B5]">
+            <input type="text" id="loginIdentifier" required placeholder="User Email ya Username" class="w-full pl-10 pr-3.5 py-2.5 bg-black/70 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] text-xs focus:outline-none focus:border-[#F0D9B5]">
           </div>
         </div>
 
         <div>
           <label class="block text-[11px] font-semibold text-white/90 mb-1 flex items-center justify-between">
             <span>Password *</span>
-            <button type="button" onclick="showToast('Password yaad nahi to apna mobile number dalein, instant access mil jayega!')" class="text-[10px] text-[#F0D9B5] hover:underline cursor-pointer">Forgot?</button>
+            <button type="button" onclick="showToast('Password yaad nahi to apna email par Send OTP karein, instant login ho jayega!')" class="text-[10px] text-[#F0D9B5] hover:underline cursor-pointer">Forgot?</button>
           </label>
           <div class="relative">
             <i data-lucide="lock" class="absolute left-3.5 top-3 w-3.5 h-3.5 text-[#86868b]"></i>
-            <input type="password" id="loginPassword" required placeholder="Aapka password" class="w-full pl-10 pr-9 py-2.5 bg-black/70 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] text-xs focus:outline-none focus:border-[#F0D9B5]">
+            <input type="password" id="loginPassword" required placeholder="Password" class="w-full pl-10 pr-9 py-2.5 bg-black/70 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] text-xs focus:outline-none focus:border-[#F0D9B5]">
             <button type="button" onclick="togglePasswordVisibility('loginPassword', 'loginPassEyeIcon')" class="absolute right-3 top-2.5 text-[#86868b] hover:text-white cursor-pointer">
               <i id="loginPassEyeIcon" data-lucide="eye" class="w-4 h-4"></i>
             </button>
@@ -2270,8 +2313,8 @@
         </div>
 
         <button type="submit" class="w-full py-3.5 rounded-full apple-glass-btn-primary text-white text-xs font-bold transition-all shadow-lg shadow-[#F0D9B5]/25 flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98]">
-          <span>Sign In & Enter Store</span>
-          <i data-lucide="log-in" class="w-4 h-4"></i>
+          <span>Sign In & Continue</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
         </button>
 
         <div class="pt-2 text-[11px] text-[#86868b] text-center">
@@ -2279,6 +2322,75 @@
           <button type="button" onclick="switchAuthMode('register')" class="text-[#F0D9B5] font-semibold hover:underline cursor-pointer">Naya VIP Account Banayein</button>
         </div>
       </form>
+
+      <!-- DEDICATED OTP VERIFICATION SLOT INSIDE AUTH MODAL -->
+      <div id="authOtpSection" class="hidden space-y-4 text-center">
+        <!-- Brand Badge -->
+        <div class="mx-auto w-12 h-12 rounded-2xl bg-[#F0D9B5]/15 border border-[#F0D9B5]/40 flex items-center justify-center text-[#F0D9B5] shadow-lg shadow-[#F0D9B5]/20">
+          <i data-lucide="mail-check" class="w-6 h-6"></i>
+        </div>
+
+        <div>
+          <span class="text-[10px] uppercase font-bold tracking-widest text-[#F0D9B5] bg-[#F0D9B5]/10 px-3 py-0.5 rounded-full border border-[#F0D9B5]/30">Verification Required</span>
+          <h3 class="text-lg font-bold text-white tracking-tight mt-1">Enter 6-Digit Email OTP</h3>
+          <p class="text-xs text-[#86868b] mt-1">
+            Humne aapki email par official verification code bheja hai:<br>
+            <span id="authModalTargetEmail" class="text-[#F0D9B5] font-mono font-semibold text-xs sm:text-sm">user@email.com</span>
+          </p>
+        </div>
+
+        <!-- 15-Minute Expiry Countdown Badge -->
+        <div class="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-between text-xs">
+          <span class="text-amber-200/90 flex items-center gap-1.5 font-medium">
+            <i data-lucide="clock" class="w-4 h-4 text-amber-400"></i>
+            <span>OTP Validity (15 Mins):</span>
+          </span>
+          <span id="authModalCountdownTimer" class="font-mono font-extrabold text-amber-300 text-sm">15:00</span>
+        </div>
+
+        <!-- SIX SEPARATE INPUT BOXES (ONE PER DIGIT) -->
+        <div class="space-y-2.5">
+          <div class="flex items-center justify-center gap-2 sm:gap-2.5 py-1" id="authModalOtpBoxesContainer">
+            <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" data-index="0" class="modal-otp-box w-11 h-13 sm:w-12 sm:h-14 text-center font-mono text-xl sm:text-2xl font-bold bg-black/80 border border-white/[0.15] rounded-xl text-white focus:outline-none focus:border-[#F0D9B5] focus:ring-1 focus:ring-[#F0D9B5] transition-all shadow-inner" autocomplete="one-time-code">
+            <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" data-index="1" class="modal-otp-box w-11 h-13 sm:w-12 sm:h-14 text-center font-mono text-xl sm:text-2xl font-bold bg-black/80 border border-white/[0.15] rounded-xl text-white focus:outline-none focus:border-[#F0D9B5] focus:ring-1 focus:ring-[#F0D9B5] transition-all shadow-inner">
+            <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" data-index="2" class="modal-otp-box w-11 h-13 sm:w-12 sm:h-14 text-center font-mono text-xl sm:text-2xl font-bold bg-black/80 border border-white/[0.15] rounded-xl text-white focus:outline-none focus:border-[#F0D9B5] focus:ring-1 focus:ring-[#F0D9B5] transition-all shadow-inner">
+            <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" data-index="3" class="modal-otp-box w-11 h-13 sm:w-12 sm:h-14 text-center font-mono text-xl sm:text-2xl font-bold bg-black/80 border border-white/[0.15] rounded-xl text-white focus:outline-none focus:border-[#F0D9B5] focus:ring-1 focus:ring-[#F0D9B5] transition-all shadow-inner">
+            <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" data-index="4" class="modal-otp-box w-11 h-13 sm:w-12 sm:h-14 text-center font-mono text-xl sm:text-2xl font-bold bg-black/80 border border-white/[0.15] rounded-xl text-white focus:outline-none focus:border-[#F0D9B5] focus:ring-1 focus:ring-[#F0D9B5] transition-all shadow-inner">
+            <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" data-index="5" class="modal-otp-box w-11 h-13 sm:w-12 sm:h-14 text-center font-mono text-xl sm:text-2xl font-bold bg-black/80 border border-white/[0.15] rounded-xl text-white focus:outline-none focus:border-[#F0D9B5] focus:ring-1 focus:ring-[#F0D9B5] transition-all shadow-inner">
+          </div>
+
+          <!-- Clear Error & Attempts Message Box -->
+          <div id="authModalOtpError" class="text-rose-400 text-xs hidden text-center font-medium p-2.5 bg-rose-950/30 rounded-lg border border-rose-800/30 leading-relaxed"></div>
+        </div>
+
+        <!-- Verify Button -->
+        <button type="button" id="btnAuthModalVerifyOtp" onclick="window.firebaseAuthService.verifyEnteredOtp()" 
+                class="w-full py-3.5 rounded-full bg-gradient-to-r from-[#F0D9B5] to-[#D8BE96] hover:brightness-110 text-[#1A1A1F] font-extrabold text-xs shadow-lg shadow-[#F0D9B5]/20 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95">
+          <span id="btnAuthModalVerifyOtpText">Verify & Unlock Account</span>
+        </button>
+
+        <!-- Security Notice: 5 wrong attempts -> 12 hours lock -->
+        <div class="p-2.5 rounded-xl bg-black/40 border border-white/[0.06] text-[11px] text-[#86868b] space-y-1 text-left">
+          <p class="font-medium text-white/90">🔒 <b>Security Rules:</b></p>
+          <p>• Max <b>5 attempts</b> allowed. 5 galat attempts ke baad account <b>12 ghante</b> ke liye lock ho jayega.</p>
+          <p>• OTP single-use hai aur verify hone par turant delete ho jata hai.</p>
+        </div>
+
+        <!-- Resend with 60-Second Cooldown & Back to Login Button -->
+        <div class="flex items-center justify-between text-xs text-[#86868b] pt-1 border-t border-white/[0.06]">
+          <button type="button" onclick="switchAuthMode('login')" class="text-[#86868b] hover:text-white transition-colors text-xs flex items-center gap-1 cursor-pointer">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+            <span>Back / Change Email</span>
+          </button>
+          <div class="flex items-center gap-2">
+            <span id="authModalOtpResendStatus" class="text-[11px] font-mono text-[#86868b]">Resend: <b id="authModalOtpResendSeconds">60s</b></span>
+            <button type="button" id="btnAuthModalResendOtp" onclick="window.firebaseAuthService.resendOtp()" disabled 
+                    class="text-[#F0D9B5] hover:underline disabled:opacity-40 disabled:no-underline font-semibold cursor-pointer text-xs">
+              Resend OTP
+            </button>
+          </div>
+        </div>
+      </div>
 
       <!-- GUEST EXPLORE OPTION -->
       <div class="pt-3 border-t border-white/[0.08] text-center space-y-1.5">
@@ -2289,6 +2401,83 @@
         <p class="text-[10px] text-[#86868b]">Guest mode me aap bina login sabhi products dekh sakte hain. Order karte waqt Sign Up kar sakte hain.</p>
       </div>
 
+    </div>
+  </div>
+
+  <!-- STEP 2: USER DELIVERY ADDRESS ONBOARDING MODAL -->
+  <div id="userAddressModal" onclick="if(event.target === this) closeUserAddressModal()" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-4 bg-black/90 backdrop-blur-2xl opacity-0 pointer-events-none invisible overflow-y-auto transition-all duration-300">
+    <!-- Glowing Halo -->
+    <div class="absolute w-[450px] h-[450px] rounded-full bg-[#F0D9B5]/12 blur-[120px] pointer-events-none"></div>
+
+    <div class="relative w-full max-w-lg apple-glass-panel rounded-3xl p-5 sm:p-7 shadow-2xl border border-[#F0D9B5]/35 overflow-y-auto max-h-[92vh] my-auto space-y-4 text-left z-10" onclick="event.stopPropagation();">
+      
+      <!-- Top Header -->
+      <div class="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-[#F0D9B5]/15 border border-[#F0D9B5]/40 flex items-center justify-center text-[#F0D9B5] shadow-lg shadow-[#F0D9B5]/20">
+            <i data-lucide="map-pin" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <span class="text-[10px] uppercase font-bold tracking-widest text-[#F0D9B5] bg-[#F0D9B5]/10 px-2.5 py-0.5 rounded-full border border-[#F0D9B5]/30">Step 2: Delivery Details</span>
+            <h3 class="text-base sm:text-lg font-bold text-white tracking-tight mt-1">Apna Proper Delivery Address Dalein</h3>
+          </div>
+        </div>
+        <button type="button" onclick="closeUserAddressModal()" class="w-8 h-8 rounded-full bg-white/[0.08] hover:bg-white/[0.2] text-[#86868b] hover:text-white flex items-center justify-center transition-colors cursor-pointer" title="Close">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <p class="text-xs text-[#86868b]">
+        Aapka account verify ho gaya hai! Kripya apna complete delivery address bharein taaki aapke orders bina deri ke aap tak pahunch sakein.
+      </p>
+
+      <!-- Address Form -->
+      <form id="userAddressForm" onsubmit="handleSaveUserAddress(event)" class="space-y-3.5 text-xs">
+        <div>
+          <label class="block text-[11px] font-semibold text-white/90 mb-1">House No. / Flat / Building / Street Address *</label>
+          <textarea id="addrStreet" required rows="2" placeholder="e.g. Flat 402, Royal Palms, Sector 12, Main Road" class="w-full px-3.5 py-2.5 bg-black/70 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] text-xs focus:outline-none focus:border-[#F0D9B5] resize-none"></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-[11px] font-semibold text-white/90 mb-1">Landmark (Famous Spot / Near By)</label>
+            <input type="text" id="addrLandmark" placeholder="e.g. Near City Mall / Opp. Temple" class="w-full px-3.5 py-2.5 bg-black/70 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] text-xs focus:outline-none focus:border-[#F0D9B5]">
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-white/90 mb-1">City / District *</label>
+            <input type="text" id="addrCity" required placeholder="e.g. Jaipur" class="w-full px-3.5 py-2.5 bg-black/70 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] text-xs focus:outline-none focus:border-[#F0D9B5]">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-[11px] font-semibold text-white/90 mb-1">State / Rajya *</label>
+            <input type="text" id="addrState" required placeholder="e.g. Rajasthan" class="w-full px-3.5 py-2.5 bg-black/70 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] text-xs focus:outline-none focus:border-[#F0D9B5]">
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-white/90 mb-1">6-Digit PIN Code *</label>
+            <input type="text" id="addrPincode" required pattern="[0-9]{6}" maxlength="6" inputmode="numeric" placeholder="e.g. 302001" class="w-full px-3.5 py-2.5 bg-black/70 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] font-mono text-xs focus:outline-none focus:border-[#F0D9B5]">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-white/90 mb-1">Alternate / Backup Phone Number (Optional)</label>
+          <div class="relative">
+            <span class="absolute left-3 top-2.5 text-xs text-[#86868b] font-mono">+91</span>
+            <input type="tel" id="addrAltPhone" pattern="[0-9]{10}" maxlength="10" placeholder="10-digit number" class="w-full pl-11 pr-3 py-2.5 bg-black/70 border border-white/[0.12] rounded-xl text-white placeholder-[#6e6e73] font-mono text-xs focus:outline-none focus:border-[#F0D9B5]">
+          </div>
+        </div>
+
+        <div class="pt-2 flex flex-col sm:flex-row items-center gap-2">
+          <button type="submit" id="btnSaveAddress" class="w-full sm:flex-1 py-3.5 rounded-full apple-glass-btn-primary text-white text-xs font-bold transition-all shadow-lg shadow-[#F0D9B5]/25 flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.01] active:scale-[0.98]">
+            <i data-lucide="check" class="w-4 h-4"></i>
+            <span>Save Address & Continue</span>
+          </button>
+          <button type="button" onclick="closeUserAddressModal()" class="w-full sm:w-auto px-4 py-3 rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-[#86868b] hover:text-white text-xs font-medium transition-colors cursor-pointer text-center">
+            Baad Mein Bharein (Skip)
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -4359,19 +4548,41 @@
       const tabLog = document.getElementById('authTabLogin');
       const formReg = document.getElementById('registerForm');
       const formLog = document.getElementById('loginForm');
+      const authOtpSection = document.getElementById('authOtpSection');
+      const tabsContainer = document.getElementById('authTabsContainer');
+      const quickOptions = document.getElementById('authQuickOptions');
       const title = document.getElementById('authModalTitle');
       const subtitle = document.getElementById('authModalSubtitle');
 
-      if (mode === 'login') {
-        if (tabLog) tabLog.className = 'py-2 rounded-lg font-semibold transition-all bg-[#F0D9B5] text-[#1A1A1F] shadow-sm flex items-center justify-center gap-1.5 cursor-pointer';
-        if (tabReg) tabReg.className = 'py-2 rounded-lg font-medium text-[#86868b] hover:text-white transition-all flex items-center justify-center gap-1.5 cursor-pointer';
+      if (mode === 'otp') {
+        if (tabsContainer) tabsContainer.classList.add('hidden');
+        if (quickOptions) quickOptions.classList.add('hidden');
+        if (formReg) { formReg.classList.add('hidden'); formReg.style.display = 'none'; }
+        if (formLog) { formLog.classList.add('hidden'); formLog.style.display = 'none'; }
+        if (authOtpSection) { authOtpSection.classList.remove('hidden'); authOtpSection.style.display = 'block'; }
+        if (title) title.textContent = 'Verify Email OTP';
+        if (subtitle) subtitle.textContent = 'Enter the 6-digit verification code sent to your email.';
+        
+        setTimeout(() => {
+          const firstBox = document.querySelector('#authModalOtpBoxesContainer .modal-otp-box');
+          if (firstBox) firstBox.focus();
+        }, 150);
+      } else if (mode === 'login') {
+        if (tabsContainer) tabsContainer.classList.remove('hidden');
+        if (quickOptions) quickOptions.classList.remove('hidden');
+        if (authOtpSection) { authOtpSection.classList.add('hidden'); authOtpSection.style.display = 'none'; }
+        if (tabLog) tabLog.className = 'py-2.5 rounded-lg font-bold transition-all bg-[#F0D9B5] text-[#1A1A1F] shadow-sm flex items-center justify-center gap-1.5 cursor-pointer';
+        if (tabReg) tabReg.className = 'py-2.5 rounded-lg font-medium text-[#86868b] hover:text-white transition-all flex items-center justify-center gap-1.5 cursor-pointer';
         if (formLog) { formLog.classList.remove('hidden'); formLog.style.display = 'block'; }
         if (formReg) { formReg.classList.add('hidden'); formReg.style.display = 'none'; }
         if (title) title.textContent = 'Welcome Back! VIP Sign In';
         if (subtitle) subtitle.textContent = 'Apne account me login karein aur exclusive gaming merch order karein.';
       } else {
-        if (tabReg) tabReg.className = 'py-2 rounded-lg font-semibold transition-all bg-[#F0D9B5] text-[#1A1A1F] shadow-sm flex items-center justify-center gap-1.5 cursor-pointer';
-        if (tabLog) tabLog.className = 'py-2 rounded-lg font-medium text-[#86868b] hover:text-white transition-all flex items-center justify-center gap-1.5 cursor-pointer';
+        if (tabsContainer) tabsContainer.classList.remove('hidden');
+        if (quickOptions) quickOptions.classList.remove('hidden');
+        if (authOtpSection) { authOtpSection.classList.add('hidden'); authOtpSection.style.display = 'none'; }
+        if (tabReg) tabReg.className = 'py-2.5 rounded-lg font-bold transition-all bg-[#F0D9B5] text-[#1A1A1F] shadow-sm flex items-center justify-center gap-1.5 cursor-pointer';
+        if (tabLog) tabLog.className = 'py-2.5 rounded-lg font-medium text-[#86868b] hover:text-white transition-all flex items-center justify-center gap-1.5 cursor-pointer';
         if (formReg) { formReg.classList.remove('hidden'); formReg.style.display = 'block'; }
         if (formLog) { formLog.classList.add('hidden'); formLog.style.display = 'none'; }
         if (title) title.textContent = 'Welcome to VICEVAULT';
@@ -5047,30 +5258,23 @@
       const nameInput = document.getElementById('regName');
       const phoneInput = document.getElementById('regPhone');
       const emailInput = document.getElementById('regEmail');
-      const cityInput = document.getElementById('regCity');
       const passInput = document.getElementById('regPassword');
+      const confirmPassInput = document.getElementById('regConfirmPassword');
 
       const name = nameInput ? nameInput.value.trim() : '';
       const rawPhone = phoneInput ? phoneInput.value.trim() : '';
       const email = emailInput ? emailInput.value.trim() : '';
-      const city = cityInput ? cityInput.value.trim() : '';
       const password = passInput ? passInput.value.trim() : '';
+      const confirmPassword = confirmPassInput ? confirmPassInput.value.trim() : '';
 
       if (!name) {
-        showToast('Kripya apna naam (Full Name) dalein.');
+        showToast('Kripya apna naam (User Name) dalein.');
         safeFocus(nameInput);
         return;
       }
 
-      const cleanPhone = rawPhone.replace(/[^0-9]/g, '').slice(-10);
-      if (cleanPhone.length !== 10) {
-        showToast('Kripya 10-digit valid mobile number dalein.');
-        safeFocus(phoneInput);
-        return;
-      }
-
       if (!email) {
-        showToast('Kripya apni Email ID dalein.');
+        showToast('Kripya apni User Email dalein.');
         safeFocus(emailInput);
         return;
       }
@@ -5081,9 +5285,31 @@
         return;
       }
 
+      // Check if email has been verified via inline OTP
+      if (!window._isRegisterEmailVerified) {
+        showToast('✉️ Pehle email par aane wala 6-digit OTP verify karein!');
+        if (typeof window.sendOtpFromRegisterForm === 'function') {
+          window.sendOtpFromRegisterForm();
+        }
+        return;
+      }
+
+      const cleanPhone = rawPhone.replace(/[^0-9]/g, '').slice(-10);
+      if (cleanPhone.length !== 10) {
+        showToast('Kripya 10-digit valid mobile number dalein.');
+        safeFocus(phoneInput);
+        return;
+      }
+
       if (!password || password.length < 6) {
         showToast('Password kam se kam 6 characters ka hona chahiye.');
         safeFocus(passInput);
+        return;
+      }
+
+      if (confirmPassInput && password !== confirmPassword) {
+        showToast('❌ Password aur Confirm Password match nahi kar rahe!');
+        safeFocus(confirmPassInput);
         return;
       }
 
@@ -5097,18 +5323,48 @@
       const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
       if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.innerHTML = `<span class="flex items-center gap-2 justify-center"><i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Sending 6-Digit Email OTP...</span></span>`;
+        submitBtn.innerHTML = `<span class="flex items-center gap-2 justify-center"><i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Creating VIP Account...</span></span>`;
         if (window.lucide && typeof window.lucide.createIcons === 'function') lucide.createIcons();
       }
 
       try {
-        await window.firebaseAuthService.handleSignUp({
+        const signupRes = await window.firebaseAuthService.handleSignUp({
           name: name,
           email: email,
           phone: cleanPhone,
-          password: password,
-          city: city
+          password: password
         });
+
+        // Save registered user into local directory as well
+        try {
+          const regUsersRaw = localStorage.getItem('vicevault_registered_users');
+          let regUsers = regUsersRaw ? JSON.parse(regUsersRaw) : [];
+          const existingIdx = regUsers.findIndex(u => (u.email && u.email.toLowerCase() === email.toLowerCase()));
+          const newUserRecord = {
+            name: name,
+            username: name,
+            email: email,
+            phone: cleanPhone,
+            whatsapp: cleanPhone,
+            emailVerified: true,
+            addressCompleted: false,
+            joinedDate: new Date().toLocaleDateString('en-IN', { dateStyle: 'medium' })
+          };
+          if (existingIdx !== -1) {
+            regUsers[existingIdx] = { ...regUsers[existingIdx], ...newUserRecord };
+          } else {
+            regUsers.unshift(newUserRecord);
+          }
+          localStorage.setItem('vicevault_registered_users', JSON.stringify(regUsers));
+        } catch (e) {}
+
+        // Open Step 2 Delivery Address modal
+        if (signupRes && (signupRes.verified || signupRes.success)) {
+          closeAuthModal(true);
+          setTimeout(() => {
+            openUserAddressModal({ name, email, phone: cleanPhone, addressCompleted: false });
+          }, 350);
+        }
       } catch (err) {
         showToast(err.message || 'Registration failed. Kripya dobara try karein.');
       } finally {
@@ -5129,7 +5385,7 @@
       const password = passInput ? passInput.value.trim() : '';
 
       if (!rawIdent) {
-        showToast('Kripya apna Mobile Number ya Email dalein.');
+        showToast('Kripya apna User Email ya Username dalein.');
         safeFocus(identInput);
         return;
       }
@@ -5154,10 +5410,21 @@
       }
 
       try {
-        await window.firebaseAuthService.handleLogin({
+        const loginRes = await window.firebaseAuthService.handleLogin({
           identifier: rawIdent,
           password: password
         });
+
+        // If user logged in successfully and has not filled address yet, open address onboarding modal
+        if (loginRes && loginRes.success && loginRes.user) {
+          const user = loginRes.user;
+          const hasAddr = Boolean(user.address || user.street || user.addressCompleted);
+          if (!hasAddr) {
+            setTimeout(() => {
+              openUserAddressModal(user);
+            }, 400);
+          }
+        }
       } catch (err) {
         showToast(err.message || 'Login failed.');
       } finally {
@@ -5168,6 +5435,144 @@
         }
       }
     }
+
+    // ==========================================
+    // STEP 2: USER DELIVERY ADDRESS ONBOARDING
+    // ==========================================
+    function openUserAddressModal(userProfile) {
+      const modal = document.getElementById('userAddressModal');
+      if (!modal) return;
+      const user = userProfile || JSON.parse(localStorage.getItem('vicevault_current_user') || '{}');
+
+      const cityInput = document.getElementById('addrCity');
+      const streetInput = document.getElementById('addrStreet');
+      const landmarkInput = document.getElementById('addrLandmark');
+      const stateInput = document.getElementById('addrState');
+      const pincodeInput = document.getElementById('addrPincode');
+      const altPhoneInput = document.getElementById('addrAltPhone');
+
+      if (cityInput && !cityInput.value && user.city) cityInput.value = user.city;
+      if (streetInput && !streetInput.value && (user.street || user.address)) streetInput.value = user.street || user.address;
+      if (landmarkInput && !landmarkInput.value && user.landmark) landmarkInput.value = user.landmark;
+      if (stateInput && !stateInput.value && user.state) stateInput.value = user.state;
+      if (pincodeInput && !pincodeInput.value && user.pincode) pincodeInput.value = user.pincode;
+      if (altPhoneInput && !altPhoneInput.value && user.altPhone) altPhoneInput.value = user.altPhone;
+
+      modal.classList.remove('hidden', 'opacity-0', 'pointer-events-none', 'invisible');
+      if (window.lucide && typeof window.lucide.createIcons === 'function') lucide.createIcons();
+    }
+
+    function closeUserAddressModal() {
+      const modal = document.getElementById('userAddressModal');
+      if (!modal) return;
+      modal.classList.add('hidden', 'opacity-0', 'pointer-events-none', 'invisible');
+    }
+
+    async function handleSaveUserAddress(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      const streetInput = document.getElementById('addrStreet');
+      const landmarkInput = document.getElementById('addrLandmark');
+      const cityInput = document.getElementById('addrCity');
+      const stateInput = document.getElementById('addrState');
+      const pincodeInput = document.getElementById('addrPincode');
+      const altPhoneInput = document.getElementById('addrAltPhone');
+
+      const street = streetInput ? streetInput.value.trim() : '';
+      const landmark = landmarkInput ? landmarkInput.value.trim() : '';
+      const city = cityInput ? cityInput.value.trim() : '';
+      const state = stateInput ? stateInput.value.trim() : '';
+      const pincode = pincodeInput ? pincodeInput.value.trim() : '';
+      const altPhone = altPhoneInput ? altPhoneInput.value.trim() : '';
+
+      if (!street || !city || !pincode) {
+        showToast('Street address, City aur 6-digit Pincode zaroori hain!');
+        return;
+      }
+      if (!/^\d{6}$/.test(pincode)) {
+        showToast('Kripya valid 6-digit Pincode enter karein!');
+        if (pincodeInput) pincodeInput.focus();
+        return;
+      }
+
+      const rawUser = localStorage.getItem('vicevault_current_user');
+      let user = rawUser ? JSON.parse(rawUser) : {};
+
+      const saveBtn = document.getElementById('btnSaveAddress');
+      const originalHtml = saveBtn ? saveBtn.innerHTML : '';
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<span class="flex items-center gap-2 justify-center"><i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Saving Address...</span></span>';
+        if (window.lucide && typeof window.lucide.createIcons === 'function') lucide.createIcons();
+      }
+
+      try {
+        const payload = {
+          uid: user.uid || user.id || '',
+          email: user.email || '',
+          street: street,
+          landmark: landmark,
+          city: city,
+          state: state,
+          pincode: pincode,
+          altPhone: altPhone
+        };
+
+        const res = await fetch('http://localhost:5001/api/user/address', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        // Update local profile & storage
+        user.address = street;
+        user.street = street;
+        user.landmark = landmark;
+        user.city = city;
+        user.state = state;
+        user.pincode = pincode;
+        user.altPhone = altPhone;
+        user.addressCompleted = true;
+        localStorage.setItem('vicevault_current_user', JSON.stringify(user));
+        localStorage.setItem('vicevault_user_address', JSON.stringify({ street, landmark, city, state, pincode, altPhone }));
+
+        // Update registered users directory in localStorage
+        try {
+          const regUsersRaw = localStorage.getItem('vicevault_registered_users');
+          let regUsers = regUsersRaw ? JSON.parse(regUsersRaw) : [];
+          const idx = regUsers.findIndex(u => (u.email && u.email.toLowerCase() === (user.email||'').toLowerCase()) || (u.uid && u.uid === user.uid));
+          if (idx !== -1) {
+            regUsers[idx] = { ...regUsers[idx], ...user };
+          } else {
+            regUsers.unshift(user);
+          }
+          localStorage.setItem('vicevault_registered_users', JSON.stringify(regUsers));
+        } catch (e) {}
+
+        showToast('✓ Delivery Address successfully save ho gaya!');
+        closeUserAddressModal();
+      } catch (err) {
+        console.error('Save address error:', err);
+        // Fallback local save
+        user.address = street;
+        user.city = city;
+        user.pincode = pincode;
+        user.addressCompleted = true;
+        localStorage.setItem('vicevault_current_user', JSON.stringify(user));
+        showToast('✓ Address local profile mein save ho gaya!');
+        closeUserAddressModal();
+      } finally {
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.innerHTML = originalHtml;
+          if (window.lucide && typeof window.lucide.createIcons === 'function') lucide.createIcons();
+        }
+      }
+    }
+
+    window.openUserAddressModal = openUserAddressModal;
+    window.closeUserAddressModal = closeUserAddressModal;
+    window.handleSaveUserAddress = handleSaveUserAddress;
 
     function handleUserLogout() {
       localStorage.removeItem(AUTH_USER_KEY);

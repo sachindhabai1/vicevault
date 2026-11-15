@@ -144,8 +144,10 @@ service cloud.firestore {
     // Validate User Profile document structure, types, and constraints
     function isValidUser(data) {
       let allowedFields = [
-        'uid', 'name', 'email', 'phone', 'emailVerified', 'phoneVerified',
-        'createdAt', 'role', 'address', 'city', 'state', 'pincode',
+        'uid', 'name', 'username', 'email', 'phone', 'whatsapp', 'mobileWhatsAppSame',
+        'emailVerified', 'phoneVerified', 'verifiedAt',
+        'createdAt', 'role', 'address', 'street', 'landmark', 'city', 'state', 'pincode',
+        'altPhone', 'addressCompleted',
         'photoURL', 'updatedAt'
       ];
       let requiredFields = ['name', 'email', 'phone', 'emailVerified', 'phoneVerified', 'createdAt'];
@@ -153,18 +155,26 @@ service cloud.firestore {
       return data.keys().hasOnly(allowedFields) &&
         data.keys().hasAll(requiredFields) &&
         data.name is string && data.name.size() >= 1 && data.name.size() <= 100 &&
+        (!('username' in data) || (data.username is string && data.username.size() <= 100)) &&
         isValidEmail(data.email) &&
         isValidPhone(data.phone) &&
+        (!('whatsapp' in data) || isValidPhone(data.whatsapp)) &&
+        (!('mobileWhatsAppSame' in data) || data.mobileWhatsAppSame is bool) &&
+        (!('verifiedAt' in data) || data.verifiedAt is timestamp) &&
         data.emailVerified is bool &&
         data.phoneVerified is bool &&
         data.createdAt is timestamp &&
         data.createdAt <= request.time &&
         (!('uid' in data) || (data.uid is string && data.uid.size() >= 1 && data.uid.size() <= 128)) &&
         (!('role' in data) || (data.role is string && data.role in ['customer', 'vip', 'member', 'admin'])) &&
-        (!('address' in data) || (data.address is string && data.address.size() <= 300)) &&
+        (!('address' in data) || (data.address is string && data.address.size() <= 500)) &&
+        (!('street' in data) || (data.street is string && data.street.size() <= 500)) &&
+        (!('landmark' in data) || (data.landmark is string && data.landmark.size() <= 200)) &&
         (!('city' in data) || (data.city is string && data.city.size() <= 100)) &&
         (!('state' in data) || (data.state is string && data.state.size() <= 100)) &&
         (!('pincode' in data) || (data.pincode is string && data.pincode.size() >= 4 && data.pincode.size() <= 10)) &&
+        (!('altPhone' in data) || (data.altPhone is string && data.altPhone.size() <= 20)) &&
+        (!('addressCompleted' in data) || data.addressCompleted is bool) &&
         (!('photoURL' in data) || isValidUrl(data.photoURL)) &&
         (!('updatedAt' in data) || data.updatedAt is timestamp);
     }
@@ -282,6 +292,10 @@ service cloud.firestore {
     }
 
     match /otpRateLimits/{email} {
+      allow read, write: if false;
+    }
+
+    match /verifiedEmails/{email} {
       allow read, write: if false;
     }
 
