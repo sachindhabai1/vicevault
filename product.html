@@ -5910,7 +5910,8 @@
           altPhone: altPhone
         };
 
-        const res = await fetch('http://localhost:5001/api/user/address', {
+        const apiEndpoint = (window.__AUTH_API_BASE__ || (window.location.hostname === 'localhost' && window.location.port === '5001' ? '' : 'http://localhost:5001')) + '/api/user/address';
+        const res = await fetch(apiEndpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
