@@ -53,7 +53,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js"></script>
-  <script src="firebase-config.js?v=2.1.0"></script>
+  <script src="firebase-config.js?v=2.3.0"></script>
 
         <style>
     /* Mobile Touch & Tap Latency Optimization */
@@ -559,7 +559,7 @@
           </div>
         </div>
         <div class="flex items-center gap-2">
-          <button onclick="fetchAdminUsers()" class="px-3 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.12] text-xs text-white font-medium flex items-center gap-1.5 transition-all cursor-pointer" title="Refresh Users from Server">
+          <button onclick="fetchAdminUsers()" class="px-3 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.12] text-xs text-white font-medium flex items-center gap-1.5 transition-all cursor-pointer" title="Refresh Users from Firebase">
             <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-[#F0D9B5]"></i>
             <span>Refresh</span>
           </button>
@@ -1164,20 +1164,32 @@
     // REGISTERED USERS MANAGEMENT (Orders Ke Alava)
     // ==========================================
     window._cachedAdminUsers = [];
+    window._adminUsersListenerAttached = false;
+
+    function updateUserCountsAndRender() {
+      const statRegEl = document.getElementById('statRegisteredUsers');
+      if (statRegEl) statRegEl.textContent = window._cachedAdminUsers.length;
+      const regBadge = document.getElementById('registeredUsersBadge');
+      if (regBadge) regBadge.textContent = `${window._cachedAdminUsers.length} User${window._cachedAdminUsers.length === 1 ? '' : 's'}`;
+      filterAdminUsers();
+    }
 
     async function fetchAdminUsers() {
-      try {
-        const apiEndpoint = (window.__AUTH_API_BASE__ || (window.location.hostname === 'localhost' && window.location.port === '5001' ? '' : 'http://localhost:5001')) + '/api/admin/users';
-        const res = await fetch(apiEndpoint);
-        if (res.ok) {
-          const data = await res.json();
-          if (data && data.success && Array.isArray(data.users)) {
-            // Merge with local storage registered users
+      // 1. Direct Cloud Firestore query
+      if (window.firebaseDb) {
+        try {
+          const snap = await window.firebaseDb.collection('users').get();
+          const firestoreUsers = [];
+          snap.forEach(doc => {
+            const data = doc.data() || {};
+            firestoreUsers.push({ id: doc.id, uid: doc.id, ...data });
+          });
+
+          if (firestoreUsers.length > 0) {
             const localUsersStr = localStorage.getItem('vicevault_registered_users');
             const localUsers = localUsersStr ? JSON.parse(localUsersStr) : [];
-            
             const mergedMap = new Map();
-            data.users.forEach(u => {
+            firestoreUsers.forEach(u => {
               if (u.email) mergedMap.set(u.email.toLowerCase(), u);
             });
             localUsers.forEach(u => {
@@ -1189,24 +1201,81 @@
 
             window._cachedAdminUsers = Array.from(mergedMap.values());
             localStorage.setItem('vicevault_registered_users', JSON.stringify(window._cachedAdminUsers));
-            
-            const statRegEl = document.getElementById('statRegisteredUsers');
-            if (statRegEl) statRegEl.textContent = window._cachedAdminUsers.length;
-            const regBadge = document.getElementById('registeredUsersBadge');
-            if (regBadge) regBadge.textContent = `${window._cachedAdminUsers.length} User${window._cachedAdminUsers.length === 1 ? '' : 's'}`;
-
-            filterAdminUsers();
+            updateUserCountsAndRender();
             return;
           }
+        } catch (fsErr) {
+          console.warn('Firestore users direct fetch notice:', fsErr);
         }
-      } catch (e) {
-        console.warn('Backend /api/admin/users unreachable, using local directory:', e);
       }
 
-      // Fallback local storage
+      // 2. Optional local backend fetch if running locally
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        try {
+          const apiEndpoint = (window.__AUTH_API_BASE__ || 'http://localhost:5001') + '/api/admin/users';
+          const res = await fetch(apiEndpoint);
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.success && Array.isArray(data.users)) {
+              const localUsersStr = localStorage.getItem('vicevault_registered_users');
+              const localUsers = localUsersStr ? JSON.parse(localUsersStr) : [];
+              const mergedMap = new Map();
+              data.users.forEach(u => {
+                if (u.email) mergedMap.set(u.email.toLowerCase(), u);
+              });
+              localUsers.forEach(u => {
+                if (u.email) {
+                  const existing = mergedMap.get(u.email.toLowerCase()) || {};
+                  mergedMap.set(u.email.toLowerCase(), { ...existing, ...u });
+                }
+              });
+
+              window._cachedAdminUsers = Array.from(mergedMap.values());
+              localStorage.setItem('vicevault_registered_users', JSON.stringify(window._cachedAdminUsers));
+              updateUserCountsAndRender();
+              return;
+            }
+          }
+        } catch (e) {
+          console.debug('Backend /api/admin/users notice:', e);
+        }
+      }
+
+      // 3. Fallback local storage
       const localUsersStr = localStorage.getItem('vicevault_registered_users');
       window._cachedAdminUsers = localUsersStr ? JSON.parse(localUsersStr) : [];
-      filterAdminUsers();
+      updateUserCountsAndRender();
+    }
+
+    // Attach Realtime Firestore Listener for Users
+    if (window.isFirebaseConfigured && window.isFirebaseConfigured() && window.firebaseDb && !window._adminUsersListenerAttached) {
+      window._adminUsersListenerAttached = true;
+      try {
+        window.firebaseDb.collection('users').onSnapshot(snap => {
+          const liveUsers = [];
+          snap.forEach(doc => {
+            const data = doc.data() || {};
+            liveUsers.push({ id: doc.id, uid: doc.id, ...data });
+          });
+          if (liveUsers.length > 0) {
+            const localUsersStr = localStorage.getItem('vicevault_registered_users');
+            const localUsers = localUsersStr ? JSON.parse(localUsersStr) : [];
+            const mergedMap = new Map();
+            liveUsers.forEach(u => {
+              if (u.email) mergedMap.set(u.email.toLowerCase(), u);
+            });
+            localUsers.forEach(u => {
+              if (u.email) {
+                const existing = mergedMap.get(u.email.toLowerCase()) || {};
+                mergedMap.set(u.email.toLowerCase(), { ...existing, ...u });
+              }
+            });
+            window._cachedAdminUsers = Array.from(mergedMap.values());
+            localStorage.setItem('vicevault_registered_users', JSON.stringify(window._cachedAdminUsers));
+            updateUserCountsAndRender();
+          }
+        }, err => console.warn('Firestore users realtime sync notice:', err));
+      } catch (e) {}
     }
 
     function filterAdminUsers() {
