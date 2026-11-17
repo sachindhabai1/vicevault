@@ -53,8 +53,8 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js"></script>
-  <script src="firebase-config.js?v=2.3.0"></script>
-  <script src="firebase-auth.js?v=2.3.0"></script>
+  <script src="firebase-config.js?v=2.4.0"></script>
+  <script src="firebase-auth.js?v=2.4.0"></script>
 
         <style>
     /* Mobile Touch & Tap Latency Optimization */
@@ -3707,16 +3707,6 @@
 
     function submitCustomerOrder(e) {
       e.preventDefault();
-      
-      // Protected Action Gate: Require Phone + Email verification
-      if (window.isFirebaseConfigured && window.isFirebaseConfigured()) {
-        const fbUser = window.firebaseAuth ? window.firebaseAuth.currentUser : null;
-        if (!fbUser || !window.firebaseAuthService.isUserFullyVerified(fbUser)) {
-          window.firebaseAuthService.openVerifyGateModal(fbUser);
-          showToast('⚠️ Protected: Order place karne ke liye Phone aur Email dono verify hone chahiye.');
-          return;
-        }
-      }
 
       const settings = getStorePaymentSettings();
       const upiDiscount = settings.upiDiscount || 20;
@@ -4075,7 +4065,7 @@
       }
     }
 
-    function performOrderSearch(queryOverride, initialItemIndex = 0) {
+    async function performOrderSearch(queryOverride, initialItemIndex = 0) {
       const input = document.getElementById('trackSearchInput');
       const query = (queryOverride || (input ? input.value : '') || '').trim();
       if (!query) {
@@ -4088,7 +4078,7 @@
       const cleanQuery = query.toLowerCase().replace(/[^a-z0-9]/g, '');
 
       // Find all matching orders
-      const matchedOrders = orders.filter(o => {
+      let matchedOrders = orders.filter(o => {
         if (!o) return false;
         const cleanId = (o.orderId || '').toLowerCase().replace(/[^a-z0-9]/g, '');
         const cleanTrack = (o.trackingNumber || '').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -4096,6 +4086,22 @@
         const cleanEmail = (o.customer?.email || '').toLowerCase();
         return cleanId === cleanQuery || cleanTrack === cleanQuery || (cleanPhone && cleanPhone.includes(cleanQuery)) || (cleanEmail && cleanEmail === cleanQuery);
       });
+
+      // If not in local storage, check Cloud Firestore directly
+      if (matchedOrders.length === 0 && window.firebaseDb) {
+        try {
+          const docSnap = await window.firebaseDb.collection('orders').doc(query).get();
+          if (docSnap && docSnap.exists) {
+            const data = docSnap.data() || {};
+            const loadedOrder = { orderId: docSnap.id, ...data };
+            matchedOrders.push(loadedOrder);
+            orders.unshift(loadedOrder);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
+          }
+        } catch (fsErr) {
+          console.warn('Firestore tracking lookup notice:', fsErr);
+        }
+      }
 
       const emptyPrompt = document.getElementById('trackEmptyPrompt');
       const notFoundPrompt = document.getElementById('trackNotFoundPrompt');
@@ -4241,7 +4247,7 @@
         name: itemName,
         qty: item?.qty || 1,
         price: item?.price || 0,
-        image: item?.image || item?.img || 'images/ps5-controller-front.png',
+        image: item?.image || item?.img || 'images/controller_venom.jpg',
         awb: awb,
         batch: batchCode,
         status: itemStatus,
@@ -4271,7 +4277,7 @@
       if (!listEl) return;
 
       const items = order.items && order.items.length > 0 ? order.items : [
-        { name: order.productTitle || 'ViceVault Item', qty: 1, price: order.total || 0, image: 'images/ps5-controller-front.png' }
+        { name: order.productTitle || 'ViceVault Item', qty: 1, price: order.total || 0, image: 'images/controller_venom.jpg' }
       ];
 
       if (countEl) countEl.textContent = items.length;
@@ -4280,7 +4286,7 @@
       items.forEach((item, idx) => {
         const isSelected = idx === selectedIdx;
         const profile = getProductTrackingProfile(order, item, idx);
-        const itemImg = item.image || item.img || 'images/ps5-controller-front.png';
+        const itemImg = item.image || item.img || 'images/controller_venom.jpg';
         const itemQty = item.qty || 1;
         const itemPrice = item.price || 0;
         const subtotal = itemQty * itemPrice;

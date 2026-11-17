@@ -1005,6 +1005,15 @@
     return true;
   }
 
+  function openVerifyGateModal(user) {
+    const email = (user && user.email) || '';
+    if (email) {
+      openOtpModal(email);
+    } else if (typeof openAuthModal === 'function') {
+      openAuthModal('register');
+    }
+  }
+
   // Initialize modals on load
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', ensureModals);
@@ -1031,6 +1040,7 @@
     resendOtpFromRegisterForm,
     openOtpModal,
     closeOtpModal,
+    openVerifyGateModal,
     isUserFullyVerified,
     requireFullyVerifiedUser,
     cleanIndianPhone,

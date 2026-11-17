@@ -53,7 +53,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js"></script>
-  <script src="firebase-config.js?v=2.3.0"></script>
+  <script src="firebase-config.js?v=2.4.0"></script>
 
         <style>
     /* Mobile Touch & Tap Latency Optimization */
@@ -828,6 +828,17 @@
       }
     }
 
+    function syncOrderToFirestore(order) {
+      if (window.firebaseDb && order && order.orderId) {
+        try {
+          window.firebaseDb.collection('orders').doc(order.orderId).set({
+            ...order,
+            updatedAt: (window.firebase && window.firebase.firestore ? firebase.firestore.FieldValue.serverTimestamp() : new Date().toISOString())
+          }, { merge: true }).catch(err => console.warn('Firestore order sync notice:', err));
+        } catch(e) {}
+      }
+    }
+
     function saveOrders(orders) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
       renderDashboard();
@@ -1005,6 +1016,7 @@
           }
         }
         saveOrders(orders);
+        syncOrderToFirestore(target);
         showAdminToast(`Order ${orderId} status: ${newStatus}`);
       }
     }
@@ -1014,6 +1026,9 @@
       const orders = getOrders();
       const updated = orders.filter(o => o.orderId !== orderId);
       saveOrders(updated);
+      if (window.firebaseDb) {
+        try { window.firebaseDb.collection('orders').doc(orderId).delete().catch(() => {}); } catch(e) {}
+      }
       showAdminToast(`Order ${orderId} deleted`);
     }
 
@@ -1150,6 +1165,7 @@
       target.trackingLocation = trackingLocation;
 
       saveOrders(orders);
+      syncOrderToFirestore(target);
       showAdminToast(`Order ${orderId} tracking saved! Status: ${newStatus}`);
       viewOrderDetail(orderId);
     }
