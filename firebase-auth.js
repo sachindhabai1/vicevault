@@ -14,15 +14,21 @@
   const API_BASE = (function() {
     if (window.__API_BASE__ !== undefined && window.__API_BASE__ !== null) return window.__API_BASE__;
     if (window.__BACKEND_URL__ !== undefined && window.__BACKEND_URL__ !== null) return window.__BACKEND_URL__;
+    
     const loc = window.location || { hostname: 'localhost', port: '5001' };
-    if (loc.port === '5001') return '';
-    if (loc.hostname === 'localhost' || loc.hostname === '127.0.0.1') {
-      return 'http://localhost:5001';
+
+    // When served over HTTP/HTTPS from a live server (Voroa, Render, VPS, or localhost)
+    // Relative URL ('') automatically uses the exact host, port, and protocol that served the page
+    if (loc.hostname && !loc.hostname.endsWith('.github.io') && loc.protocol !== 'file:') {
+      return '';
     }
-    if (loc.hostname === '129.121.170.187') {
+
+    // When hosted statically on GitHub Pages (sachindhabai1.github.io)
+    if (loc.hostname && loc.hostname.endsWith('.github.io')) {
       return 'http://129.121.170.187:5001';
     }
-    return 'http://129.121.170.187:5001';
+
+    return '';
   })();
 
   /**
