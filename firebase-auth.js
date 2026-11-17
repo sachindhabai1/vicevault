@@ -15,8 +15,8 @@
     if (window.__API_BASE__) return window.__API_BASE__;
     if (window.__BACKEND_URL__) return window.__BACKEND_URL__;
     const loc = window.location || { hostname: 'localhost', port: '5001' };
+    if (loc.port === '5001') return '';
     if (loc.hostname === 'localhost' || loc.hostname === '127.0.0.1') {
-      if (loc.port === '5001') return '';
       return 'http://localhost:5001';
     }
     return '';

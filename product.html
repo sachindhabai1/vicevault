@@ -5927,10 +5927,10 @@
           }
         }
 
-        // 2. Optional background sync if server is running locally
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        // 2. Optional background sync if server is running locally or on VPS port 5001
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.port === '5001') {
           try {
-            const apiEndpoint = (window.__AUTH_API_BASE__ || 'http://localhost:5001') + '/api/user/address';
+            const apiEndpoint = (window.__AUTH_API_BASE__ || (window.location.port === '5001' ? '' : 'http://localhost:5001')) + '/api/user/address';
             fetch(apiEndpoint, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
