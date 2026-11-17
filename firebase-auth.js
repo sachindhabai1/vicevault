@@ -10,17 +10,51 @@
 (function() {
   'use strict';
 
-  // Base URL for Optional Backend API (with graceful client fallback)
+  // Base URL for Backend API (with graceful client fallback)
   const API_BASE = (function() {
-    if (window.__API_BASE__) return window.__API_BASE__;
-    if (window.__BACKEND_URL__) return window.__BACKEND_URL__;
+    if (window.__API_BASE__ !== undefined && window.__API_BASE__ !== null) return window.__API_BASE__;
+    if (window.__BACKEND_URL__ !== undefined && window.__BACKEND_URL__ !== null) return window.__BACKEND_URL__;
     const loc = window.location || { hostname: 'localhost', port: '5001' };
     if (loc.port === '5001') return '';
     if (loc.hostname === 'localhost' || loc.hostname === '127.0.0.1') {
       return 'http://localhost:5001';
     }
-    return '';
+    if (loc.hostname === '129.121.170.187') {
+      return 'http://129.121.170.187:5001';
+    }
+    return 'http://129.121.170.187:5001';
   })();
+
+  /**
+   * Universal fetch helper for VPS Node.js Backend API
+   */
+  async function callAuthApi(endpoint, body = {}, timeoutMs = 10000) {
+    const url = `${API_BASE}${endpoint}`;
+    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    const timer = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
+
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        signal: controller ? controller.signal : undefined
+      });
+      if (timer) clearTimeout(timer);
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const err = new Error(data.error || data.message || `API request failed (${res.status})`);
+        err.status = res.status;
+        err.data = data;
+        throw err;
+      }
+      return data;
+    } catch (err) {
+      if (timer) clearTimeout(timer);
+      throw err;
+    }
+  }
 
   // State
   let activeVerificationEmail = '';
@@ -422,7 +456,7 @@
   }
 
   // ==========================================
-  // INLINE REGISTER FORM OTP LOGIC (Zero Server Dependency)
+  // INLINE REGISTER FORM OTP LOGIC (Unified VPS Server & Gmail SMTP)
   // ==========================================
   async function sendOtpFromRegisterForm() {
     const emailInput = document.getElementById('regEmail');
@@ -445,29 +479,68 @@
     if (sendBtnText) sendBtnText.textContent = 'Sending...';
     if (errEl) errEl.classList.add('hidden');
 
-    // Generate secure 6-digit OTP code directly
-    const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiry = Date.now() + (15 * 60 * 1000);
-
-    window._clientGeneratedOtp = {
-      email: email,
-      otp: generatedOtp,
-      expiresAt: expiry,
-      attempts: 0
-    };
-
     activeVerificationEmail = email;
     window._activeRegisterEmail = email;
 
-    // Optional: try backend server in background if running locally, without blocking
-    if (API_BASE && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-      try {
-        fetch(`${API_BASE}/api/auth/send-otp`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: email })
-        }).catch(() => {});
-      } catch (e) {}
+    let serverSuccess = false;
+    let expiry = Date.now() + (15 * 60 * 1000);
+
+    // 1. PRIMARY: Call VPS / Node.js backend to deliver REAL 6-digit OTP via Gmail SMTP!
+    try {
+      const data = await callAuthApi('/api/auth/send-otp', { email: email });
+      if (data && data.success) {
+        serverSuccess = true;
+        if (data.expiresAt) expiry = Number(data.expiresAt);
+        window._serverOtpSent = true;
+
+        if (typeof showToast === 'function') {
+          showToast(`✉️ 6-digit OTP aapki email (${email}) par bhej diya gaya hai! Inbox check karein.`);
+        }
+      }
+    } catch (apiErr) {
+      console.warn('Backend send-otp notice:', apiErr);
+
+      // Check if user is locked out on server (5 failed attempts)
+      if (apiErr.status === 429 || (apiErr.data && apiErr.data.lockedUntil)) {
+        const remaining = apiErr.data && apiErr.data.lockedUntil 
+          ? Math.max(0, Math.ceil((apiErr.data.lockedUntil - Date.now()) / 1000))
+          : (12 * 3600);
+        start12HourLockoutTimer(remaining);
+        if (sendBtn) sendBtn.disabled = false;
+        if (sendBtnText) sendBtnText.textContent = 'Send OTP';
+        return;
+      }
+
+      // Check for specific client/server error messages
+      if (apiErr.status && apiErr.status >= 400 && apiErr.status < 500 && apiErr.message) {
+        if (errEl) {
+          errEl.textContent = apiErr.message;
+          errEl.classList.remove('hidden');
+        }
+        if (typeof showToast === 'function') {
+          showToast(`❌ ${apiErr.message}`);
+        }
+        if (sendBtn) sendBtn.disabled = false;
+        if (sendBtnText) sendBtnText.textContent = 'Send OTP';
+        return;
+      }
+
+      // If backend is unreachable or offline, graceful fallback
+      console.info('Using client-side fallback OTP generator');
+    }
+
+    // 2. FALLBACK: If backend is completely offline or network blocked
+    if (!serverSuccess) {
+      const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+      window._clientGeneratedOtp = {
+        email: email,
+        otp: generatedOtp,
+        expiresAt: expiry,
+        attempts: 0
+      };
+      if (typeof showToast === 'function') {
+        showToast(`✉️ Verification OTP: ${generatedOtp} (Kripya yahan enter karein)`);
+      }
     }
 
     // Expand inline OTP section smoothly
@@ -490,11 +563,6 @@
         firstBox.select();
       }
     }, 150);
-
-    // Show clear OTP notification banner to user
-    if (typeof showToast === 'function') {
-      showToast(`✉️ Verification OTP: ${generatedOtp} (OTP yahan enter karein)`);
-    }
 
     if (sendBtn) sendBtn.disabled = false;
     if (sendBtnText) sendBtnText.textContent = 'Resend OTP';
@@ -538,28 +606,45 @@
     if (verifyBtnText) verifyBtnText.textContent = 'Verifying...';
     if (errEl) errEl.classList.add('hidden');
 
-    // Verify against client generated OTP
-    const clientRecord = window._clientGeneratedOtp;
     let isOtpValid = false;
+    let customToken = null;
+    let serverErrMessage = '';
 
-    if (clientRecord && clientRecord.email === email && clientRecord.otp === otp && Date.now() < clientRecord.expiresAt) {
-      isOtpValid = true;
-    } else {
-      // Check if backend API has verify-otp ready
-      if (API_BASE && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-        try {
-          const res = await fetch(`${API_BASE}/api/auth/verify-otp`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: email, otp: otp })
-          });
-          const d = await res.json();
-          if (d && d.success) isOtpValid = true;
-        } catch(e) {}
+    // 1. PRIMARY: Verify against VPS Server HMAC & 12-hour lockout rules
+    try {
+      const data = await callAuthApi('/api/auth/verify-otp', { email: email, otp: otp });
+      if (data && data.success) {
+        isOtpValid = true;
+        if (data.customToken) customToken = data.customToken;
+      }
+    } catch (apiErr) {
+      console.warn('Backend verify-otp notice:', apiErr);
+
+      if (apiErr.status === 429 || (apiErr.data && apiErr.data.lockedUntil)) {
+        const remaining = apiErr.data && apiErr.data.lockedUntil 
+          ? Math.max(0, Math.ceil((apiErr.data.lockedUntil - Date.now()) / 1000))
+          : (12 * 3600);
+        start12HourLockoutTimer(remaining);
+        if (verifyBtn) verifyBtn.disabled = false;
+        if (verifyBtnText) verifyBtnText.textContent = 'Verify OTP & Unlock Email';
+        return;
+      }
+
+      if (apiErr.message) {
+        serverErrMessage = apiErr.message;
+      }
+    }
+
+    // 2. FALLBACK: Check client-side generated OTP if backend was unreachable
+    if (!isOtpValid) {
+      const clientRecord = window._clientGeneratedOtp;
+      if (clientRecord && clientRecord.email === email && clientRecord.otp === otp && Date.now() < clientRecord.expiresAt) {
+        isOtpValid = true;
       }
     }
 
     if (!isOtpValid) {
+      const clientRecord = window._clientGeneratedOtp;
       if (clientRecord) {
         clientRecord.attempts = (clientRecord.attempts || 0) + 1;
         if (clientRecord.attempts >= 5) {
@@ -570,8 +655,9 @@
           return;
         }
       }
+
       if (errEl) {
-        errEl.textContent = 'Galat OTP! Kripya dobara check karein.';
+        errEl.textContent = serverErrMessage || 'Galat OTP! Kripya dobara check karein.';
         errEl.classList.remove('hidden');
       }
       clearInlineRegOtpBoxes();
@@ -583,6 +669,7 @@
     // --- INLINE OTP VERIFICATION SUCCESSFUL ---
     window._isRegisterEmailVerified = true;
     window._verifiedRegisterEmail = email;
+    if (customToken) window._verifiedCustomToken = customToken;
 
     // Lock email input and show Verified badge
     if (emailInput) {
@@ -630,7 +717,7 @@
   }
 
   // ==========================================
-  // SIGNUP FLOW (Direct Firebase Auth & Cloud Firestore)
+  // SIGNUP FLOW (Unified VPS Backend & Cloud Firestore)
   // ==========================================
   async function handleSignUp({ name, email, phone, password }) {
     ensureModals();
@@ -647,41 +734,78 @@
 
     const normEmail = email.trim().toLowerCase();
     const cleanPhone = cleanIndianPhone(phone);
+    const formattedPhone = cleanPhone ? `+91${cleanPhone}` : (phone || '');
 
-    // 1. Check if Firebase Client SDK is initialized
-    if (!window.firebaseAuth) {
-      throw new Error('Firebase Auth connect nahi ho saka. Kripya page refresh karein.');
+    let userProfile = null;
+    let customToken = window._verifiedCustomToken || null;
+    let serverCompleted = false;
+
+    // 1. PRIMARY: Call VPS Backend Server /api/auth/signup
+    try {
+      const serverRes = await callAuthApi('/api/auth/signup', {
+        name: name.trim(),
+        email: normEmail,
+        password: password,
+        phone: formattedPhone
+      });
+
+      if (serverRes && serverRes.success) {
+        serverCompleted = true;
+        customToken = serverRes.customToken || customToken;
+        userProfile = serverRes.user || {
+          id: serverRes.uid,
+          uid: serverRes.uid,
+          name: name.trim(),
+          username: name.trim(),
+          email: normEmail,
+          phone: formattedPhone,
+          whatsapp: formattedPhone,
+          mobileWhatsAppSame: true,
+          emailVerified: true,
+          phoneVerified: true,
+          addressCompleted: false,
+          role: 'customer',
+          joinedDate: new Date().toLocaleDateString('en-IN', { dateStyle: 'medium' })
+        };
+      }
+    } catch (apiErr) {
+      console.warn('Backend signup notice:', apiErr);
+      if (apiErr.status && apiErr.status >= 400 && apiErr.status < 500 && apiErr.message) {
+        throw new Error(apiErr.message);
+      }
+      // If server unreachable, proceed to client Firebase fallback below
     }
 
-    try {
-      // Direct Firebase Authentication: Create User
+    // 2. Client Firebase SDK Sign-in via Custom Token or Direct Creation
+    if (serverCompleted && customToken && window.firebaseAuth && typeof window.firebaseAuth.signInWithCustomToken === 'function') {
+      try {
+        await window.firebaseAuth.signInWithCustomToken(customToken);
+      } catch (stErr) {
+        console.warn('signInWithCustomToken notice:', stErr);
+      }
+    } else if (!serverCompleted) {
+      // Fallback: Direct Firebase Authentication
+      if (!window.firebaseAuth) {
+        throw new Error('Firebase Auth connect nahi ho saka. Kripya page refresh karein.');
+      }
+
       const userCred = await window.firebaseAuth.createUserWithEmailAndPassword(normEmail, password);
       const user = userCred.user;
 
-      // Update Display Name
       if (user && user.updateProfile) {
         try {
           await user.updateProfile({ displayName: name.trim() });
-        } catch (pErr) {
-          console.debug('updateProfile notice:', pErr);
-        }
+        } catch (pErr) {}
       }
 
-      // Send official Firebase Email Verification
-      try {
-        await user.sendEmailVerification();
-      } catch (evErr) {
-        console.debug('sendEmailVerification notice:', evErr);
-      }
-
-      const userProfile = {
+      userProfile = {
         id: user.uid,
         uid: user.uid,
         name: name.trim(),
         username: name.trim(),
         email: normEmail,
-        phone: cleanPhone ? `+91${cleanPhone}` : (phone || ''),
-        whatsapp: cleanPhone ? `+91${cleanPhone}` : (phone || ''),
+        phone: formattedPhone,
+        whatsapp: formattedPhone,
         mobileWhatsAppSame: true,
         emailVerified: true,
         phoneVerified: true,
@@ -690,7 +814,6 @@
         joinedDate: new Date().toLocaleDateString('en-IN', { dateStyle: 'medium' })
       };
 
-      // 2. Direct Cloud Firestore write
       if (window.firebaseDb) {
         try {
           await window.firebaseDb.collection('users').doc(user.uid).set({
@@ -698,19 +821,20 @@
             createdAt: (window.firebase && window.firebase.firestore ? firebase.firestore.FieldValue.serverTimestamp() : new Date().toISOString()),
             updatedAt: (window.firebase && window.firebase.firestore ? firebase.firestore.FieldValue.serverTimestamp() : new Date().toISOString())
           }, { merge: true });
-          console.log('⚡ User profile saved to Cloud Firestore:', user.uid);
         } catch (fsErr) {
           console.warn('Firestore write warning:', fsErr);
         }
       }
+    }
 
-      // 3. Update localStorage profile & registered users directory
+    // 3. Update localStorage profile & registered users directory
+    if (userProfile) {
       localStorage.setItem('vicevault_current_user', JSON.stringify(userProfile));
 
       try {
         const regUsersRaw = localStorage.getItem('vicevault_registered_users');
         let regUsers = regUsersRaw ? JSON.parse(regUsersRaw) : [];
-        const existingIdx = regUsers.findIndex(u => (u.email && u.email.toLowerCase() === normEmail) || (u.uid && u.uid === user.uid));
+        const existingIdx = regUsers.findIndex(u => (u.email && u.email.toLowerCase() === normEmail) || (u.uid && u.uid === userProfile.uid));
         if (existingIdx !== -1) {
           regUsers[existingIdx] = { ...regUsers[existingIdx], ...userProfile };
         } else {
@@ -733,22 +857,13 @@
       }, 350);
 
       return { success: true, verified: true, user: userProfile };
-
-    } catch (err) {
-      console.error('Firebase handleSignUp error:', err);
-      if (err.code === 'auth/email-already-in-use') {
-        throw new Error('Yeh email pehle se registered hai. Kripya login karein.');
-      } else if (err.code === 'auth/weak-password') {
-        throw new Error('Password kam se kam 6 characters ka hona chahiye.');
-      } else if (err.code === 'auth/invalid-email') {
-        throw new Error('Kripya valid email address enter karein.');
-      }
-      throw new Error(err.message || 'Signup fail ho gaya. Kripya dobara try karein.');
     }
+
+    throw new Error('Signup process fail ho gaya. Kripya dobara try karein.');
   }
 
   // ==========================================
-  // LOGIN FLOW (Direct Firebase Auth & Cloud Firestore)
+  // LOGIN FLOW (Unified VPS Backend & Cloud Firestore)
   // ==========================================
   async function handleLogin({ identifier, password }) {
     ensureModals();
@@ -759,28 +874,78 @@
 
     const normEmail = identifier.trim().toLowerCase();
 
-    if (!window.firebaseAuth) {
-      throw new Error('Firebase Auth initialize nahi hua. Kripya page refresh karein.');
+    let serverCompleted = false;
+    let customToken = null;
+    let userProfile = null;
+
+    // 1. PRIMARY: Call VPS Backend Server /api/auth/login
+    try {
+      const serverRes = await callAuthApi('/api/auth/login', {
+        email: normEmail,
+        password: password
+      });
+
+      if (serverRes && serverRes.success) {
+        serverCompleted = true;
+        customToken = serverRes.customToken;
+        userProfile = serverRes.user;
+      } else if (serverRes && serverRes.requiresOtp) {
+        openOtpModal(normEmail);
+        if (typeof showToast === 'function') {
+          showToast('✉️ ' + (serverRes.message || 'OTP aapki email par bheja gaya hai.'));
+        }
+        return { success: false, requiresOtp: true };
+      }
+    } catch (apiErr) {
+      console.warn('Backend login notice:', apiErr);
+
+      if (apiErr.status === 429 || (apiErr.data && apiErr.data.lockedUntil)) {
+        const remaining = apiErr.data && apiErr.data.lockedUntil 
+          ? Math.max(0, Math.ceil((apiErr.data.lockedUntil - Date.now()) / 1000))
+          : (12 * 3600);
+        start12HourLockoutTimer(remaining);
+        throw new Error(`🔒 Account lock hai. Kripya ${formatRemainingDuration(remaining)} baad try karein.`);
+      }
+
+      if (apiErr.status === 403 && apiErr.data && apiErr.data.requiresOtp) {
+        openOtpModal(normEmail);
+        if (typeof showToast === 'function') {
+          showToast('✉️ ' + (apiErr.data.message || 'Email verification ke liye OTP bheja gaya hai.'));
+        }
+        return { success: false, requiresOtp: true };
+      }
+
+      if (apiErr.status && apiErr.status >= 400 && apiErr.status < 500 && apiErr.message) {
+        throw new Error(apiErr.message);
+      }
+      // If server unreachable, fall through to client Firebase SDK
     }
 
-    try {
+    // 2. Client Firebase SDK sign-in
+    if (serverCompleted && customToken && window.firebaseAuth && typeof window.firebaseAuth.signInWithCustomToken === 'function') {
+      try {
+        await window.firebaseAuth.signInWithCustomToken(customToken);
+      } catch (stErr) {
+        console.warn('signInWithCustomToken notice:', stErr);
+      }
+    } else if (!serverCompleted) {
+      // Fallback: Direct Firebase Authentication
+      if (!window.firebaseAuth) {
+        throw new Error('Firebase Auth initialize nahi hua. Kripya page refresh karein.');
+      }
+
       const userCred = await window.firebaseAuth.signInWithEmailAndPassword(normEmail, password);
       const user = userCred.user;
 
-      // Fetch user profile from Cloud Firestore
       let userDoc = {};
       if (window.firebaseDb) {
         try {
           const snap = await window.firebaseDb.collection('users').doc(user.uid).get();
-          if (snap.exists) {
-            userDoc = snap.data();
-          }
-        } catch (fsErr) {
-          console.warn('Firestore fetch notice:', fsErr);
-        }
+          if (snap.exists) userDoc = snap.data();
+        } catch (fsErr) {}
       }
 
-      const userProfile = {
+      userProfile = {
         id: user.uid,
         uid: user.uid,
         name: userDoc.name || userDoc.username || user.displayName || normEmail.split('@')[0],
@@ -802,14 +967,15 @@
         role: userDoc.role || 'customer',
         joinedDate: userDoc.joinedDate || new Date().toLocaleDateString('en-IN', { dateStyle: 'medium' })
       };
+    }
 
+    if (userProfile) {
       localStorage.setItem('vicevault_current_user', JSON.stringify(userProfile));
 
-      // Merge into registered users directory
       try {
         const regUsersRaw = localStorage.getItem('vicevault_registered_users');
         let regUsers = regUsersRaw ? JSON.parse(regUsersRaw) : [];
-        const idx = regUsers.findIndex(u => (u.email && u.email.toLowerCase() === normEmail) || (u.uid && u.uid === user.uid));
+        const idx = regUsers.findIndex(u => (u.email && u.email.toLowerCase() === normEmail) || (u.uid && u.uid === userProfile.uid));
         if (idx !== -1) {
           regUsers[idx] = { ...regUsers[idx], ...userProfile };
         } else {
@@ -824,7 +990,6 @@
         showToast('👋 Welcome back, ' + userProfile.name + '!');
       }
 
-      // If user has not completed address, automatically prompt Step 2 Delivery Address modal!
       if (!userProfile.addressCompleted && !userProfile.address && !userProfile.street) {
         setTimeout(() => {
           if (typeof window.openUserAddressModal === 'function') {
@@ -834,21 +999,9 @@
       }
 
       return { success: true, user: userProfile };
-
-    } catch (err) {
-      console.error('handleLogin error:', err);
-      if (err.code === 'auth/user-not-found') {
-        throw new Error('Is email se koi account nahi mila. Kripya pehle Sign Up karein.');
-      } else if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
-        throw new Error('Galat email ya password.');
-      } else if (err.code === 'auth/invalid-email') {
-        throw new Error('Kripya valid email address enter karein.');
-      } else if (err.code === 'auth/too-many-requests') {
-        start12HourLockoutTimer(12 * 3600);
-        throw new Error('Zyada galat attempts ki wajah se account lock hai. Kripya baad mein try karein.');
-      }
-      throw new Error(err.message || 'Login fail ho gaya.');
     }
+
+    throw new Error('Login fail ho gaya.');
   }
 
   // ==========================================
@@ -871,6 +1024,7 @@
     ].filter(Boolean);
 
     const otp = getEnteredOtp();
+    const email = activeVerificationEmail || (document.getElementById('fbOtpTargetEmail') ? document.getElementById('fbOtpTargetEmail').textContent.trim() : '') || (document.getElementById('authModalTargetEmail') ? document.getElementById('authModalTargetEmail').textContent.trim() : '');
 
     if (!otp || otp.length !== 6 || !/^\d{6}$/.test(otp)) {
       errEls.forEach(el => {
@@ -880,12 +1034,54 @@
       return;
     }
 
-    // Check client OTP
-    const clientRecord = window._clientGeneratedOtp;
-    if (clientRecord && clientRecord.otp === otp && Date.now() < clientRecord.expiresAt) {
+    verifyBtns.forEach(b => { b.disabled = true; });
+    btnTexts.forEach(t => { t.textContent = 'Verifying...'; });
+    errEls.forEach(el => el.classList.add('hidden'));
+
+    let verified = false;
+    let customToken = null;
+    let serverErrMessage = '';
+
+    // 1. PRIMARY: Verify with VPS backend
+    try {
+      const data = await callAuthApi('/api/auth/verify-otp', { email, otp });
+      if (data && data.success) {
+        verified = true;
+        customToken = data.customToken;
+      }
+    } catch (apiErr) {
+      console.warn('Backend verify-otp notice:', apiErr);
+      if (apiErr.status === 429 || (apiErr.data && apiErr.data.lockedUntil)) {
+        const remaining = apiErr.data && apiErr.data.lockedUntil 
+          ? Math.max(0, Math.ceil((apiErr.data.lockedUntil - Date.now()) / 1000))
+          : (12 * 3600);
+        start12HourLockoutTimer(remaining);
+        verifyBtns.forEach(b => { b.disabled = false; });
+        btnTexts.forEach(t => { t.textContent = 'Verify & Unlock Account'; });
+        return;
+      }
+      if (apiErr.message) serverErrMessage = apiErr.message;
+    }
+
+    // 2. FALLBACK: Client generated OTP check
+    if (!verified) {
+      const clientRecord = window._clientGeneratedOtp;
+      if (clientRecord && clientRecord.otp === otp && Date.now() < clientRecord.expiresAt) {
+        verified = true;
+      }
+    }
+
+    if (verified) {
       clearInterval(otpCountdownInterval);
       clearInterval(resendCooldownInterval);
       window._isRegisterEmailVerified = true;
+
+      if (customToken && window.firebaseAuth && typeof window.firebaseAuth.signInWithCustomToken === 'function') {
+        try {
+          await window.firebaseAuth.signInWithCustomToken(customToken);
+        } catch (e) {}
+      }
+
       closeOtpModal();
       if (typeof showToast === 'function') {
         showToast('🎉 OTP verify ho gaya!');
@@ -894,16 +1090,37 @@
     }
 
     errEls.forEach(el => {
-      el.textContent = 'Galat OTP! Kripya dobara check karein.';
+      el.textContent = serverErrMessage || 'Galat OTP! Kripya dobara check karein.';
       el.classList.remove('hidden');
     });
     clearOtpBoxes();
+    verifyBtns.forEach(b => { b.disabled = false; });
+    btnTexts.forEach(t => { t.textContent = 'Verify & Unlock Account'; });
   }
 
   // ==========================================
   // RESEND OTP
   // ==========================================
   async function resendOtp() {
+    const email = activeVerificationEmail || (document.getElementById('fbOtpTargetEmail') ? document.getElementById('fbOtpTargetEmail').textContent.trim() : '') || (document.getElementById('authModalTargetEmail') ? document.getElementById('authModalTargetEmail').textContent.trim() : '');
+    if (!email) {
+      sendOtpFromRegisterForm();
+      return;
+    }
+
+    startResendCooldown(60);
+    try {
+      const data = await callAuthApi('/api/auth/send-otp', { email });
+      if (data && data.success) {
+        if (data.expiresAt) startOtpExpiryCountdown(Number(data.expiresAt));
+        if (typeof showToast === 'function') {
+          showToast(`✉️ Naya OTP aapki email (${email}) par bhej diya gaya hai!`);
+        }
+        return;
+      }
+    } catch (e) {
+      console.warn('Backend resend notice, fallback to register sender:', e);
+    }
     sendOtpFromRegisterForm();
   }
 

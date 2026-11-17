@@ -127,14 +127,10 @@ if (allowedOrigins.length === 0) {
 
 app.use(cors({
   origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, or same-origin)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
-      return callback(null, true);
-    }
-    if (origin.endsWith('.github.io') || origin.includes('localhost') || origin.includes('127.0.0.1')) {
-      return callback(null, true);
-    }
-    return callback(new Error('CORS policy: This origin is not allowed.'));
+    // Allow any origin for maximum accessibility across VPS IP, custom domains, and GitHub Pages
+    return callback(null, true);
   },
   credentials: true
 }));
@@ -947,10 +943,10 @@ app.post('/api/auth/login', authLimiter, async (req, res) => {
 });
 
 /**
- * POST /api/user/address
+ * POST /api/user/address & /api/auth/save-address
  * Saves full delivery address for user profile after login/signup
  */
-app.post('/api/user/address', async (req, res) => {
+app.post(['/api/user/address', '/api/auth/save-address'], async (req, res) => {
   try {
     const { uid, email, street, landmark, city, state, pincode, altPhone } = req.body;
     if (!uid && !email) {
@@ -993,6 +989,46 @@ app.post('/api/user/address', async (req, res) => {
   } catch (error) {
     console.error('❌ [Save Address Error]:', error);
     return res.status(500).json({ success: false, error: 'Address save karne mein takleef aayi. Kripya dobara try karein.' });
+  }
+});
+
+/**
+ * POST /api/orders
+ * Store/sync customer order in Cloud Firestore
+ */
+app.post('/api/orders', async (req, res) => {
+  try {
+    const orderData = req.body;
+    if (!orderData || !orderData.orderId) {
+      return res.status(400).json({ success: false, error: 'Order ID zaroori hai.' });
+    }
+    await db.collection('orders').doc(orderData.orderId).set({
+      ...orderData,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    return res.json({ success: true, message: 'Order successfully saved in Firestore', orderId: orderData.orderId });
+  } catch (error) {
+    console.error('❌ [Order Save Error]:', error);
+    return res.status(500).json({ success: false, error: 'Order save karne mein takleef aayi.' });
+  }
+});
+
+/**
+ * GET /api/orders/:orderId
+ * Fetch order tracking status from Cloud Firestore
+ */
+app.get('/api/orders/:orderId', async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    const doc = await db.collection('orders').doc(orderId).get();
+    if (!doc.exists) {
+      return res.status(404).json({ success: false, error: 'Order nahi mila' });
+    }
+    return res.json({ success: true, order: doc.data() });
+  } catch (error) {
+    console.error('❌ [Order Fetch Error]:', error);
+    return res.status(500).json({ success: false, error: 'Could not fetch order' });
   }
 });
 
