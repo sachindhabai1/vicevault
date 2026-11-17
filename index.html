@@ -6456,6 +6456,24 @@
 
     // Single clean initialization on load
     function initApp() {
+      // Check if URL parameters request a fresh session or direct registration modal
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('new') === '1' || urlParams.get('fresh') === '1') {
+          localStorage.removeItem('vicevault_current_user');
+          sessionStorage.clear();
+        }
+        if (urlParams.get('signup') === '1' || urlParams.get('register') === '1' || urlParams.get('join') === '1') {
+          setTimeout(() => {
+            if (typeof openAuthModal === 'function') openAuthModal('register');
+          }, 400);
+        } else if (urlParams.get('login') === '1' || urlParams.get('signin') === '1') {
+          setTimeout(() => {
+            if (typeof openAuthModal === 'function') openAuthModal('login');
+          }, 400);
+        }
+      } catch (e) {}
+
       loadSavedCart();
       initLocationSelectors();
       checkUserAuth();
